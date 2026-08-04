@@ -1,0 +1,161 @@
+/* Parable production shell — overrides 300 Awakening tokens inside production surfaces */
+
+.parable-production {
+  --color-brand-black: #000000;
+  --color-brand-panel: #111111;
+  --color-brand-blue: #00f2ff;
+  --color-brand-purple: #8b5cf6;
+  --color-brand-pink: #ef4444;
+  --color-brand-muted: #9ca3af;
+  --color-brand-border: rgba(255, 255, 255, 0.1);
+  --color-brand-charcoal: #111111;
+  --color-brand-white: #ffffff;
+
+  --font-headline: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-ui: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-card-title: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  background-color: #000000;
+  color: #ffffff;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.parable-production ::selection {
+  background-color: #00f2ff;
+  color: #000000;
+}
+
+.parable-production .font-headline {
+  font-family: var(--font-headline);
+  font-weight: 900;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.parable-production .font-ui {
+  font-family: var(--font-ui);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.parable-production .font-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+
+.parable-production .font-mono,
+.parable-production .font-parable-mono {
+  font-family: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Parable card + button utilities (from parable-theme.css) */
+.parable-production .parable-bg {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.parable-production .parable-card {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #111111;
+  padding: 1.25rem;
+  transition: border-color 0.2s ease;
+}
+
+.parable-production .parable-card-hover:hover {
+  border-color: rgba(83, 252, 24, 0.6);
+}
+
+.parable-production .parable-button {
+  border-radius: 0.5rem;
+  background-color: rgb(124 58 237);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.parable-production .parable-button:hover {
+  background-color: rgb(109 40 217);
+}
+
+.parable-production .parable-green {
+  color: #53fc18;
+}
+
+.parable-production .parable-green-bg {
+  background-color: #53fc18;
+}
+
+.parable-production .parable-heading {
+  font-size: 1.875rem;
+  font-weight: 800;
+}
+
+.parable-production .parable-subtext {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.parable-production .neon-text {
+  color: #53fc18;
+  text-shadow: 0 0 12px rgba(83, 252, 24, 0.45);
+}
+
+.parable-production .neon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: #53fc18;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #000000;
+  box-shadow: 0 0 20px rgba(83, 252, 24, 0.35);
+  transition: opacity 0.2s ease;
+}
+
+.parable-production .neon-button:hover {
+  opacity: 0.9;
+}
+
+.parable-production .parable-glow {
+  filter: drop-shadow(0 0 15px #00f2ff) drop-shadow(0 0 35px rgba(0, 242, 255, 0.5));
+}
+
+.parable-production .glass-portal {
+  background-color: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+.parable-production .parable-btn-cyan {
+  background-color: #00f2ff;
+  color: #000000;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: 0 0 20px rgba(0, 242, 255, 0.25);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.parable-production .parable-btn-cyan:hover {
+  background-color: #ffffff;
+}
+
+.parable-production ::-webkit-scrollbar {
+  width: 6px;
+}
+
+.parable-production ::-webkit-scrollbar-thumb {
+  background: #00f2ff;
+  border-radius: 10px;
+}

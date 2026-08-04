@@ -1,0 +1,33 @@
+# Dependencies and generated build output
+node_modules/
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Local environment and secrets
+.env
+.env*.local
+certificates/
+
+# Local tooling and service caches
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
+.vercel/
+supabase/.temp/
+
+# Local logs and OS files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+debug-*.log
+.DS_Store
+Thumbs.db
+dshow-devices.txt
+
+# Project/reference material not needed by EAS native packaging
+docs/
+design/
+backend/

@@ -1,0 +1,60 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# env files
+.env
+.env*.local
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+debug-*.log
+.codex-dev-server.*.log
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# os
+.DS_Store
+Thumbs.db
+
+# capacitor native builds (optional - keep source, ignore heavy artifacts if needed)
+# android/app/build/
+# ios/App/Pods/
+
+.vercel
+
+# python (local backend dev)
+backend/.venv/
+__pycache__/
+*.py[cod]
+dshow-devices.txt
+supabase/.temp/
+
+certificates
+.phase4d-credentials.local.json
+
+.phase4d-report.local.json
+.phase4d-debug.png
+.phase4d-e2e-fail.png
+
+.phase5a-report.local.json
+
+# local authentication/debug probe captures
+auth-body.json
+auth-out*.txt
+body.txt

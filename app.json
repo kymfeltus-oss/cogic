@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "ios": {
+      "buildNumber": "10"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "efa51ac3-5d54-490a-b094-c10536c9e855"
+      }
+    }
+  }
+}

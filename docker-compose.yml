@@ -1,0 +1,27 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - audio_redis_data:/data
+
+  audio-service:
+    build:
+      context: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      AUDIO_SERVICE_TOKEN: ${AUDIO_SERVICE_TOKEN:-dev-audio-token}
+      X32_IP: ${X32_IP:-}
+      X32_OSC_PORT: ${X32_OSC_PORT:-10023}
+      METER_REFRESH_MS: ${METER_REFRESH_MS:-100}
+      INTERNAL_CALLBACK_URL: ${INTERNAL_CALLBACK_URL:-http://host.docker.internal:3000}
+    depends_on:
+      - redis
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  audio_redis_data:
