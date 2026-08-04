@@ -814,7 +814,7 @@ body::-webkit-scrollbar {
   inset: 0;
   z-index: 5;
   overflow: hidden;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .intro-flash-audio {
@@ -8913,7 +8913,6 @@ body::-webkit-scrollbar {
     flex: 1 1 12rem;
   }
 }
-
 
 
 

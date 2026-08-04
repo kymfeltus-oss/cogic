@@ -15,6 +15,7 @@ import { introRectStyle } from "@/lib/experience/intro-layout-slots";
 
 const EXIT_MS = 520;
 const ACCESS_TIMEOUT_MS = 600;
+const INTRO_FALLBACK_DESTINATION = buildPersonaHubUrl(DEFAULT_ATTENDEE_NEXT);
 
 async function resolveIntroDestination(): Promise<string> {
   try {
@@ -30,9 +31,9 @@ async function resolveIntroDestination(): Promise<string> {
 
     return context.userId
       ? DEFAULT_ATTENDEE_NEXT
-      : buildPersonaHubUrl(DEFAULT_ATTENDEE_NEXT);
+      : INTRO_FALLBACK_DESTINATION;
   } catch {
-    return buildPersonaHubUrl(DEFAULT_ATTENDEE_NEXT);
+    return INTRO_FALLBACK_DESTINATION;
   }
 }
 
@@ -214,7 +215,7 @@ export default function VideoIntroExperience() {
 
     void resolveIntroDestination()
       .then(navigate)
-      .catch(() => navigate(buildPersonaHubUrl(DEFAULT_ATTENDEE_NEXT)));
+      .catch(() => navigate(INTRO_FALLBACK_DESTINATION));
   }, [stopIntroMusic, stopIntroVideo, unlockIntroAudio]);
 
   return (
@@ -264,9 +265,12 @@ export default function VideoIntroExperience() {
           ) : null}
 
           <div className="intro-flash-overlay">
-            <button
-              type="button"
-              onClick={handleEnter}
+            <a
+              href={INTRO_FALLBACK_DESTINATION}
+              onClick={(event) => {
+                event.preventDefault();
+                handleEnter();
+              }}
               aria-label="Let's get awakened — enter experience"
               className="intro-flash-enter-hit"
               style={introRectStyle(INTRO_ENTER_PANEL)}

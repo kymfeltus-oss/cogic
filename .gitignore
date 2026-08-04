@@ -19,7 +19,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 debug-*.log
-.codex-dev-server.*.log
+.codex-*.log
 .cursor/*
 !.cursor/rules/
 !.cursor/rules/**
