@@ -3,6 +3,7 @@ import { isValidEmail } from "@/lib/auth/validation";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export type AttendeeProfileUpdate = {
+  title?: string | null;
   firstName: string;
   lastName: string;
   avatarUrl?: string | null;
@@ -16,18 +17,24 @@ export function normalizeProfileName(value: string): string {
   return value.trim().replace(/\s+/g, " ");
 }
 
+export function normalizeProfileTitle(value: string): string {
+  return value.trim().replace(/\s+/g, " ").slice(0, 40);
+}
+
 export async function persistAttendeeProfileUpdate(
   user: User,
   input: AttendeeProfileUpdate,
 ): Promise<void> {
   const firstName = normalizeProfileName(input.firstName);
   const lastName = normalizeProfileName(input.lastName);
+  const title = input.title === undefined || input.title === null ? "" : normalizeProfileTitle(input.title);
   const isGuest = user.user_metadata?.is_guest === true;
 
   const userMetadata: Record<string, unknown> = {
     ...user.user_metadata,
     first_name: firstName,
     last_name: lastName,
+    title,
   };
 
   if (input.avatarUrl !== undefined) {

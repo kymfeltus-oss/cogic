@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bebas_Neue, Inter, Montserrat, Oswald } from "next/font/google";
+import { Bebas_Neue, Inter, Montserrat, Oswald, Parisienne } from "next/font/google";
 import RootLayoutShell from "@/components/RootLayoutShell";
 import {
   COGIC_LIVE_PUBLIC_NAME,
@@ -36,6 +36,13 @@ const oswald = Oswald({
   display: "swap",
 });
 
+const parisienne = Parisienne({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-script",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: COGIC_LIVE_PUBLIC_NAME,
   description: COGIC_STREAM_SITE_DESCRIPTION,
@@ -56,7 +63,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${bebasNeue.variable} ${montserrat.variable} ${inter.variable} ${oswald.variable}`}
+      className={`${bebasNeue.variable} ${montserrat.variable} ${inter.variable} ${oswald.variable} ${parisienne.variable}`}
     >
       <body className="font-body device-fit-page min-h-dvh bg-transparent text-[16px] text-white antialiased">
         <a

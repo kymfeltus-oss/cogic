@@ -29,6 +29,7 @@ export default function ProfileEditorModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [firstName, setFirstName] = useState(profile.firstName);
   const [lastName, setLastName] = useState(profile.lastName);
+  const [title, setTitle] = useState(profile.title);
   const [email, setEmail] = useState(profile.email ?? "");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile.avatarUrl);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -44,6 +45,7 @@ export default function ProfileEditorModal({
     if (!isOpen) return;
     setFirstName(profile.firstName);
     setLastName(profile.lastName);
+    setTitle(profile.title);
     setEmail(profile.email ?? "");
     setAvatarPreview(profile.avatarUrl);
     setPendingFile(null);
@@ -125,6 +127,7 @@ export default function ProfileEditorModal({
         body: JSON.stringify({
           firstName: trimmedFirst,
           lastName: trimmedLast,
+          title: title.trim(),
           email: trimmedEmail,
         }),
       });
@@ -267,6 +270,20 @@ export default function ProfileEditorModal({
             </div>
 
             <div className="space-y-4">
+              <div>
+                <label className="mb-1.5 block font-ui text-[0.58rem] font-bold uppercase tracking-[0.12em] text-brand-muted">
+                  Title (optional)
+                </label>
+                <input
+                  type="text"
+                  autoComplete="honorific-prefix"
+                  maxLength={40}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Bishop, Pastor, Elder..."
+                  className={gateFieldClass(false, false)}
+                />
+              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block font-ui text-[0.58rem] font-bold uppercase tracking-[0.12em] text-brand-muted">

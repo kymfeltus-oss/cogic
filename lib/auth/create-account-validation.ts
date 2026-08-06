@@ -11,6 +11,7 @@ export const CREATE_ACCOUNT_MIN_PASSWORD_LENGTH = 8;
 export const CREATE_ACCOUNT_AVATAR_MAX_BYTES = 5 * 1024 * 1024;
 
 export type CreateAccountFormValues = {
+  title: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -26,6 +27,7 @@ export type CreateAccountFormValues = {
 export type CreateAccountFieldErrors = Partial<
   Record<
     | "firstName"
+    | "title"
     | "lastName"
     | "email"
     | "phone"
@@ -48,6 +50,10 @@ export function validateCreateAccountForm(
   values: CreateAccountFormValues,
 ): CreateAccountFieldErrors {
   const errors: CreateAccountFieldErrors = {};
+
+  if (values.title.trim().length > 40) {
+    errors.title = "Title must be 40 characters or fewer.";
+  }
 
   if (!normalizeName(values.firstName)) {
     errors.firstName = "First name is required.";
@@ -133,6 +139,7 @@ export function serializeCreateAccountPayload(values: CreateAccountFormValues) {
   return {
     action: "signup" as const,
     firstName: normalizeName(values.firstName),
+    title: normalizeName(values.title).slice(0, 40),
     lastName: normalizeName(values.lastName),
     email: values.email.trim().toLowerCase(),
     phone: normalizePhoneDigits(values.phone),

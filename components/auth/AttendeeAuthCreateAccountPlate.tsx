@@ -137,6 +137,27 @@ export default function AttendeeAuthCreateAccountPlate({
               </div>
             </div>
 
+            <label className="block">
+              <span className={labelClassName}>Title (optional)</span>
+              <div className="relative">
+                <User
+                  className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-brand-pink"
+                  aria-hidden="true"
+                />
+                <input
+                  type="text"
+                  autoComplete="honorific-prefix"
+                  maxLength={40}
+                  disabled={isSubmitting}
+                  value={values.title}
+                  onChange={(event) => onFieldChange("title", event.target.value)}
+                  onBlur={onBlur}
+                  placeholder="Bishop, Pastor, Elder..."
+                  className={`${inputClassName} pl-10`}
+                />
+              </div>
+            </label>
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className={labelClassName}>First name</span>

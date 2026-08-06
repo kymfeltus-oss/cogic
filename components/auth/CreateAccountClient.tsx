@@ -18,6 +18,7 @@ type CreateAccountClientProps = {
 };
 
 const INITIAL_VALUES: CreateAccountFormValues = {
+  title: "",
   firstName: "",
   lastName: "",
   email: "",
@@ -92,6 +93,7 @@ export default function CreateAccountClient({ nextPath }: CreateAccountClientPro
     if (Object.keys(errors).length > 0) {
       const firstError =
         errors.form ??
+        errors.title ??
         errors.firstName ??
         errors.lastName ??
         errors.email ??
@@ -121,6 +123,7 @@ export default function CreateAccountClient({ nextPath }: CreateAccountClientPro
         options: {
           data: {
             is_guest: false,
+            title: payload.title,
             first_name: payload.firstName,
             last_name: payload.lastName,
             phone: payload.phone,
@@ -188,7 +191,8 @@ export default function CreateAccountClient({ nextPath }: CreateAccountClientPro
         formError={
           formError ??
           (touched && Object.keys(fieldErrors).length > 0
-            ? fieldErrors.firstName ??
+            ? fieldErrors.title ??
+              fieldErrors.firstName ??
               fieldErrors.lastName ??
               fieldErrors.email ??
               fieldErrors.phone ??

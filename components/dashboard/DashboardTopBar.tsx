@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { Bell, ChevronDown, Search, UserRound } from "lucide-react";
 import type { AttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
-import { chicagoDayGreeting, greetingName } from "@/lib/dashboard/greeting";
 
 export default function DashboardTopBar({
   profile,
@@ -12,8 +11,9 @@ export default function DashboardTopBar({
   profileReturnPath?: string;
   onProfile: () => void;
 }) {
-  const name = greetingName(profile.firstName);
-  const greeting = chicagoDayGreeting();
+  const welcomeName = profile.title && profile.lastName
+    ? `${profile.title} ${profile.lastName}`
+    : profile.firstName || "Guest";
 
   return (
     <header className="cl-topbar">
@@ -39,8 +39,10 @@ export default function DashboardTopBar({
           <span>Church of God in Christ, Inc.</span>
         </div>
         <div className="cl-topbar__identity">
-          <p className="cl-topbar__greeting">{greeting}{name ? `, ${name}` : ""}</p>
-          <p className="cl-topbar__context">Home</p>
+          <p className="cl-topbar__greeting">
+            <span className="cl-topbar__welcome-word">Welcome</span>
+            <span className="cl-topbar__welcome-name">{welcomeName}</span>
+          </p>
         </div>
       </div>
 
@@ -58,11 +60,13 @@ export default function DashboardTopBar({
             {profile.avatarUrl ? (
               <Image src={profile.avatarUrl} alt="" width={40} height={40} unoptimized />
             ) : (
-              <span className="cl-topbar__avatar"><UserRound aria-hidden="true" /></span>
+              <span className="cl-topbar__avatar" aria-hidden="true">
+                {profile.profileInitials || <UserRound />}
+              </span>
             )}
           </button>
           <button type="button" className="cl-topbar__account-copy" onClick={onProfile}>
-            <strong>{[profile.firstName, profile.lastName].filter(Boolean).join(" ") || "Attendee"}</strong>
+            <strong>{welcomeName}</strong>
             <span>Attendee</span>
           </button>
           <ChevronDown className="cl-topbar__chevron" aria-hidden="true" />

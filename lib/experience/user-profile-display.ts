@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 /** Derive attendee-facing profile labels from verified Supabase identity. */
 
 export type UserProfileDisplay = {
+  title: string;
   firstName: string;
   lastName: string;
   headerDisplayName: string;
@@ -20,6 +21,11 @@ function normalizeNamePart(value: unknown): string {
   return value.trim().replace(/\s+/g, " ");
 }
 
+function normalizeTitle(value: unknown): string {
+  if (typeof value !== "string") return "";
+  return value.trim().replace(/\s+/g, " ").slice(0, 40);
+}
+
 /** Read first/last name from Supabase auth user_metadata (supports snake and camelCase). */
 export function parseNameFieldsFromMetadata(
   metadata: Record<string, unknown> | null | undefined,
@@ -32,6 +38,12 @@ export function parseNameFieldsFromMetadata(
   const lastName = normalizeNamePart(metadata.last_name ?? metadata.lastName);
 
   return { firstName, lastName };
+}
+
+export function parseTitleFromMetadata(
+  metadata: Record<string, unknown> | null | undefined,
+): string {
+  return normalizeTitle(metadata?.title ?? metadata?.honorific ?? metadata?.prefix);
 }
 
 export function firstNameFromEmail(email: string | null | undefined): string {
@@ -91,11 +103,13 @@ function profileFromNameFields(
   firstName: string,
   lastName: string,
   initialsSource: "metadata" | "attendees",
+  title = "",
 ): UserProfileDisplay | null {
   const profileInitials = initialsFromNameFields(firstName, lastName);
   if (!profileInitials) return null;
 
   return {
+    title,
     firstName,
     lastName,
     headerDisplayName: awakeningHeaderDisplayName(firstName),
@@ -111,6 +125,7 @@ export function resolveUserProfileDisplay(
 ): UserProfileDisplay {
   if (!user) {
     return {
+      title: "",
       firstName: "Guest",
       lastName: "",
       headerDisplayName: "GUEST",
@@ -121,10 +136,12 @@ export function resolveUserProfileDisplay(
 
   const isGuest = user.user_metadata?.is_guest === true;
   const metadataNames = parseNameFieldsFromMetadata(user.user_metadata);
+  const metadataTitle = parseTitleFromMetadata(user.user_metadata);
   const metadataProfile = profileFromNameFields(
     metadataNames.firstName,
     metadataNames.lastName,
     "metadata",
+    metadataTitle,
   );
 
   if (metadataProfile) {
@@ -136,6 +153,7 @@ export function resolveUserProfileDisplay(
       attendeeNames.firstName,
       attendeeNames.lastName,
       "attendees",
+      metadataTitle,
     );
     if (attendeeProfile) {
       return attendeeProfile;
@@ -144,6 +162,7 @@ export function resolveUserProfileDisplay(
 
   if (isGuest) {
     return {
+      title: metadataTitle,
       firstName: "Guest",
       lastName: "",
       headerDisplayName: "GUEST",
@@ -160,6 +179,7 @@ export function resolveUserProfileDisplay(
     metaFirst && !metaLast ? metaFirst : metaLast && !metaFirst ? metaLast : emailFirstName;
 
   return {
+    title: metadataTitle,
     firstName: fallbackDisplayName,
     lastName: "",
     headerDisplayName: awakeningHeaderDisplayName(fallbackDisplayName),

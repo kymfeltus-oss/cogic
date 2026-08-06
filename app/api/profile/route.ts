@@ -5,12 +5,14 @@ import { fetchAttendeeProfileRecord } from "@/lib/experience/fetch-attendee-prof
 import { buildAttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
 import {
   normalizeProfileName,
+  normalizeProfileTitle,
   persistAttendeeProfileUpdate,
 } from "@/lib/profile/persist-attendee-profile";
 import { isValidEmail } from "@/lib/auth/validation";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 type ProfilePatchBody = {
+  title?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -48,6 +50,7 @@ export async function PATCH(request: Request) {
     const body = (await request.json()) as ProfilePatchBody;
     const firstName = normalizeProfileName(body.firstName ?? "");
     const lastName = normalizeProfileName(body.lastName ?? "");
+    const title = normalizeProfileTitle(body.title ?? "");
     const email = body.email?.trim().toLowerCase() ?? "";
 
     if (!firstName || !lastName) {
@@ -61,7 +64,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Valid email is required." }, { status: 400 });
     }
 
-    await persistAttendeeProfileUpdate(user, { firstName, lastName, email });
+    await persistAttendeeProfileUpdate(user, { firstName, lastName, email, title });
 
     const admin = getSupabaseAdmin();
     const { data: refreshedUser, error: refreshError } = await admin.auth.admin.getUserById(
