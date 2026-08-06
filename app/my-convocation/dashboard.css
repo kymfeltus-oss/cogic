@@ -129,8 +129,12 @@
 .cl-hero__actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: clamp(1.4rem, 3vw, 2.25rem); }
 
 .cl-pill { width: fit-content; display: inline-flex; align-items: center; gap: .45rem; padding: .36rem .65rem; border: 1px solid rgba(231,173,60,.35); border-radius: 999px; color: var(--gold-bright); background: rgba(231,173,60,.08); font-size: .68rem; font-weight: 780; letter-spacing: .08em; text-transform: uppercase; }
-.cl-pill--live { color: #fff; border-color: rgba(255,92,92,.4); background: rgba(179,27,35,.35); }
+.cl-pill--live { color: #fff; border-color: rgba(255,92,92,.7); background: linear-gradient(180deg, rgba(220,38,52,.95), rgba(145,12,28,.9)); box-shadow: 0 0 14px rgba(255,48,64,.48), inset 0 1px rgba(255,255,255,.3); animation: cl-pill-glow 1.8s ease-in-out infinite; }
 .cl-pill__pulse { width: .45rem; height: .45rem; border-radius: 50%; background: #ff525b; box-shadow: 0 0 0 0 rgba(255,82,91,.55); animation: cl-pulse 1.9s infinite; }
+@keyframes cl-pill-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(255,48,64,.35), inset 0 1px rgba(255,255,255,.25); }
+  50% { box-shadow: 0 0 0 2px rgba(255,110,120,.25), 0 0 24px 6px rgba(255,48,64,.6), inset 0 1px rgba(255,255,255,.5); }
+}
 .cl-pill--sm { padding: .25rem .5rem; font-size: .6rem; }
 @keyframes cl-pulse { 60% { box-shadow: 0 0 0 .45rem rgba(255,82,91,0); } }
 

@@ -38,12 +38,6 @@ export default function DashboardTopBar({
           />
           <span>Church of God in Christ, Inc.</span>
         </div>
-        <div className="cl-topbar__identity">
-          <p className="cl-topbar__greeting">
-            <span className="cl-topbar__welcome-word">Welcome</span>
-            <span className="cl-topbar__welcome-name">{welcomeName}</span>
-          </p>
-        </div>
       </div>
 
       <div className="cl-topbar__tools" aria-label="Dashboard tools">

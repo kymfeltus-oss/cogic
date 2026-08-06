@@ -10,9 +10,9 @@ export default function DashboardLiveStage({
   return (
     <article className={`cl-live-stage${live.isLive ? " is-live" : ""}`}>
       <div className="cl-live-stage__header">
-        <span className={`cl-pill${live.isLive ? " cl-pill--live" : ""}`}>
-          {live.isLive ? <i className="cl-pill__pulse" aria-hidden="true" /> : <Radio aria-hidden="true" />}
-          {live.isLive ? "Live" : "Watch Live"}
+        <span className="cl-pill cl-pill--live">
+          <i className="cl-pill__pulse" aria-hidden="true" />
+          Watch Live
         </span>
         <span className="cl-live-stage__title">
           {live.isLive ? live.title ?? "COGIC LIVE broadcast" : "Service preview"}
@@ -38,7 +38,7 @@ export default function DashboardLiveStage({
         )}
       </div>
 
-      <Link href="/live" className="cl-btn cl-btn--live-action cl-btn--block">
+      <Link href="/live" className="cl-btn cl-btn--primary cl-btn--block">
         {live.isLive ? "Watch Live" : "Open Live Lobby"}
         <Radio aria-hidden="true" className="size-4" />
       </Link>
