@@ -695,7 +695,7 @@ function LiveExperienceClientInner({
         <header className="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-6">
           <div>
             <p className="font-ui text-[0.62rem] font-bold uppercase tracking-[0.22em] text-brand-blue">
-              300 Awakening
+              COGIC LIVE
             </p>
             <h1 className="font-headline text-xl uppercase tracking-[0.08em] sm:text-2xl">
               Live

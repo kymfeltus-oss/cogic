@@ -1,10 +1,11 @@
-export const EVENT_TYPES = [
+﻿export const EVENT_TYPES = [
   "main_service",
   "revival_fire",
   "midnight_musical",
   "main_event_center_class",
   "morning_manna",
   "midday_worship",
+  "general_assembly",
   "special_event",
 ] as const;
 

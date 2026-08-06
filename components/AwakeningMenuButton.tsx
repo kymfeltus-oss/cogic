@@ -24,10 +24,10 @@ export type AwakeningMenuItem = {
 };
 
 export const AWAKENING_MENU_ITEMS: AwakeningMenuItem[] = [
-  { id: "home", label: "Home", href: ATTENDEE_DASHBOARD_PATH, match: "exact" },
+  { id: "home", label: "Home", href: ATTENDEE_DASHBOARD_PATH, match: "prefix" },
   { id: "live", label: "Live Room", href: EXPERIENCE_LIVE_PATH, match: "prefix" },
   { id: "program", label: "Program", href: "/program", match: "prefix" },
-  { id: "seed", label: "Vital Seed", href: "/experience/giving", match: "prefix" },
+  { id: "seed", label: "COGIC Giving", href: "/giving", match: "prefix" },
   { id: "music", label: "Music", href: "/experience/music", match: "prefix" },
   { id: "contact", label: "Contact", href: "/experience/contact-us", match: "prefix" },
   { id: "profile", label: "Profile", href: `${ATTENDEE_DASHBOARD_PATH}?view=profile` },
@@ -166,7 +166,7 @@ export default function AwakeningMenuButton({
               >
                 <div className="awakening-menu-panel-header">
                   <p className="font-ui text-[0.62rem] font-semibold uppercase tracking-[0.38em] text-brand-blue">
-                    300 Awakening
+                    COGIC LIVE
                   </p>
                   <p className="font-headline mt-1 text-lg uppercase tracking-[0.14em] text-white">
                     Menu

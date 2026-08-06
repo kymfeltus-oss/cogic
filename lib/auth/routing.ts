@@ -1,4 +1,7 @@
-import { ATTENDEE_DASHBOARD_PATH } from "@/lib/navigation/back-to-dashboard";
+import {
+  ATTENDEE_DASHBOARD_PATH,
+  LEGACY_ATTENDEE_DASHBOARD_PATH,
+} from "@/lib/navigation/back-to-dashboard";
 
 export const PERSONA_HUB_PATH = "/email-gate";
 export const ATTENDEE_GATE_PATH = "/login";
@@ -15,7 +18,9 @@ const ATTENDEE_PROTECTED_EXACT = new Set(["/dashboard"]);
 const ATTENDEE_PROTECTED_PREFIXES = [
   "/experience",
   ATTENDEE_DASHBOARD_PATH,
+  LEGACY_ATTENDEE_DASHBOARD_PATH,
   "/register",
+  "/my-sanctuary",
 ];
 
 const TEAM_PROTECTED_PREFIXES: string[] = ["/owner"];

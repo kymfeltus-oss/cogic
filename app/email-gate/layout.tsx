@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Entry Hub | 300 Awakening",
+  title: "Entry Hub | COGIC LIVE",
   description: "Select your entry path — attendee experience or production team login.",
 };
 

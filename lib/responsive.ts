@@ -1,4 +1,4 @@
-/** Shared responsive layout tokens for 300 Awakening */
+/** Shared responsive layout tokens for COGIC LIVE */
 
 /** Effect tier utility classes — pair with globals.css `.effects-heavy` / `.effects-lite` */
 export const EFFECTS_TIER = {

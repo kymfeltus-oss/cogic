@@ -73,7 +73,7 @@ export default function AttendeeAuthCreateAccountPlate({
           <div className="relative mx-auto h-[6.75rem] w-full max-w-[17rem] sm:h-[8rem]">
             <Image
               src={EXPERIENCE_BRAND_ASSETS.lockup}
-              alt="300 Awakening"
+              alt="COGIC LIVE"
               fill
               priority
               sizes="(max-width: 640px) 68vw, 272px"
@@ -344,7 +344,7 @@ export default function AttendeeAuthCreateAccountPlate({
               </div>
             </label>
 
-            <label className="flex cursor-pointer items-start gap-3 pt-1">
+            <label className="touch-target flex cursor-pointer items-center gap-3 py-1">
               <input
                 type="checkbox"
                 checked={values.acceptedTerms}
@@ -354,7 +354,7 @@ export default function AttendeeAuthCreateAccountPlate({
                 required
                 className="auth-login-page__checkbox mt-0.5 size-4 shrink-0 rounded border-brand-border bg-brand-panel accent-brand-blue"
               />
-              <span className="font-body text-xs leading-relaxed text-brand-muted">
+              <span className="font-body text-base leading-relaxed text-brand-muted">
                 I agree to the Terms of Service and Privacy Policy.
               </span>
             </label>

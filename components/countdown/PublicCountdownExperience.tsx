@@ -113,7 +113,7 @@ export default function PublicCountdownExperience({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={EXPERIENCE_BRAND_ASSETS.lockup}
-            alt="300 Awakening"
+            alt="COGIC LIVE"
             width={1536}
             height={1024}
             className="public-countdown__lockup"

@@ -6,7 +6,7 @@ import { loadActiveCountdownConfig } from "@/lib/live/fetch-countdown-config";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "300 Awakening OBS Countdown",
+  title: "COGIC LIVE OBS Countdown",
   description: "Horizontal stream overlay countdown for OBS and Restream.",
   robots: { index: false, follow: false },
 };

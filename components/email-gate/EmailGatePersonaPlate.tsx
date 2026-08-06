@@ -25,7 +25,7 @@ export default function EmailGatePersonaPlate({
           <div className="relative mx-auto h-[6.75rem] w-full max-w-[17rem] sm:h-[8rem]">
             <Image
               src={EXPERIENCE_BRAND_ASSETS.lockup}
-              alt="300 Awakening"
+              alt="COGIC LIVE"
               fill
               priority
               sizes="(max-width: 640px) 68vw, 272px"
@@ -39,7 +39,7 @@ export default function EmailGatePersonaPlate({
             Choose Your Path
           </h1>
           <p className="mx-auto mt-2 max-w-[17rem] font-body text-[0.82rem] leading-snug text-brand-muted">
-            Select how you&apos;re joining the 300 Awakening experience.
+            Select how you&apos;re joining the COGIC LIVE experience.
           </p>
         </header>
 

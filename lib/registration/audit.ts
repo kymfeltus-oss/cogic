@@ -5,7 +5,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 export type RegistrationAuditAction =
   | "registration.draft_created"
   | "registration.draft_updated"
-  | "registration.submitted";
+  | "registration.submitted"
+  | "registration.checkout_started";
 
 export async function writeRegistrationAuditEvent(input: {
   action: RegistrationAuditAction;

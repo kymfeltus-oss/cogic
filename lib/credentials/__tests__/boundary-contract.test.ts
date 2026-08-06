@@ -36,8 +36,12 @@ describe("credential server boundary contract", () => {
         if (
           source.includes("@/lib/credentials/token") ||
           source.includes("@/lib/credentials/repository") ||
+          source.includes("@/lib/credentials/session") ||
+          source.includes("@/lib/credentials/ingress") ||
           source.includes("lib/credentials/token") ||
-          source.includes("lib/credentials/repository")
+          source.includes("lib/credentials/repository") ||
+          source.includes("lib/credentials/session") ||
+          source.includes("lib/credentials/ingress")
         ) {
           offenders.push(path.relative(root, file));
         }
@@ -60,8 +64,18 @@ describe("credential server boundary contract", () => {
       path.join(root, "lib/credentials/token.ts"),
       "utf8",
     );
+    const session = fs.readFileSync(
+      path.join(root, "lib/credentials/session.ts"),
+      "utf8",
+    );
+    const ingress = fs.readFileSync(
+      path.join(root, "lib/credentials/ingress.ts"),
+      "utf8",
+    );
     assert.match(repository, /import "server-only"/);
     assert.match(audit, /import "server-only"/);
+    assert.match(session, /import "server-only"/);
+    assert.match(ingress, /import "server-only"/);
     assert.match(token, /server boundary only/i);
     assert.match(token, /never be logged or persisted/i);
   });

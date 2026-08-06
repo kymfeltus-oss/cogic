@@ -6,8 +6,8 @@ import { loadActiveCountdownConfig } from "@/lib/live/fetch-countdown-config";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "300 Awakening Countdown | Vital Organs Entertainment",
-  description: "Count down to the live experience — synced schedule, live chat monitor, and event details.",
+  title: "Countdown | COGIC LIVE",
+  description: "Count down to the COGIC LIVE experience — synced schedule and event details.",
 };
 
 /** Public shareable countdown — rings, schedule copy, and live chat monitor. */

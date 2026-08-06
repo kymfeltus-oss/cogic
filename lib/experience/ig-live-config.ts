@@ -3,9 +3,9 @@
 import { ATTENDEE_DASHBOARD_PATH } from "@/lib/navigation/back-to-dashboard";
 
 export const IG_LIVE_CREATOR = {
-  name: "IAN CRAIG",
-  subtitle: "300 Awakening",
-  avatarSrc: "/images/vital-seed/vital-seed-orb.png",
+  name: "COGIC LIVE",
+  subtitle: "118th Holy Convocation",
+  avatarSrc: "/images/logo.png",
   exitHref: ATTENDEE_DASHBOARD_PATH,
 } as const;
 

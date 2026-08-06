@@ -6,7 +6,7 @@ import { ChevronLeft } from "lucide-react";
 import ContactUsForm, { type ContactUsFormValues } from "@/components/prayer/ContactUsForm";
 import AwakeningMenuButton from "@/components/AwakeningMenuButton";
 import ProfileOrbEditor from "@/components/profile/ProfileOrbEditor";
-import { EXPERIENCE_BRAND_ASSETS } from "@/lib/experience/brand-assets";
+import { COGIC_LIVE_PUBLIC_NAME } from "@/lib/brand/public-display";
 import { buildContactMailto } from "@/lib/prayer/contact";
 import type { AttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
 import { ATTENDEE_DASHBOARD_PATH } from "@/lib/navigation/back-to-dashboard";
@@ -94,25 +94,17 @@ export default function ContactUsPageClient({ initialProfile }: ContactUsPageCli
           </div>
 
           <div className="contact-us-page__hero mx-auto mt-6 max-w-md text-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={EXPERIENCE_BRAND_ASSETS.lockup}
-              alt="300 Awakening"
-              width={1536}
-              height={1024}
-              className="contact-us-page__lockup mx-auto w-full max-w-[min(100%,22rem)]"
-              loading="eager"
-              decoding="async"
-              draggable={false}
-            />
+            <p className="font-headline text-[clamp(1.8rem,6vw,2.4rem)] uppercase tracking-[0.12em] text-white">
+              {COGIC_LIVE_PUBLIC_NAME}
+            </p>
             <p className="contact-us-page__tagline mt-3 font-ui text-[0.58rem] font-bold uppercase tracking-[0.28em] text-brand-blue">
-              Live · Empower · Transform
+              118th Holy Convocation
             </p>
           </div>
 
           <div className="mt-8 text-center">
             <p className="font-ui text-[0.62rem] font-bold uppercase tracking-[0.24em] text-brand-blue">
-              Vital Organs Entertainment
+              {COGIC_LIVE_PUBLIC_NAME}
             </p>
             <h1 className="mt-2 font-headline text-fluid-section uppercase tracking-[0.12em] text-white">
               Contact Us

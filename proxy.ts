@@ -9,6 +9,8 @@ import {
   isTeamProtectedPath,
 } from "@/lib/auth/routing";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
+import { applyCredentialSecurityHeaders } from "@/lib/credentials/security-headers";
+import { isCredentialPublicRoute } from "@/lib/routes";
 
 /** Fail fast when Supabase is slow/unreachable — avoids 10s hangs on client navigation. */
 const PROXY_AUTH_LOOKUP_TIMEOUT_MS = 2_500;
@@ -57,6 +59,10 @@ async function getProxyAuthUser(
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (isCredentialPublicRoute(pathname)) {
+    return applyCredentialSecurityHeaders(NextResponse.next());
+  }
 
   if (/^\/countdown/i.test(pathname)) {
     const normalized = pathname.replace(/^\/countdown/i, "/countdown");
@@ -156,6 +162,8 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/c",
+    "/c/:path*",
     "/countdown",
     "/countdown/:path*",
     "/COUNTDOWN",
@@ -163,6 +171,8 @@ export const config = {
     "/dashboard",
     "/dashboard/:path*",
     "/attendee-dashboard",
+    "/my-convocation",
+    "/my-sanctuary",
     "/experience",
     "/experience/:path*",
     "/owner",

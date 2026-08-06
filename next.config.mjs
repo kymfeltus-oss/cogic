@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const isCapacitorBuild = process.env.CAPACITOR_BUILD === "true";
 
+const credentialSecurityHeaders = [
+  { key: "Cache-Control", value: "private, no-store, max-age=0, must-revalidate" },
+  { key: "Referrer-Policy", value: "no-referrer" },
+  { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+];
+
 const nextConfig = {
   ...(isCapacitorBuild ? { output: "export" } : {}),
   typedRoutes: false,
@@ -11,8 +19,13 @@ const nextConfig = {
     return [
       {
         source: "/experience",
-        destination: "/attendee-dashboard",
+        destination: "/my-convocation",
         permanent: true,
+      },
+      {
+        source: "/attendee-dashboard",
+        destination: "/my-convocation",
+        permanent: false,
       },
       {
         source: "/dashboard/live",
@@ -108,6 +121,18 @@ const nextConfig = {
         source: "/ops/:path*",
         destination: "/owner/control",
         permanent: false,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/c",
+        headers: credentialSecurityHeaders,
+      },
+      {
+        source: "/c/:path*",
+        headers: credentialSecurityHeaders,
       },
     ];
   },

@@ -1,10 +1,15 @@
-/** Official Awakening / Vital Organs experience assets — do not substitute. */
+/**
+ * Public experience brand asset paths.
+ * Historical awakening filenames may remain on disk when unrouted;
+ * attendee-facing chrome should prefer COGIC LIVE text brand /
+ * official Convocation assets when available.
+ */
 
 export const EXPERIENCE_BRAND_ASSETS = {
-  lockup: "/branding/awakening-lockup.png",
-  wordmark: "/branding/awakening-wordmark.png",
-  logo: "/branding/awakening-lockup.png",
-  emblem: "/branding/awakening-lockup.png",
+  lockup: "/images/logo.png",
+  wordmark: "/images/logo.png",
+  logo: "/images/logo.png",
+  emblem: "/images/logo.png",
   countdownFrame: "/ui/countdown-frame.png",
   hallelujahCover: "/images/hallelujah-anyhow-cover.png",
 } as const;

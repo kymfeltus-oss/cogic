@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+﻿import type { SupabaseClient } from "@supabase/supabase-js";
 import { LIVE_STREAM_STATE_ID } from "@/lib/live/types";
 
 export type ManifestStreamSource = "primary" | "backup" | "offline";

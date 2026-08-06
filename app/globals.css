@@ -10,6 +10,7 @@ html {
   background-attachment: fixed;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  width: 100%;
 }
 
 html::-webkit-scrollbar {
@@ -19,8 +20,47 @@ html::-webkit-scrollbar {
 }
 
 body {
+  min-width: 0;
+  min-height: 100dvh;
+  margin: 0;
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:where(main, section, article, aside, header, footer, nav, form, fieldset, div) {
+  min-width: 0;
+}
+
+:where(img, video, canvas, svg, iframe) {
+  max-width: 100%;
+}
+
+:where(img, video) {
+  height: auto;
+}
+
+:where(p, h1, h2, h3, h4, h5, h6, li, dd, dt, label, a, button) {
+  overflow-wrap: anywhere;
+}
+
+:where(input, select, textarea, button) {
+  max-width: 100%;
+  font: inherit;
+}
+
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+  min-height: 44px;
+  font-size: max(1rem, 16px);
+}
+
+:where(button, [role="button"], a[href]) {
+  touch-action: manipulation;
 }
 
 body::-webkit-scrollbar {
@@ -44,6 +84,29 @@ body::-webkit-scrollbar {
   background: transparent;
 }
 
+[role="dialog"] {
+  max-width: calc(100dvw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid CanvasText !important;
+    outline-offset: 3px;
+  }
+}
+
 :root {
   /* 9:16 mobile content track â€” shared by artboard pages + bottom dock */
   --color-brand-black-base: #020203;
@@ -60,6 +123,11 @@ body::-webkit-scrollbar {
     var(--mobile-artboard-viewport-h),
     calc(var(--mobile-app-track-w) * 1920 / 1080)
   );
+  --page-safe-inline: max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-left, 0px));
+  --page-safe-inline-end: max(clamp(1rem, 3vw, 2rem), env(safe-area-inset-right, 0px));
+  --page-safe-top: max(clamp(0.75rem, 2vh, 1.5rem), env(safe-area-inset-top, 0px));
+  --page-safe-bottom: max(clamp(1rem, 3vh, 2rem), env(safe-area-inset-bottom, 0px));
+  --content-readable: 72rem;
   --gradient-brand: linear-gradient(90deg, #00a8ff 0%, #8a2eff 50%, #ff2faf 100%);
   --gradient-brand-soft: linear-gradient(
     90deg,
@@ -262,8 +330,7 @@ body::-webkit-scrollbar {
   .device-fit-page {
     min-height: 100dvh;
     width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
+    min-width: 0;
   }
 
   .device-fit-viewport {
@@ -435,6 +502,24 @@ body::-webkit-scrollbar {
     min-width: 44px;
     min-height: 44px;
     touch-action: manipulation;
+  }
+
+  .responsive-page {
+    width: 100%;
+    min-height: 100dvh;
+    padding-block: var(--page-safe-top) var(--page-safe-bottom);
+    padding-inline: var(--page-safe-inline) var(--page-safe-inline-end);
+  }
+
+  .responsive-container {
+    width: min(100%, var(--content-readable));
+    margin-inline: auto;
+  }
+
+  .responsive-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: clamp(0.75rem, 2vw, 1.25rem);
   }
 
   .card-grid-responsive {
@@ -903,8 +988,8 @@ body::-webkit-scrollbar {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   border-radius: 9999px;
-  min-width: 0;
-  min-height: 0;
+  min-width: 44px;
+  min-height: 44px;
   box-sizing: border-box;
 }
 
@@ -2400,7 +2485,10 @@ body::-webkit-scrollbar {
 }
 
 .buy-seeds-page__bg--base {
-  transform: scale(var(--buy-seeds-artboard-width-scale, 1.266), 1);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: none;
   transform-origin: top center;
 }
 
@@ -2802,7 +2890,7 @@ body::-webkit-scrollbar {
   box-sizing: border-box;
   display: grid;
   flex: 1 1 0;
-  min-height: 0;
+  min-height: 44px;
   grid-template-columns: 8% minmax(0, 1fr) minmax(0, 1.1fr) minmax(0, 0.75fr);
   align-items: center;
   gap: clamp(0.2rem, 1.5cqw, 0.55rem);
@@ -2916,6 +3004,7 @@ body::-webkit-scrollbar {
   isolation: isolate;
   box-sizing: border-box;
   display: flex;
+  min-height: 48px;
   align-items: center;
   justify-content: center;
   gap: clamp(0.35rem, 1.6cqw, 0.55rem);
@@ -4972,8 +5061,8 @@ body::-webkit-scrollbar {
   bottom: 0;
   z-index: 99999;
   box-sizing: border-box;
-  width: var(--mobile-app-track-w);
-  max-width: 100vw;
+  width: min(calc(100% - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)), 56rem);
+  max-width: 100%;
   transform: translateX(-50%);
   background-color: transparent;
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -5128,14 +5217,114 @@ body::-webkit-scrollbar {
 
 .bottom-dock__label {
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
   font-family: var(--font-ui), system-ui, sans-serif;
-  font-size: 0.56rem;
+  font-size: clamp(0.5rem, 2.15vw, 0.7rem);
   font-weight: 700;
   letter-spacing: 0.02em;
-  line-height: 1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.08;
+  text-align: center;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+@media (max-width: 359px) {
+  .bottom-dock__items {
+    gap: 1px;
+  }
+
+  .bottom-dock__icon-wrap {
+    width: 22px;
+    height: 22px;
+  }
+
+  .bottom-dock__icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .bottom-dock__label {
+    font-size: 0.48rem;
+    letter-spacing: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --bottom-dock-display-h: 76px;
+  }
+
+  .bottom-dock {
+    bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+    min-height: 64px;
+    padding: 0;
+  }
+
+  .bottom-dock__frame {
+    height: 64px;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    border-radius: 1rem;
+  }
+
+  .bottom-dock__item {
+    flex-direction: row;
+    gap: 0.45rem;
+    padding-inline: 0.6rem;
+  }
+
+  .bottom-dock__label {
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 540px) {
+  :root {
+    --bottom-dock-display-h: 48px;
+  }
+
+  .bottom-dock__item {
+    min-height: 44px;
+    flex-direction: row;
+    gap: 0.25rem;
+  }
+
+  .bottom-dock__icon-wrap {
+    width: 21px;
+    height: 21px;
+  }
+
+  .bottom-dock__icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .mobile-artboard-full-shell,
+  .auth-attendee-stage,
+  .mobile-artboard-tab-shell,
+  .music-page,
+  .buy-seeds-page,
+  .vital-giving-page,
+  .prayer-page {
+    --mobile-app-track-w: min(100%, 22rem);
+    --mobile-artboard-stage-w: min(100%, 22rem);
+    --mobile-artboard-stage-h: max(35rem, 100dvh);
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow-x: visible;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  .mobile-artboard-stage,
+  .mobile-artboard-tab-shell__stage,
+  .auth-attendee-artboard {
+    width: min(100%, 22rem);
+    min-height: 35rem;
+    height: 35rem;
+    flex: 0 0 auto;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -6559,7 +6748,10 @@ body::-webkit-scrollbar {
   margin: 0;
   border: 0;
   background: transparent;
-  padding: 0;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0.5rem;
   font-size: clamp(0.58rem, 2cqw, 0.68rem);
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -8901,6 +9093,19 @@ body::-webkit-scrollbar {
   border-color: #7d8da3;
 }
 
+.awakening-program-footer a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 0.85rem;
+}
+
+.vital-giving-custom-field__input,
+.experience-giving-custom-amount__control {
+  min-height: 48px;
+}
+
 @media (min-width: 640px) {
   .registration-actions,
   .registration-edit-row {
@@ -8913,10 +9118,3 @@ body::-webkit-scrollbar {
     flex: 1 1 12rem;
   }
 }
-
-
-
-
-
-
-

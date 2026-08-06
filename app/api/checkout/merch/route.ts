@@ -46,7 +46,7 @@ function resolveCheckoutLineItem(
 
     return {
       lineItemName: ticketTier.name,
-      description: `300 Awakening virtual concert stream access.${seedLabel}`,
+      description: `COGIC LIVE virtual concert stream access.${seedLabel}`,
       amountCents: ticketTier.priceInCents,
       requiresSize: false,
     };

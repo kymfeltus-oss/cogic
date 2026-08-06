@@ -20,6 +20,8 @@ yarn-debug.log*
 yarn-error.log*
 debug-*.log
 .codex-*.log
+/test-results/
+/playwright-report/
 .cursor/*
 !.cursor/rules/
 !.cursor/rules/**
@@ -58,3 +60,6 @@ certificates
 auth-body.json
 auth-out*.txt
 body.txt
+
+.vercel
+.env*

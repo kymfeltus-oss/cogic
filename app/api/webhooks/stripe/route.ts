@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+﻿import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient, type PostgrestError } from "@supabase/supabase-js";
@@ -8,7 +8,10 @@ import {
   SEED_PACK_LEGACY_ORDER_BASE_CREDIT,
   SEED_PACK_LEGACY_ORDER_PRODUCT_TYPE,
 } from "@/lib/billing-config";
+import { fulfillRegistrationCheckoutFromWebhook } from "@/lib/registration/stripe-webhook";
+import { REGISTRATION_CHECKOUT_TYPE } from "@/lib/registration/types";
 import { getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
+import { redactForLog, safeErrorMessage } from "@/lib/security/redact";
 
 function getStripeClient(): Stripe {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -34,11 +37,7 @@ function isIdempotencyConflict(error: PostgrestError | null): boolean {
 }
 
 function formatErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === "object" && error !== null && "message" in error) {
-    return String((error as { message: unknown }).message);
-  }
-  return "Unknown error";
+  return safeErrorMessage(error);
 }
 
 /**
@@ -117,9 +116,44 @@ export async function POST(request: Request) {
 
         console.info("✅ [DONATION_FULFILLMENT_SUCCESS]:", session.id);
       } catch (error) {
-        console.error("❌ [DATABASE_WEBHOOK_FULFILL_CRASH]:", error);
+        console.error(
+          "❌ [DATABASE_WEBHOOK_FULFILL_CRASH]:",
+          redactForLog(error),
+        );
         return NextResponse.json(
           { error: "Server transactional processing lock failed." },
+          { status: 500 },
+        );
+      }
+
+      return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });
+    }
+
+    if (checkoutType === REGISTRATION_CHECKOUT_TYPE) {
+      try {
+        const result = await fulfillRegistrationCheckoutFromWebhook({
+          session,
+          supabaseAdmin,
+        });
+
+        if (result.ok === false) {
+          console.error(
+            "❌ [REGISTRATION_WEBHOOK_FULFILL_FAIL]:",
+            redactForLog(result.error),
+          );
+          return NextResponse.json({ error: result.error }, { status: result.status });
+        }
+
+        console.info("✅ [REGISTRATION_FULFILLMENT_SUCCESS]:", {
+          sessionId: session.id,
+          registrationId: result.registrationId,
+          idempotent: result.idempotent,
+          credentialIssued: result.credentialIssued,
+        });
+      } catch (error) {
+        console.error("❌ [REGISTRATION_WEBHOOK_CRASH]:", redactForLog(error));
+        return NextResponse.json(
+          { error: "Registration fulfillment failed." },
           { status: 500 },
         );
       }
@@ -205,7 +239,7 @@ export async function POST(request: Request) {
           );
         }
 
-        console.error("❌ [SEED_PACK_FULFILL_CRASH]:", error);
+        console.error("❌ [SEED_PACK_FULFILL_CRASH]:", redactForLog(error));
         return NextResponse.json(
           { error: "Seed pack fulfillment failed." },
           { status: 500 },
@@ -258,6 +292,7 @@ export async function POST(request: Request) {
       if (isEventTicketTierId(productId)) {
         const ticketTier = getEventTicketTier(productId);
 
+
         if (!ticketTier?.hasAccess) {
           throw new Error(`Ticket tier ${productId} is not configured for access.`);
         }
@@ -308,7 +343,7 @@ export async function POST(request: Request) {
         );
       }
 
-      console.error("❌ [DATABASE_WEBHOOK_FULFILL_CRASH]:", error);
+      console.error("❌ [DATABASE_WEBHOOK_FULFILL_CRASH]:", redactForLog(error));
       return NextResponse.json(
         { error: "Server transactional processing lock failed." },
         { status: 500 },

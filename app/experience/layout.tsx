@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Experience | 300 Awakening",
-  description: "Tap Into The Awakening — your premium attendee experience hub.",
+  title: "Experience | COGIC LIVE",
+  description: "Your COGIC LIVE Convocation experience hub.",
 };
 
 export default function ExperienceLayout({

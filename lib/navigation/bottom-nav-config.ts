@@ -4,9 +4,9 @@ import { ATTENDEE_DASHBOARD_PATH } from "@/lib/navigation/back-to-dashboard";
 export type BottomNavItemId =
   | "home"
   | "live"
+  | "schedule"
   | "giving"
-  | "music"
-  | "buy-seeds";
+  | "replays";
 
 export type BottomNavHotspot = {
   id: BottomNavItemId;
@@ -32,13 +32,20 @@ export const BOTTOM_NAV_HOTSPOTS: readonly BottomNavHotspot[] = [
     id: "home",
     label: "Home",
     href: ATTENDEE_DASHBOARD_PATH,
-    isActive: matchesExact(ATTENDEE_DASHBOARD_PATH),
+    isActive: (pathname) =>
+      pathname === ATTENDEE_DASHBOARD_PATH || pathname === "/attendee-dashboard",
   },
   {
     id: "live",
-    label: "Live",
+    label: "Watch Live",
     href: "/live",
     isActive: isAttendeeLiveSurfacePath,
+  },
+  {
+    id: "schedule",
+    label: "Schedule",
+    href: "/program",
+    isActive: matchesPrefix("/program"),
   },
   {
     id: "giving",
@@ -47,15 +54,9 @@ export const BOTTOM_NAV_HOTSPOTS: readonly BottomNavHotspot[] = [
     isActive: matchesPrefix("/giving"),
   },
   {
-    id: "music",
-    label: "Music",
-    href: "/music",
-    isActive: matchesPrefix("/music"),
-  },
-  {
-    id: "buy-seeds",
-    label: "Buy Seeds",
-    href: "/buy-seeds",
-    isActive: matchesPrefix("/buy-seeds"),
+    id: "replays",
+    label: "Replays",
+    href: "/replays",
+    isActive: matchesPrefix("/replays"),
   },
 ] as const;

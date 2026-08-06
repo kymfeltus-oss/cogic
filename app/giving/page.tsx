@@ -1,15 +1,28 @@
-import ExperienceGivingPageClient from "@/components/experience/giving/ExperienceGivingPageClient";
-import { loadTabPageProfile } from "@/lib/experience/load-tab-page-profile";
+import type { Metadata } from "next";
+import { Cormorant_Garamond } from "next/font/google";
+import { Suspense } from "react";
+import CogicGivingExperience from "@/components/giving/CogicGivingExperience";
+import { COGIC_GIVING_PUBLIC_NAME } from "@/lib/brand/public-display";
+import "./giving.css";
 
-export default async function GivingPage() {
-  const profile = await loadTabPageProfile();
+const givingDisplay = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-giving-display",
+  display: "swap",
+});
 
+export const metadata: Metadata = {
+  title: `${COGIC_GIVING_PUBLIC_NAME} | COGIC LIVE`,
+  description: "Give securely to Church of God in Christ, Inc.",
+};
+
+export default function GivingPage() {
   return (
-    <main
-      id="main-content"
-      className="flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-brand-black"
-    >
-      <ExperienceGivingPageClient initialProfile={profile} />
+    <main id="main-content" className={`cogic-giving-page ${givingDisplay.variable}`}>
+      <Suspense fallback={<div className="cogic-giving-shell" aria-busy="true" />}>
+        <CogicGivingExperience />
+      </Suspense>
     </main>
   );
 }

@@ -10,8 +10,8 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Create Account | 300 Awakening",
-  description: "Create your 300 Awakening account.",
+  title: "Create Account | COGIC LIVE",
+  description: "Create your COGIC LIVE account.",
 };
 
 type CreateAccountPageProps = {

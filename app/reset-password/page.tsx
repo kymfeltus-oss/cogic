@@ -12,8 +12,8 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Choose New Password | 300 Awakening",
-  description: "Set a new password for your 300 Awakening account.",
+  title: "Choose New Password | COGIC LIVE",
+  description: "Set a new password for your COGIC LIVE account.",
 };
 
 type ResetPasswordPageProps = {

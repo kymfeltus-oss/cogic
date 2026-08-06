@@ -86,7 +86,7 @@ export default function AttendeeAuthLoginPlate({
           <div className="relative mx-auto h-[6.75rem] w-full max-w-[17rem] sm:h-[8rem]">
             <Image
               src={EXPERIENCE_BRAND_ASSETS.lockup}
-              alt="300 Awakening"
+              alt="COGIC LIVE"
               fill
               priority
               sizes="(max-width: 640px) 68vw, 272px"
@@ -168,7 +168,7 @@ export default function AttendeeAuthLoginPlate({
             </label>
 
             <div className="flex items-center justify-between gap-3 pt-1">
-              <label className="inline-flex cursor-pointer items-center gap-2.5 font-ui text-xs text-brand-muted">
+              <label className="touch-target inline-flex cursor-pointer items-center gap-2.5 font-ui text-xs text-brand-muted">
                 <input
                   type="checkbox"
                   checked={rememberMe}
@@ -180,7 +180,7 @@ export default function AttendeeAuthLoginPlate({
               </label>
               <Link
                 href={forgotPasswordHref}
-                className="font-ui text-xs font-semibold text-brand-pink transition hover:opacity-80"
+                className="touch-target inline-flex items-center px-2 font-ui text-xs font-semibold text-brand-pink transition hover:opacity-80"
               >
                 Forgot password?
               </Link>
@@ -251,7 +251,7 @@ export default function AttendeeAuthLoginPlate({
             Don&apos;t have an account?{" "}
             <Link
               href={createAccountHref}
-              className="font-semibold text-brand-pink transition hover:opacity-80"
+              className="touch-target inline-flex items-center px-2 font-semibold text-brand-pink transition hover:opacity-80"
             >
               Create account
             </Link>
@@ -260,7 +260,7 @@ export default function AttendeeAuthLoginPlate({
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <Link
               href="/experience/join-movement"
-              className="font-ui text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-brand-muted transition hover:text-brand-blue"
+              className="touch-target inline-flex items-center px-2 font-ui text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-brand-muted transition hover:text-brand-blue"
             >
               Join the movement
             </Link>
@@ -271,7 +271,7 @@ export default function AttendeeAuthLoginPlate({
               type="button"
               onClick={onGuest}
               disabled={isSubmitting}
-              className="font-ui text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-brand-muted transition hover:text-brand-blue"
+              className="touch-target inline-flex items-center px-2 font-ui text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-brand-muted transition hover:text-brand-blue"
             >
               Continue as guest
             </button>

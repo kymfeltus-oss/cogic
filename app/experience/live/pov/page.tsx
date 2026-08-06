@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Live | 300 Awakening",
+  title: "Live | COGIC LIVE",
   description: "Redirects to the production-honest live broadcast experience.",
 };
 

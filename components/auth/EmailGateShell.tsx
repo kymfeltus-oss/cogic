@@ -1,9 +1,8 @@
 "use client";
 
 import type { ReactNode, Ref } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { EXPERIENCE_BRAND_ASSETS } from "@/lib/experience/brand-assets";
+import { COGIC_LIVE_PUBLIC_NAME } from "@/lib/brand/public-display";
 import { cn } from "@/lib/utils";
 
 type EmailGateShellProps = {
@@ -55,15 +54,10 @@ export default function EmailGateShell({
         ) : null}
 
         <header className="mb-4 text-center">
-          <div className="relative mx-auto h-[6.75rem] w-full max-w-[17rem] sm:h-[8rem]">
-            <Image
-              src={EXPERIENCE_BRAND_ASSETS.lockup}
-              alt="300 Awakening"
-              fill
-              priority
-              sizes="(max-width: 640px) 68vw, 272px"
-              className="object-contain"
-            />
+          <div className="relative mx-auto flex min-h-[5.5rem] w-full max-w-[17rem] items-center justify-center sm:min-h-[6.5rem]">
+            <p className="font-headline text-[clamp(1.7rem,5.5vw,2.2rem)] uppercase tracking-[0.14em] text-white">
+              {COGIC_LIVE_PUBLIC_NAME}
+            </p>
           </div>
 
           {eyebrow ? (

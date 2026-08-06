@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import AttendeeLiveNavLink from "@/components/navigation/AttendeeLiveNavLink";
 import Link from "next/link";
-import { HeartHandshake, Home, Music2, Radio, Sprout } from "lucide-react";
+import { CalendarDays, HeartHandshake, Home, Radio, Video } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
   BOTTOM_NAV_HOTSPOTS,
@@ -13,9 +13,9 @@ import {
 const BOTTOM_NAV_ICONS: Record<BottomNavItemId, LucideIcon> = {
   home: Home,
   live: Radio,
+  schedule: CalendarDays,
   giving: HeartHandshake,
-  music: Music2,
-  "buy-seeds": Sprout,
+  replays: Video,
 };
 
 export default function BottomNavigation() {

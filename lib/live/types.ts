@@ -1,4 +1,4 @@
-export type ChatMessageRow = {
+﻿export type ChatMessageRow = {
   id: string;
   user_id: string;
   email: string;

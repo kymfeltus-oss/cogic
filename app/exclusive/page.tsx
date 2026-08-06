@@ -28,7 +28,7 @@ export default function ExclusivePage() {
             Coming Soon
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-zinc-400">
-            Behind the scenes footage, bloopers, and exclusive 300 Awakening content
+            Behind the scenes footage, bloopers, and exclusive COGIC LIVE content
             drops here first.
           </p>
         </motion.article>

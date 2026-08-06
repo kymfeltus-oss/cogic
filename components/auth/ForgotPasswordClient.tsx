@@ -69,7 +69,7 @@ export default function ForgotPasswordClient({
           <div className="relative mx-auto h-[6.75rem] w-full max-w-[17rem] sm:h-[8rem]">
             <Image
               src={EXPERIENCE_BRAND_ASSETS.lockup}
-              alt="300 Awakening"
+              alt="COGIC LIVE"
               fill
               priority
               sizes="(max-width: 640px) 68vw, 272px"

@@ -1,4 +1,4 @@
-import {
+﻿import {
   DEFAULT_PROGRAM_KEY,
   isEventType,
   isOccurrenceStatus,

@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
               unit_amount: amountCents,
               product_data: {
                 name: `${targetPack.count.toLocaleString("en-US")} Vital Seeds`,
-                description: `300 Awakening seed bundle — ${targetPack.count.toLocaleString("en-US")} seeds for the live experience.`,
+                description: `COGIC LIVE seed bundle — ${targetPack.count.toLocaleString("en-US")} seeds for the live experience.`,
               },
             },
           },

@@ -7,6 +7,7 @@ const NAV_HIDDEN_EXACT = [
   "/create-account",
   "/test-suite",
   "/countdown",
+  "/giving",
 ] as const;
 
 const NAV_HIDDEN_PREFIXES = [
@@ -24,6 +25,7 @@ const NAV_HIDDEN_PREFIXES = [
   "/dashboard/countdown",
   "/countdown",
   "/graphics",
+  "/c",
 ] as const;
 
 function matchesHiddenPrefix(pathname: string, prefix: string): boolean {
@@ -32,8 +34,6 @@ function matchesHiddenPrefix(pathname: string, prefix: string): boolean {
 
 const MOBILE_ARTBOARD_TAB_EXACT = [
   "/music",
-  "/giving",
-  "/experience/giving",
   "/program",
   "/buy-seeds",
   "/live",
@@ -73,7 +73,16 @@ export function isNavHiddenRoute(pathname: string): boolean {
     return true;
   }
 
+  if (pathname === "/c" || pathname.startsWith("/c/")) {
+    return true;
+  }
+
   return NAV_HIDDEN_PREFIXES.some((prefix) => matchesHiddenPrefix(pathname, prefix));
+}
+
+/** Public credential QR experience — isolated from attendee/admin chrome. */
+export function isCredentialPublicRoute(pathname: string): boolean {
+  return pathname === "/c" || pathname.startsWith("/c/");
 }
 
 /** @deprecated Use isNavHiddenRoute — kept for existing imports. */

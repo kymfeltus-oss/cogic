@@ -9,8 +9,8 @@ import {
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Log In | 300 Awakening",
-  description: "Log in to continue your 300 Awakening journey.",
+  title: "Log In | COGIC LIVE",
+  description: "Log in to continue your COGIC LIVE Convocation experience.",
 };
 
 type LoginPageProps = {

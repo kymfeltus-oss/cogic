@@ -5,8 +5,8 @@ import LiveDataLoader from "@/components/experience/live/LiveDataLoader";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "300 Awakening Live | Vital Organs Entertainment",
-  description: "Live broadcast experience powered by real stream state.",
+  title: "Live | COGIC LIVE",
+  description: "Official COGIC LIVE broadcast experience powered by real stream state.",
 };
 
 /** Attendee live entry — real live_stream_state + HLS/IVS infrastructure. */
