@@ -38,7 +38,7 @@ export default function DashboardLiveStage({
         )}
       </div>
 
-      <Link href="/live" className={`cl-btn cl-btn--block ${live.isLive ? "cl-btn--live-action" : "cl-btn--primary"}`}>
+      <Link href="/live" className="cl-btn cl-btn--live-action cl-btn--block">
         {live.isLive ? "Watch Live" : "Open Live Lobby"}
         <Radio aria-hidden="true" className="size-4" />
       </Link>
