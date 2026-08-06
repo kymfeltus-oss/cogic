@@ -36,7 +36,6 @@ const MOBILE_ARTBOARD_TAB_EXACT = [
   "/music",
   "/program",
   "/buy-seeds",
-  "/live",
   "/contact-us",
   "/experience/contact-us",
 ] as const;

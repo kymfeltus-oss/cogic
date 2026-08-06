@@ -50,7 +50,7 @@ function BuySeedsPageContent({ initialProfile }: BuySeedsPageContentProps) {
     <>
       <section
         className={`${CONTENT_WITH_NAV} flex min-h-0 w-full flex-1 flex-col overflow-hidden text-white`}
-        aria-label="Buy Vital Seeds"
+        aria-label="Buy Seeds"
       >
         <BuySeedsPlate
           profile={profile}
@@ -87,7 +87,7 @@ function BuySeedsPageContent({ initialProfile }: BuySeedsPageContentProps) {
                 Thank You
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-brand-muted">
-                Your Vital Seeds are ready for the live room. Shower the stage when the concert goes
+                Your seeds are ready for the live room. Shower the stage when the broadcast goes
                 live.
               </p>
               <button

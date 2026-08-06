@@ -1,5 +1,5 @@
 -- =============================================================================
--- VITAL ORGANS ENTERTAINMENT — WEBHOOK DRIFT REPAIR (CANONICAL, ZERO-GUESS)
+-- COGIC LIVE — WEBHOOK DRIFT REPAIR (CANONICAL, ZERO-GUESS)
 -- =============================================================================
 -- Run in Supabase Dashboard → SQL Editor on production ONLY after reviewing.
 --

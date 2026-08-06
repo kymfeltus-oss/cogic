@@ -29,7 +29,7 @@ export default function MusicPageClient({ initialProfile }: MusicPageClientProps
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={MUSIC_ASSETS.mobileBackground}
-            alt="Hallelujah Anyhow — Ian Craig and 300 Awakening"
+            alt="COGIC LIVE Music"
             width={MUSIC_MOBILE_ART_NATIVE.width}
             height={MUSIC_MOBILE_ART_NATIVE.height}
             className="music-page__bg"

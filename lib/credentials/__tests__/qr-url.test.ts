@@ -47,7 +47,7 @@ describe("public origin / QR URL resolver", () => {
     assert.throws(() => resolvePublicWebOrigin(), PublicOriginConfigurationError);
   });
 
-  it("does not fall back to vitalorgansent", () => {
+  it("does not fall back to a hard-coded legacy host", () => {
     env.NODE_ENV = "production";
     delete env.COGIC_STREAM_PUBLIC_WEB_ORIGIN;
     delete env.NEXT_PUBLIC_APP_URL;

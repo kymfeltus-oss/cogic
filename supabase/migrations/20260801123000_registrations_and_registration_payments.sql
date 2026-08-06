@@ -2,7 +2,7 @@
 -- 20260801123000_registrations_and_registration_payments.sql
 -- COGIC STREAM — Registration data foundation (Phase 4B)
 -- Target project: cogic (wjlaaluonxiaxmytiqwi)
--- Historical note: first applied on vital-organs-entertainment (tezzihhkqlovynybaypu)
+-- Historical note: this migration originated in the predecessor project.
 -- Does not modify donations, orders, Stripe webhook routing, seeds, or merch.
 -- Pricing not approved — amount_cents may be NULL; no free auto-confirm.
 -- =============================================================================

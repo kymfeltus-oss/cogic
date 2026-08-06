@@ -11,7 +11,7 @@ import { MOBILE_ARTBOARD_REF } from "@/lib/responsive";
 export const BUY_SEEDS_ASSET_VERSION = "20260622-9";
 
 export const BUY_SEEDS_ASSETS = {
-  mobileBackground: `/buy-seeds/mobile-main-background.png?v=${BUY_SEEDS_ASSET_VERSION}`,
+  mobileBackground: `/giving/giving.png?v=${BUY_SEEDS_ASSET_VERSION}`,
 } as const;
 
 export const BUY_SEEDS_MOBILE_ART = MOBILE_ARTBOARD_REF;

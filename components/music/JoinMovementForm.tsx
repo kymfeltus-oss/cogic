@@ -79,9 +79,9 @@ export default function JoinMovementForm() {
   if (status === "success") {
     return (
       <EmailGateShell
-        eyebrow="300 Awakening"
+        eyebrow="COGIC LIVE"
         title="You're In"
-        description="Thank you for joining the movement. We'll keep you connected with updates, music, and mission moments."
+        description="Thank you for joining. We'll keep you connected with updates, music, and mission moments."
         backHref="/experience/music"
         backLabel="Back to Music"
       >
@@ -94,9 +94,9 @@ export default function JoinMovementForm() {
 
   return (
     <EmailGateShell
-      eyebrow="300 Awakening"
+      eyebrow="COGIC LIVE"
       title="Join the Movement"
-      description="Stay connected. Get updates. Be part of the mission behind Hallelujah Anyhow and the 300 Awakening."
+      description="Stay connected. Get updates. Be part of the mission behind COGIC LIVE worship and community."
       backHref="/experience/music"
       backLabel="Back to Music"
     >

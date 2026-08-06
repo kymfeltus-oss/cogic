@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Play, Radio } from "lucide-react";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
+import {
+  COGIC_SERVICE_PREVIEW_EMBED_URL,
+  COGIC_SERVICE_PREVIEW_TITLE,
+} from "@/lib/live/service-preview";
 
 export default function DashboardLiveStage({
   live,
@@ -10,9 +14,9 @@ export default function DashboardLiveStage({
   return (
     <article className={`cl-live-stage${live.isLive ? " is-live" : ""}`}>
       <div className="cl-live-stage__header">
-        <span className="cl-pill cl-pill--live">
-          <i className="cl-pill__pulse" aria-hidden="true" />
-          Watch Live
+        <span className={`cl-pill ${live.isLive ? "cl-pill--live" : "cl-pill--ready"}`}>
+          {live.isLive ? <i className="cl-pill__pulse" aria-hidden="true" /> : null}
+          {live.isLive ? "Live" : "Ready"}
         </span>
         <span className="cl-live-stage__title">
           {live.isLive ? live.title ?? "COGIC LIVE broadcast" : "Service preview"}
@@ -28,8 +32,8 @@ export default function DashboardLiveStage({
           </div>
         ) : (
           <iframe
-            src="https://www.youtube.com/embed/4nO4nPV38Qk?si=4SAw2YAxbRVJFM4V&start=7&autoplay=1&mute=1&playsinline=1&controls=1"
-            title="COGIC LIVE service preview"
+            src={COGIC_SERVICE_PREVIEW_EMBED_URL}
+            title={COGIC_SERVICE_PREVIEW_TITLE}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"

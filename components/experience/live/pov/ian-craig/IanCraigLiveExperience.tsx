@@ -120,10 +120,15 @@ export default function IanCraigLiveExperience({
   }, [router]);
 
   const handleShare = useCallback(async () => {
-    const url = typeof window !== "undefined" ? window.location.href : "";
+    const { buildCanonicalLiveShareUrl } = await import("@/lib/sharing/canonical");
+    const url = buildCanonicalLiveShareUrl();
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title: "Ian Craig — LIVE", url });
+        await navigator.share({
+          title: "COGIC LIVE",
+          text: "Watch COGIC LIVE",
+          url,
+        });
         return;
       }
     } catch {

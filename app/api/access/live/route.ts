@@ -4,6 +4,9 @@ import { isLiveAccessDevBypassEnabled } from "@/lib/access/live-dev-bypass";
 import { createServerSupabaseClient } from "@/lib/supabase/ssr-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { loadOwnerStreamState } from "@/lib/owner/load-owner-state";
+import { getPublishedOccurrences } from "@/lib/events/repository";
+import { resolveAuthoritativeLiveState } from "@/lib/live/authoritative-state";
+import { fetchManifestStreamConfig } from "@/lib/live/fetch-manifest-stream-config";
 
 function normalizePublishMode(raw: unknown): LivePublishMode {
   if (
@@ -16,10 +19,10 @@ function normalizePublishMode(raw: unknown): LivePublishMode {
   return "none";
 }
 
-function buildStreamFlags(streamRow: Awaited<ReturnType<typeof loadOwnerStreamState>>["row"]) {
+function buildStreamFlags(streamRow: Awaited<ReturnType<typeof loadOwnerStreamState>>["row"], liveStatus: ReturnType<typeof resolveAuthoritativeLiveState>) {
   const streamIsLive = streamRow?.is_live === true;
   return {
-    streamIsLive,
+    streamIsLive: liveStatus === "live",
     currentState: streamRow?.current_state ?? (streamIsLive ? "live" : "offline"),
     publishMode: normalizePublishMode(streamRow?.publish_mode),
     publisherChannel: streamRow?.publisher_channel ?? null,
@@ -39,7 +42,13 @@ export async function GET() {
       );
     }
 
-    const streamFlags = buildStreamFlags(streamRow);
+    const [{ config: streamConfig }, occurrences] = await Promise.all([
+      fetchManifestStreamConfig(admin),
+      getPublishedOccurrences(),
+    ]);
+    const liveOccurrence = occurrences.find((occurrence) => occurrence.status === "live") ?? null;
+    const liveStatus = resolveAuthoritativeLiveState(liveOccurrence, streamConfig);
+    const streamFlags = buildStreamFlags(streamRow, liveStatus);
 
     const supabase = await createServerSupabaseClient();
     const {

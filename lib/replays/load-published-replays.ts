@@ -12,6 +12,8 @@ export type PublishedReplay = {
   localDate: string;
   playbackUrl: string;
   broadcastDate: string | null;
+  thumbnailUrl: string | null;
+  durationSeconds: number | null;
 };
 
 type RecordingRow = {
@@ -20,6 +22,9 @@ type RecordingRow = {
   recording_url: string | null;
   broadcast_date: string | null;
   link_expires_at: string | null;
+  publication_status: string;
+  thumbnail_url: string | null;
+  duration_seconds: number | null;
 };
 
 /**
@@ -44,7 +49,7 @@ export async function loadPublishedReplays(
   const admin = getSupabaseAdmin();
   const { data, error } = await admin
     .from("past_broadcast_recordings")
-    .select("id, stream_title, recording_url, broadcast_date, link_expires_at")
+    .select("id, stream_title, recording_url, broadcast_date, link_expires_at, publication_status, thumbnail_url, duration_seconds")
     .in("id", recordingIds);
 
   if (error) {
@@ -54,7 +59,7 @@ export async function loadPublishedReplays(
   const now = Date.now();
   const byId = new Map<string, RecordingRow>();
   for (const row of (data ?? []) as RecordingRow[]) {
-    if (!row.recording_url?.trim()) continue;
+    if (!row.recording_url?.trim() || row.publication_status !== "published") continue;
     if (row.link_expires_at) {
       const expires = Date.parse(row.link_expires_at);
       if (Number.isFinite(expires) && expires <= now) continue;
@@ -77,8 +82,19 @@ export async function loadPublishedReplays(
       localDate: occurrence.localDate,
       playbackUrl: recording.recording_url,
       broadcastDate: recording.broadcast_date,
+      thumbnailUrl: recording.thumbnail_url,
+      durationSeconds: recording.duration_seconds,
     });
   }
 
   return replays.sort((a, b) => (a.localDate < b.localDate ? 1 : -1));
+}
+
+export async function loadPublishedReplayById(
+  id: string,
+  programKey: string = DEFAULT_PROGRAM_KEY,
+): Promise<PublishedReplay | null> {
+  const replayId = id.trim();
+  if (!replayId) return null;
+  return (await loadPublishedReplays(programKey)).find((item) => item.id === replayId) ?? null;
 }

@@ -1,5 +1,9 @@
 import { getGivingFund, isActiveGivingFundKey } from "@/lib/giving/funds";
-import type { GivingCheckoutRequest, GivingFundKey, GivingPaymentMethodId } from "@/lib/giving/types";
+import type {
+  GivingCheckoutRequest,
+  GivingFundKey,
+  GivingPaymentMethodId,
+} from "@/lib/giving/types";
 
 export const MIN_GIVING_AMOUNT_CENTS = 50;
 export const MAX_GIVING_AMOUNT_CENTS = 1_000_000_00; // $1,000,000.00
@@ -23,6 +27,12 @@ export function validateGivingCheckoutInput(input: {
   note?: unknown;
   source?: unknown;
   paymentMethod?: unknown;
+  sourceType?: unknown;
+  mediaId?: unknown;
+  eventId?: unknown;
+  eventOccurrenceId?: unknown;
+  collectionId?: unknown;
+  programKey?: unknown;
 }): GivingValidationResult {
   const amountInCents = input.amountInCents;
 
@@ -59,6 +69,22 @@ export function validateGivingCheckoutInput(input: {
     return { ok: false, error: "Please select a valid payment method." };
   }
 
+  const optionalUuid = (value: unknown): string | undefined => {
+    if (typeof value !== "string") return undefined;
+    const trimmed = value.trim();
+    if (
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        trimmed,
+      )
+    ) {
+      return undefined;
+    }
+    return trimmed;
+  };
+
+  const sourceTypeRaw =
+    typeof input.sourceType === "string" ? input.sourceType.trim() : undefined;
+
   return {
     ok: true,
     value: {
@@ -68,6 +94,15 @@ export function validateGivingCheckoutInput(input: {
       frequency: "one_time",
       source,
       paymentMethod: paymentMethodRaw as GivingPaymentMethodId,
+      sourceType: sourceTypeRaw as GivingCheckoutRequest["sourceType"],
+      mediaId: optionalUuid(input.mediaId),
+      eventId: optionalUuid(input.eventId),
+      eventOccurrenceId: optionalUuid(input.eventOccurrenceId),
+      collectionId: optionalUuid(input.collectionId),
+      programKey:
+        typeof input.programKey === "string" && input.programKey.trim()
+          ? input.programKey.trim().slice(0, 80)
+          : undefined,
     },
   };
 }

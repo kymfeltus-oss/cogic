@@ -17,8 +17,6 @@ export function classifyRtmpStreamLink(value: unknown): RtmpStreamLinkKind {
     if (host.includes("pull")) return "pull";
     if (host.includes("live.restream.io")) return "push";
     if (host.startsWith("live.")) return "push";
-    if (host.includes("vitalorgansent.com")) return "push";
-
     const path = parsed.pathname.toLowerCase();
     if (path.includes("/live/")) return "push";
     if (path.includes("/pull/")) return "pull";

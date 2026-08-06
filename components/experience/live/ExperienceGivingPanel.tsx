@@ -7,6 +7,7 @@ import { getClientAppUrl } from "@/lib/client-api";
 import { buildAttendeeGateUrl } from "@/lib/auth/routing";
 import { useAttendeeLiveNavTarget } from "@/lib/experience/useAttendeeLiveNavTarget";
 import { DEFAULT_GIVING_FUND_KEY } from "@/lib/giving/funds";
+import type { GivingFundKey } from "@/lib/giving/types";
 
 const PRESET_AMOUNTS = [25, 50, 100, 250, 500, 1000] as const;
 
@@ -14,7 +15,13 @@ function sanitizeAmountInput(value: string): string {
   return value.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1");
 }
 
-export default function ExperienceGivingPanel() {
+export default function ExperienceGivingPanel({
+  fundKey = DEFAULT_GIVING_FUND_KEY,
+  heading = "Every Gift Has A Frequency",
+}: {
+  fundKey?: GivingFundKey;
+  heading?: string;
+} = {}) {
   const { href: liveNavHref } = useAttendeeLiveNavTarget();
   const [selectedAmount, setSelectedAmount] = useState<number | null>(50);
   const [customValue, setCustomValue] = useState("");
@@ -51,8 +58,9 @@ export default function ExperienceGivingPanel() {
         credentials: "include",
         body: JSON.stringify({
           amountInCents,
-          fundKey: DEFAULT_GIVING_FUND_KEY,
+          fundKey,
           source: "live-giving-panel",
+          sourceType: "live",
           paymentMethod: "card",
         }),
       });
@@ -82,12 +90,12 @@ export default function ExperienceGivingPanel() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [activeDollars]);
+  }, [activeDollars, fundKey]);
 
   return (
     <div>
       <p className="font-headline text-xl uppercase tracking-[0.14em] text-white sm:text-2xl">
-        Every Gift Has A Frequency
+        {heading}
       </p>
       <p className="mt-2 font-body text-sm leading-relaxed text-brand-muted">
         Support the mission through COGIC Giving.

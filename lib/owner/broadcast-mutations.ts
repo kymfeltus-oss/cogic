@@ -3,22 +3,18 @@ import type { GoLiveRequestBody, OwnerBroadcastSnapshot, PublishMode, SwitchFeed
 import { buildOwnerBroadcastSnapshot } from "@/lib/owner/build-broadcast-snapshot";
 import { emitStreamStateSync } from "@/lib/owner/broadcast-stream-sync";
 import {
-  resolveActiveFeedPlaybackUrl,
   resolveBackupFeedUrl,
   resolvePrimaryFeedUrl,
   seedFeedUrlsFromEnv,
 } from "@/lib/owner/feed-urls";
-import { probeHlsManifest } from "@/lib/owner/hls-readiness";
 import { loadOwnerStreamState, updateOwnerStreamState } from "@/lib/owner/load-owner-state";
 import {
-  buildPreflightChecks,
   preflightHasBlockers,
   parseGoLiveBody,
   parseSwitchFeedBody,
 } from "@/lib/owner/preflight";
-import { loadActiveCountdownConfig } from "@/lib/live/fetch-countdown-config";
-import { mapEventPhaseState } from "@/lib/owner/map-event-phase";
-import { fetchVmixSnapshot, startVmixStreaming, stopVmixStreaming } from "@/lib/owner/vmix/client";
+import { probeHlsManifest } from "@/lib/owner/hls-readiness";
+import { startVmixStreaming, stopVmixStreaming } from "@/lib/owner/vmix/client";
 
 export { parseGoLiveBody, parseSwitchFeedBody };
 
@@ -51,8 +47,6 @@ export async function runOwnerGoLive(
     return { ok: false, snapshot, message: "Broadcast is already live." };
   }
 
-  const countdownConfig = await loadActiveCountdownConfig();
-  const eventPhase = mapEventPhaseState(countdownConfig);
   const feedInputs = {
     primary_playback_url: row?.primary_playback_url,
     backup_playback_url: row?.backup_playback_url,
@@ -63,21 +57,8 @@ export async function runOwnerGoLive(
   const seeded = seedFeedUrlsFromEnv();
   const primaryUrl = resolvePrimaryFeedUrl(feedInputs) ?? seeded.primary_playback_url;
   const backupUrl = resolveBackupFeedUrl(feedInputs) ?? seeded.backup_playback_url;
-  const hlsUrl =
-    body.mode === "browser_camera"
-      ? null
-      : resolveActiveFeedPlaybackUrl({ ...feedInputs, active_source: "primary", is_live: false }).url ??
-        primaryUrl;
-  const hlsProbe = await probeHlsManifest(hlsUrl);
-
-  const preflight = buildPreflightChecks({
-    eventPhase,
-    countdownConfig,
-    streamState: row,
-    hlsProbe,
-    requestedMode: body.mode,
-    vmix: await fetchVmixSnapshot(),
-  });
+  const { snapshot: preflightSnapshot } = await buildOwnerBroadcastSnapshot(body.mode);
+  const preflight = preflightSnapshot.preflight;
 
   if (preflightHasBlockers(preflight) && !body.confirm) {
     const { snapshot } = await buildOwnerBroadcastSnapshot(body.mode);
@@ -107,7 +88,7 @@ export async function runOwnerGoLive(
     updated_by: updatedBy,
   });
 
-  if (body.mode === "rtmp_encoder") {
+  if (body.mode === "rtmp_encoder" && process.env.VMIX_REQUIRED === "true") {
     const vmixStart = await startVmixStreaming();
     if (!vmixStart.ok) {
       await updateOwnerStreamState(admin, {
@@ -134,6 +115,20 @@ export async function runOwnerGoLive(
   });
 
   await emitStreamStateSync();
+
+  // Authoritative OFFLINE→LIVE only — never from playback URL / preflight alone.
+  try {
+    const { sendLiveStartPushAlert } = await import("@/lib/push/live-alert");
+    await sendLiveStartPushAlert({
+      triggeredBy: updatedBy,
+      serviceTitle: row?.concert_title ?? null,
+    });
+  } catch (pushError) {
+    console.error(
+      "[owner/go-live] live push alert failed:",
+      pushError instanceof Error ? pushError.message : "unknown",
+    );
+  }
 
   const { snapshot } = await buildOwnerBroadcastSnapshot(body.mode);
   return {
@@ -176,6 +171,13 @@ export async function runOwnerEndBroadcast(
   });
 
   await emitStreamStateSync();
+
+  try {
+    const { closeLivePushSession } = await import("@/lib/push/live-alert");
+    await closeLivePushSession();
+  } catch {
+    // Non-blocking — ending broadcast must succeed even if push ledger update fails.
+  }
 
   const { snapshot } = await buildOwnerBroadcastSnapshot();
   return { ok: true, snapshot, message: "Broadcast ended." };

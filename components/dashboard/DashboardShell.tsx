@@ -7,15 +7,17 @@ import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
 import DashboardHero from "@/components/dashboard/DashboardHero";
 import DashboardLiveStage from "@/components/dashboard/DashboardLiveStage";
+import AnnouncementsCard from "@/components/dashboard/AnnouncementsCard";
 import DashboardLinkCard from "@/components/dashboard/DashboardLinkCard";
 import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
 import GivingCard from "@/components/dashboard/GivingCard";
 import MyConvocationCard from "@/components/dashboard/MyConvocationCard";
 import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
 import DashboardSection from "@/components/dashboard/DashboardSection";
+import StayConnectedPrompt from "@/components/notifications/StayConnectedPrompt";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 import type { ReactNode } from "react";
-import { Headphones, HeartHandshake, PlaySquare, UsersRound } from "lucide-react";
+import { Headphones, PlaySquare, UsersRound } from "lucide-react";
 
 export default function DashboardShell({
   data,
@@ -63,6 +65,8 @@ export default function DashboardShell({
               <TodayScheduleCard schedule={data.schedule} scheduleAvailable={data.scheduleAvailable} />
             </div>
 
+            <StayConnectedPrompt signedIn={Boolean(profile.userId)} />
+
             <DashboardSection eyebrow="Explore COGIC LIVE" title="Your experience">
               <div className="cl-action-grid cl-action-grid--six">
                 <MyConvocationCard
@@ -70,10 +74,10 @@ export default function DashboardShell({
                   signedIn={Boolean(profile.userId)}
                 />
                 <GivingCard />
+                <AnnouncementsCard />
                 <DashboardLinkCard eyebrow="COGIC Tube" title="Watch again" body="On-demand sermons, replays, and more." href="/replays" action="Watch now" secondaryAction="Browse all" icon={PlaySquare} />
                 <DashboardLinkCard eyebrow="Prayer Room" title="Find strength" body="Prayer resources for the Convocation journey." href="/prayer" action="Enter prayer room" secondaryAction="Prayer resources" icon={Headphones} tone="gold" />
                 <DashboardLinkCard eyebrow="COGIC Connect" title="Connect with COGIC" body="Reach the team and find your next step." href="/contact-us" action="Get connected" secondaryAction="Contact COGIC" icon={UsersRound} />
-                <DashboardLinkCard eyebrow="Need Help" title="We’re here to help" body="Contact the COGIC LIVE support team." href="/contact-us" action="Get support" secondaryAction="Help center" icon={HeartHandshake} />
               </div>
             </DashboardSection>
 

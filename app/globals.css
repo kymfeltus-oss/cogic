@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../styles/cogic-brand.css";
 
 html {
   -webkit-text-size-adjust: 100%;
@@ -128,14 +129,14 @@ body::-webkit-scrollbar {
   --page-safe-top: max(clamp(0.75rem, 2vh, 1.5rem), env(safe-area-inset-top, 0px));
   --page-safe-bottom: max(clamp(1rem, 3vh, 2rem), env(safe-area-inset-bottom, 0px));
   --content-readable: 72rem;
-  --gradient-brand: linear-gradient(90deg, #00a8ff 0%, #8a2eff 50%, #ff2faf 100%);
+  --gradient-brand: linear-gradient(90deg, #00a8ff 0%, #5c2d91 50%, #7b4bb8 100%);
   --gradient-brand-soft: linear-gradient(
     90deg,
     rgba(0, 168, 255, 0.25) 0%,
-    rgba(255, 47, 175, 0.25) 100%
+    rgba(92, 45, 145, 0.28) 100%
   );
   --shadow-glow-blue: 0 0 15px #00a8ff, 0 0 30px #00a8ff, 0 0 60px #00a8ff;
-  --shadow-glow-purple: 0 0 15px #8a2eff, 0 0 30px #8a2eff, 0 0 60px #8a2eff;
+  --shadow-glow-purple: 0 0 15px #5c2d91, 0 0 30px #5c2d91, 0 0 60px #5c2d91;
   --shadow-glow-pink: 0 0 15px #ff2faf, 0 0 30px #ff2faf, 0 0 60px #ff2faf;
   --brand-tracking-lockup: 0.22em;
   --brand-tracking-byline: 0.12em;
@@ -152,8 +153,8 @@ body::-webkit-scrollbar {
   --color-brand-panel: #0c0c10;
   --color-brand-blue: #00a8ff;
   --color-brand-pink: #ff2faf;
-  --color-brand-purple: #8a2eff;
-  --color-brand-indigo: #8a2eff;
+  --color-brand-purple: #5c2d91;
+  --color-brand-indigo: #5c2d91;
   --color-brand-white: #ffffff;
   --color-brand-muted: rgba(255, 255, 255, 0.68);
   --color-brand-border: rgba(255, 255, 255, 0.08);
@@ -962,7 +963,7 @@ body::-webkit-scrollbar {
   display: block;
   height: 3px;
   border-radius: 9999px;
-  background: linear-gradient(90deg, #00a8ff 0%, #8a2eff 50%, #ff2faf 100%);
+  background: linear-gradient(90deg, #00a8ff 0%, #5c2d91 50%, #ff2faf 100%);
   animation: intro-flash-loading-pulse 1.2s ease-in-out infinite;
 }
 
@@ -1507,7 +1508,7 @@ body::-webkit-scrollbar {
   --dash-headline-nudge-down: clamp(1.25rem, 2.8vh, 1.75rem);
   --dash-subtitle-size: clamp(0.6875rem, 1.15vw, 0.8125rem);
   --flyer-blue: #00a8ff;
-  --flyer-purple: #8a2eff;
+  --flyer-purple: #5c2d91;
   --flyer-pink: #ff2faf;
   --flyer-magenta: #ff2faf;
 }
@@ -5180,7 +5181,7 @@ body::-webkit-scrollbar {
   width: min(2.25rem, 58%);
   height: 3px;
   border-radius: 9999px;
-  background: linear-gradient(90deg, #00a8ff 0%, #8a2eff 48%, #ff2faf 100%);
+  background: linear-gradient(90deg, #00a8ff 0%, #5c2d91 48%, #ff2faf 100%);
   box-shadow:
     0 0 16px rgb(0 168 255 / 0.72),
     0 0 24px rgb(255 47 175 / 0.42);
@@ -5573,6 +5574,113 @@ body::-webkit-scrollbar {
 }
 
 /* Attendee login â€” native form (no PNG artboard) */
+/* COGIC LIVE attendee authentication — aligned with the dashboard system. */
+.cogic-auth-shell {
+  --color-brand-blue: #d58cff;
+  --color-brand-pink: #e7a1ff;
+  --color-brand-purple: #5c2d91;
+  --color-brand-border: rgba(181, 128, 220, .38);
+  --color-brand-muted: rgba(255, 255, 255, .62);
+  --color-brand-panel: #10081d;
+  --color-brand-black: #05020d;
+  min-height: 100dvh;
+  color: #fff;
+  background:
+    radial-gradient(circle at 18% 8%, rgba(116, 55, 170, .3), transparent 34rem),
+    radial-gradient(circle at 86% 88%, rgba(35, 91, 145, .2), transparent 32rem),
+    linear-gradient(145deg, #05020d 0%, #0b0415 48%, #061326 100%);
+}
+
+.cogic-auth-page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+}
+
+.cogic-auth-page::before {
+  position: fixed;
+  right: clamp(-6rem, -4vw, -2rem);
+  bottom: clamp(-7rem, -5vw, -3rem);
+  z-index: -1;
+  width: clamp(18rem, 38vw, 34rem);
+  aspect-ratio: 1;
+  background: url("/branding/cogic-seal.png") center / contain no-repeat;
+  content: "";
+  opacity: .055;
+  filter: saturate(.7);
+  pointer-events: none;
+}
+
+.cogic-auth-page__glow {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(115deg, transparent 0 46%, rgba(228, 171, 255, .055) 46.2% 46.35%, transparent 46.55%),
+    linear-gradient(160deg, transparent 0 62%, rgba(225, 181, 84, .05) 62.15% 62.3%, transparent 62.5%);
+}
+
+.cogic-auth-title {
+  color: #f7f4ff;
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: -.04em;
+}
+
+.cogic-auth-copy,
+.cogic-auth-label {
+  color: rgba(255, 255, 255, .6);
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+}
+
+.cogic-auth-card {
+  border: 1px solid rgba(181, 128, 220, .32);
+  border-radius: 1.5rem;
+  background: linear-gradient(145deg, rgba(20, 10, 37, .94), rgba(6, 3, 15, .92));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, .4), inset 0 1px rgba(255, 255, 255, .055);
+  backdrop-filter: blur(22px) saturate(120%);
+}
+
+.cogic-auth-input {
+  border: 1px solid rgba(181, 128, 220, .34);
+  border-radius: .8rem;
+  color: #fff;
+  background: rgba(12, 6, 22, .78);
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .035);
+}
+
+.cogic-auth-input::placeholder { color: rgba(255, 255, 255, .3); }
+.cogic-auth-input:focus { border-color: rgba(213, 140, 255, .75); box-shadow: 0 0 0 3px rgba(181, 91, 237, .12); }
+.cogic-auth-input option { color: #fff; background: #10081d; }
+
+.cogic-auth-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(181, 128, 220, .28);
+  color: #fff;
+  background: rgba(255, 255, 255, .035);
+}
+
+.cogic-auth-social:hover { border-color: rgba(213, 140, 255, .65); background: rgba(213, 140, 255, .09); }
+.cogic-auth-social__label { color: rgba(255, 255, 255, .82); font-size: .7rem; font-weight: 680; letter-spacing: .02em; }
+
+.cogic-auth-page button[type="submit"] {
+  border-color: rgba(213, 140, 255, .58);
+  color: #fff;
+  background: linear-gradient(135deg, #9b43d4, #5e75df);
+  box-shadow: 0 14px 32px rgba(107, 65, 190, .25);
+}
+
+.cogic-auth-page button[type="submit"]:hover { filter: brightness(1.08); }
+
+@media (max-width: 640px) {
+  .cogic-auth-card { border-radius: 1.25rem; box-shadow: 0 20px 55px rgba(0, 0, 0, .34); }
+  .cogic-auth-page::before { right: -7rem; bottom: -5rem; width: 19rem; }
+}
+
 .auth-login-page {
   position: relative;
   margin-inline: auto;
@@ -6984,7 +7092,7 @@ body::-webkit-scrollbar {
   font-weight: 700;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  background: linear-gradient(90deg, #00a8ff 0%, #8a2eff 50%, #ff2faf 100%);
+  background: linear-gradient(90deg, #00a8ff 0%, #5c2d91 50%, #ff2faf 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -7112,7 +7220,7 @@ body::-webkit-scrollbar {
   aspect-ratio: 1;
   border-radius: 9999px;
   padding: 3px;
-  background: conic-gradient(from 0deg, #00a8ff, #8a2eff, #ff2faf, #00a8ff);
+  background: conic-gradient(from 0deg, #00a8ff, #5c2d91, #ff2faf, #00a8ff);
 }
 
 .public-countdown-rings--compact .public-countdown-unit__ring {
@@ -8397,7 +8505,7 @@ body::-webkit-scrollbar {
   border-radius: 999px;
   background:
     radial-gradient(circle at 38% 28%, #ffffff, transparent 18%),
-    radial-gradient(circle at 50% 50%, #ff2faf, #8a2eff 48%, #00a8ff 72%, transparent 74%);
+    radial-gradient(circle at 50% 50%, #ff2faf, #5c2d91 48%, #00a8ff 72%, transparent 74%);
   box-shadow: 0 0 70px rgb(255 47 175 / 0.55);
 }
 
@@ -8501,7 +8609,7 @@ body::-webkit-scrollbar {
   width: 2.3rem;
   height: 3.2rem;
   border-radius: 60% 60% 48% 48%;
-  background: linear-gradient(180deg, #ffffff, #ffeaa2 34%, #ff2faf 72%, #8a2eff);
+  background: linear-gradient(180deg, #ffffff, #ffeaa2 34%, #ff2faf 72%, #5c2d91);
   filter: drop-shadow(0 0 18px rgb(255 47 175 / 0.75));
   transform-origin: 50% 90%;
   animation: awakening-program-flame 2.6s ease-in-out infinite;

@@ -11,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
 
 const RESTREAM_RTMP = "rtmp://live.restream.io/live";
-const PLAYBACK = "https://www.vitalorgansent.com/live";
+const PLAYBACK = "https://cogiclive.com/live";
 
 function pass(name, detail = "") {
   return { name, ok: true, detail };

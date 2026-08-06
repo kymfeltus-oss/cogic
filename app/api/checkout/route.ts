@@ -5,6 +5,11 @@ import {
   getStripeSecretKey,
   resolveAuthenticatedBuyer,
 } from "@/lib/checkout/server";
+import {
+  attributionInsertFields,
+  attributionToStripeMetadata,
+  resolveGivingAttribution,
+} from "@/lib/giving/attribution";
 import { getGivingFund } from "@/lib/giving/funds";
 import { validateGivingCheckoutInput } from "@/lib/giving/validation";
 import {
@@ -20,6 +25,7 @@ import { redactForLog, safeErrorMessage } from "@/lib/security/redact";
  * Security model:
  * - Buyer identity resolved ONLY from verified Supabase session cookies.
  * - Amount/fund/note validated server-side.
+ * - Source attribution verified against real published records.
  * - Stripe metadata stamped server-side for webhook reconciliation.
  *
  * Webhook: checkout.session.completed + checkout_type === "donation"
@@ -68,10 +74,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validated.error }, { status: 400 });
     }
 
-    const { amountInCents, fundKey, note, source, paymentMethod = "card" } = validated.value;
+    const {
+      amountInCents,
+      fundKey,
+      note,
+      source,
+      paymentMethod = "card",
+      sourceType,
+      mediaId,
+      eventId,
+      eventOccurrenceId,
+      collectionId,
+      programKey,
+    } = validated.value;
     const fund = getGivingFund(fundKey);
     if (!fund) {
       return NextResponse.json({ error: "Please select a valid fund." }, { status: 400 });
+    }
+
+    const attribution = await resolveGivingAttribution({
+      sourceType: sourceType ?? (source?.includes("live") ? "live" : "cogic_giving"),
+      mediaId,
+      eventId,
+      eventOccurrenceId,
+      collectionId,
+      programKey,
+    });
+    if (attribution.ok === false) {
+      return NextResponse.json({ error: attribution.error }, { status: 400 });
     }
 
     const stripe = new Stripe(stripeSecretKey);
@@ -83,6 +113,14 @@ export async function POST(request: NextRequest) {
           ? ["card"]
           : ["card", "link"];
     const productName = `COGIC Giving — ${fund.label}`;
+    const attributionMeta = attributionToStripeMetadata(attribution.value);
+
+    const returnPath =
+      attribution.value.sourceType === "replay" && attribution.value.mediaId
+        ? `/replays/${attribution.value.mediaId}`
+        : attribution.value.sourceType === "live"
+          ? "/live"
+          : "/giving";
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -115,9 +153,10 @@ export async function POST(request: NextRequest) {
         fund_label: fund.label,
         payment_method_preference: paymentMethod,
         ...(note ? { donor_note: note } : {}),
+        ...attributionMeta,
       },
-      success_url: `${appUrl}/giving?success=true`,
-      cancel_url: `${appUrl}/giving?canceled=true`,
+      success_url: `${appUrl}${returnPath}?success=true`,
+      cancel_url: `${appUrl}${returnPath}?canceled=true`,
     });
 
     const supabase = getSupabaseAdmin();
@@ -126,6 +165,10 @@ export async function POST(request: NextRequest) {
       amount_cents: amountInCents,
       status: "pending",
       stripe_session_id: session.id,
+      user_id: buyer.userId,
+      fund_key: fund.key,
+      source: source ?? "cogic-giving",
+      ...attributionInsertFields(attribution.value),
     });
 
     if (insertError) {

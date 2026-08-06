@@ -44,7 +44,7 @@ function ExperienceHoldingRoomPageContent({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={HOLDING_ROOM_ASSETS.mobileBackground}
-            alt="300 Awakening holding room"
+            alt="COGIC LIVE holding room"
             width={HOLDING_ROOM_ART_NATIVE.width}
             height={HOLDING_ROOM_ART_NATIVE.height}
             className="holding-room-page__bg"

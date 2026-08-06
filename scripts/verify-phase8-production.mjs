@@ -24,7 +24,7 @@ const report = {
   credentialSessionConfigured: false,
   registrationPricingConfigured: false,
   publicHttpsOriginConfigured: false,
-  noVitalOrgansQrFallback: false,
+  noLegacyQrFallback: false,
   qrOriginResolverPresent: false,
   healthEndpointReachable: false,
   devBypassesDisabled: false,
@@ -156,9 +156,10 @@ async function main() {
 
   const qrSource = fs.readFileSync(path.join(ROOT, "lib/credentials/qr-url.ts"), "utf8");
   setCheck(
-    "noVitalOrgansQrFallback",
-    !qrSource.includes("vitalorgansent"),
-    "qr-url.ts must not reference vitalorgansent",
+    "noLegacyQrFallback",
+    !qrSource.includes('return "https://') &&
+      !qrSource.includes("return 'https://"),
+    "qr-url.ts must resolve its host from environment configuration",
   );
   setCheck(
     "qrOriginResolverPresent",
@@ -231,7 +232,7 @@ async function main() {
     report.credentialSessionConfigured,
     report.registrationPricingConfigured,
     report.publicHttpsOriginConfigured,
-    report.noVitalOrgansQrFallback,
+    report.noLegacyQrFallback,
     report.qrOriginResolverPresent,
     report.devBypassesDisabled,
     report.rootMetadataCogicLive,

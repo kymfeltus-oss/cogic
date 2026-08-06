@@ -1,5 +1,5 @@
 {
-  "name": "vital-organs-ent",
+  "name": "cogic-live",
   "version": "0.1.1",
   "private": true,
   "packageManager": "npm@10.9.8",
@@ -20,10 +20,14 @@
     "test:credentials": "npx tsx --test lib/credentials/__tests__/**/*.test.ts",
     "test:phase5b": "npm run build && npx playwright test e2e/credential-public.spec.ts",
     "test:responsive": "node scripts/responsive-audit.mjs",
-    "test": "npx tsx --test lib/live/__tests__/attendee-live-honesty.test.ts lib/events/__tests__/**/*.test.ts lib/registration/__tests__/**/*.test.ts lib/credentials/__tests__/**/*.test.ts lib/security/__tests__/**/*.test.ts lib/rate-limit/__tests__/**/*.test.ts lib/giving/__tests__/**/*.test.ts lib/dashboard/__tests__/**/*.test.ts",
+    "test": "npx tsx --test lib/live/__tests__/**/*.test.ts lib/events/__tests__/**/*.test.ts lib/registration/__tests__/**/*.test.ts lib/credentials/__tests__/**/*.test.ts lib/security/__tests__/**/*.test.ts lib/rate-limit/__tests__/**/*.test.ts lib/giving/__tests__/**/*.test.ts lib/dashboard/__tests__/**/*.test.ts lib/archives/__tests__/**/*.test.ts lib/owner/__tests__/**/*.test.ts lib/announcements/__tests__/**/*.test.ts lib/media/__tests__/**/*.test.ts lib/push/__tests__/**/*.test.ts",
     "verify:phase6b": "node scripts/verify-phase6b-live.mjs",
     "verify:phase7": "node scripts/verify-phase7-registration-live.mjs",
     "verify:phase8": "node scripts/verify-phase8-production.mjs",
+    "brand:audit": "node scripts/audit-cogic-brand.mjs",
+    "brand:dashboard": "node scripts/verify-dashboard-brand.mjs",
+    "brand:verify": "node scripts/verify-cogic-brand.mjs",
+    "verify:parity": "node scripts/verify-admin-user-parity.mjs",
     "perf:production": "node scripts/perf-production-check.mjs",
     "measure:todays-service": "node scripts/measure-todays-service-load.mjs",
     "db:migration:new": "node scripts/db-migration-new.mjs",
@@ -54,14 +58,17 @@
     "server-only": "^0.0.1",
     "stripe": "^22.2.0",
     "tailwindcss": "^4.3.0",
+    "web-push": "^3.6.7",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@types/react": "19.2.17",
+    "@types/web-push": "^3.6.4",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.7",
     "playwright": "^1.62.1",
+    "tsx": "^4.23.9",
     "typescript": "6.0.3"
   },
   "optionalDependencies": {

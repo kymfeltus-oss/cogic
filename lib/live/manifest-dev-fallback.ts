@@ -42,18 +42,26 @@ function logManifestEnvRoutingCheck(): void {
     {
       attendeeDefined: Boolean(attendeeRaw?.trim()),
       publicDefined: Boolean(publicRaw?.trim()),
-      attendeeNormalized: attendee || null,
-      publicNormalized: publicUrl || null,
-      resolvedPlaybackUrl: resolved,
+      attendeeNormalized: Boolean(attendee),
+      publicNormalized: Boolean(publicUrl),
+      resolvedPlaybackUrl: Boolean(resolved),
       passesHlsValidation: resolved ? isValidHlsUrl(resolved) : false,
     },
   );
 }
 
+function acceptProductionPlaybackUrl(url: string | null): string | null {
+  if (!url) return null;
+  if (isDemoManifestPlaybackUrl(url)) return null;
+  return url;
+}
+
 /** ATTENDEE_PLAYBACK_HLS_URL only — highest-priority env lane for production. */
 export function resolvePrimaryAttendeePlaybackFromEnv(): string | null {
   const attendee = normalizeEnvPlaybackString(process.env.ATTENDEE_PLAYBACK_HLS_URL);
-  if (attendee && isValidHlsUrl(attendee)) return attendee;
+  if (attendee && isValidHlsUrl(attendee)) {
+    return acceptProductionPlaybackUrl(attendee);
+  }
   return null;
 }
 
@@ -65,8 +73,12 @@ export function resolveAttendeePlaybackFromEnv(): string | null {
   if (configuredAttendee) return configuredAttendee;
 
   const publicUrl = normalizeEnvPlaybackString(process.env.NEXT_PUBLIC_HLS_STREAM_URL);
-  if (publicUrl && isValidHlsUrl(publicUrl)) return publicUrl;
-  if (publicUrl && isValidHttpPlaybackUrl(publicUrl)) return publicUrl;
+  if (publicUrl && isValidHlsUrl(publicUrl)) {
+    return acceptProductionPlaybackUrl(publicUrl);
+  }
+  if (publicUrl && isValidHttpPlaybackUrl(publicUrl)) {
+    return acceptProductionPlaybackUrl(publicUrl);
+  }
 
   return null;
 }
@@ -74,7 +86,7 @@ export function resolveAttendeePlaybackFromEnv(): string | null {
 export function hasAttendeePlaybackEnvConfigured(): boolean {
   return ENV_PLAYBACK_KEYS.some((key) => {
     const normalized = normalizeEnvPlaybackString(process.env[key]);
-    return normalized.length > 0;
+    return Boolean(acceptProductionPlaybackUrl(normalized));
   });
 }
 
@@ -101,17 +113,16 @@ export type ManifestSuccessPayload = {
 };
 
 export function isAttendeePlaybackEnvPopulated(): boolean {
-  return Boolean(normalizeEnvPlaybackString(process.env.ATTENDEE_PLAYBACK_HLS_URL));
+  return Boolean(resolveConfiguredAttendeePlaybackFromEnv());
 }
 
 /**
  * ATTENDEE_PLAYBACK_HLS_URL when set in .env — prefers valid .m3u8, accepts any http(s) URL.
- * Stops the manifest from falling through to the Mux demo when the operator configured env.
+ * Never treats Mux demo / test-streams as a configured production source.
  */
 export function resolveConfiguredAttendeePlaybackFromEnv(): string | null {
   const attendee = normalizeEnvPlaybackString(process.env.ATTENDEE_PLAYBACK_HLS_URL);
-  if (!attendee) return null;
-  return attendee;
+  return acceptProductionPlaybackUrl(attendee || null);
 }
 
 /** True only when Mux demo fallback is explicitly allowed and no env playback is configured. */

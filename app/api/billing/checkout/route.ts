@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
               currency: "usd",
               unit_amount: amountCents,
               product_data: {
-                name: `${targetPack.count.toLocaleString("en-US")} Vital Seeds`,
+                name: `${targetPack.count.toLocaleString("en-US")} Seeds`,
                 description: `COGIC LIVE seed bundle — ${targetPack.count.toLocaleString("en-US")} seeds for the live experience.`,
               },
             },

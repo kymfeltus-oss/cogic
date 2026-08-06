@@ -1,5 +1,5 @@
 -- Down migration for 20260801123000_registrations_and_registration_payments.sql
--- Target: vital-organs-entertainment (tezzihhkqlovynybaypu)
+-- Historical rollback for the predecessor project schema.
 
 DROP FUNCTION IF EXISTS public.fulfill_registration_checkout(text, text);
 

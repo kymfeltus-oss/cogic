@@ -30,7 +30,7 @@ test("My Sanctuary uses the exact banner and official seal assets", async () => 
   assert.match(hero, /\/my-sanctuary\/banner\.png/);
   assert.match(hero, /width=\{2172\}/);
   assert.match(hero, /height=\{724\}/);
-  assert.match(topBar, /\/branding\/cogic-seal\.png/);
+  assert.match(topBar, /\/my-sanctuary\/cogic-live-logo-purple\.png/);
   assert.doesNotMatch(topBar, />C<\/span>/);
 });
 

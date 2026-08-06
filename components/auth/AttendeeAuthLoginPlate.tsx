@@ -3,12 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
-import { EXPERIENCE_BRAND_ASSETS } from "@/lib/experience/brand-assets";
 import type { OAuthProviderId } from "@/lib/auth/oauth-sign-in";
-import {
-  AWAKENING_AUTH_LOGIN_COMPONENTS,
-  awakeningAuthAssetUrl,
-} from "@/lib/experience/awakening-auth-assets";
 
 type AttendeeAuthLoginPlateProps = {
   createAccountHref: string;
@@ -31,27 +26,14 @@ type AttendeeAuthLoginPlateProps = {
 const SOCIAL_BUTTONS: ReadonlyArray<{
   provider: OAuthProviderId;
   label: string;
-  asset: (typeof AWAKENING_AUTH_LOGIN_COMPONENTS)[keyof typeof AWAKENING_AUTH_LOGIN_COMPONENTS];
 }> = [
-  {
-    provider: "apple",
-    label: "Apple",
-    asset: AWAKENING_AUTH_LOGIN_COMPONENTS.appleButton,
-  },
-  {
-    provider: "google",
-    label: "Google",
-    asset: AWAKENING_AUTH_LOGIN_COMPONENTS.googleButton,
-  },
-  {
-    provider: "facebook",
-    label: "Facebook",
-    asset: AWAKENING_AUTH_LOGIN_COMPONENTS.facebookButton,
-  },
+  { provider: "apple", label: "Apple" },
+  { provider: "google", label: "Google" },
+  { provider: "facebook", label: "Facebook" },
 ];
 
 const inputClassName =
-  "w-full rounded-xl border border-brand-border bg-brand-panel/80 py-3 font-body text-sm text-white outline-none transition placeholder:text-brand-muted/45 focus:border-brand-blue/50 focus:ring-1 focus:ring-brand-blue/25 disabled:opacity-60";
+  "cogic-auth-input w-full py-3 text-sm outline-none transition disabled:opacity-60";
 
 export default function AttendeeAuthLoginPlate({
   createAccountHref,
@@ -74,31 +56,43 @@ export default function AttendeeAuthLoginPlate({
   const messageIsError = Boolean(formError);
 
   return (
-    <div className="auth-login-page flex min-h-0 w-full flex-1 flex-col items-center overflow-y-auto py-3 pt-safe pb-safe sm:py-6">
-      <div className="auth-login-page__glow pointer-events-none" aria-hidden="true" />
+    <div className="cogic-auth-page flex min-h-0 w-full flex-1 flex-col items-center overflow-y-auto py-5 pt-safe pb-safe sm:py-10">
+      <div className="cogic-auth-page__glow pointer-events-none" aria-hidden="true" />
 
       <div className="relative z-[1] w-[var(--mobile-app-track-w)] max-w-[100vw]">
         <header className="mb-4 text-center">
-          <div className="relative mx-auto h-[6.75rem] w-full max-w-[17rem] sm:h-[8rem]">
-            <Image
-              src={EXPERIENCE_BRAND_ASSETS.lockup}
-              alt="COGIC LIVE"
-              fill
-              priority
-              sizes="(max-width: 640px) 68vw, 272px"
-              className="object-contain"
-            />
+          <div className="mx-auto flex h-[4.75rem] items-center justify-center gap-3 sm:h-[5.5rem] sm:gap-4">
+            <div className="relative size-[4.6rem] shrink-0 sm:size-[5.25rem]">
+              <Image
+                src="/branding/cogic-seal.png"
+                alt="Church of God in Christ seal"
+                fill
+                priority
+                sizes="84px"
+                className="object-contain"
+              />
+            </div>
+            <div className="relative h-[3.25rem] w-[13rem] sm:h-[3.75rem] sm:w-[15rem]">
+              <Image
+                src="/my-sanctuary/cogic-live-logo.png"
+                alt="COGIC LIVE"
+                fill
+                priority
+                sizes="(max-width: 640px) 208px, 240px"
+                className="object-contain"
+              />
+            </div>
           </div>
-          <h1 className="mt-2 px-4 font-headline text-[clamp(1.55rem,6.2vw,2.15rem)] uppercase leading-none tracking-[0.08em] text-white sm:px-6">
+          <h1 className="cogic-auth-title mt-5 px-4 text-[clamp(1.65rem,6.2vw,2.3rem)] leading-none sm:px-6">
             Welcome Back
           </h1>
-          <p className="mx-auto mt-2 max-w-[17rem] px-4 font-body text-[0.82rem] leading-snug text-brand-muted sm:px-6">
-            Sign in to pick up your journey where you left off.
+          <p className="cogic-auth-copy mx-auto mt-3 max-w-[19rem] px-4 text-[0.86rem] leading-relaxed sm:px-6">
+            Sign in to continue your COGIC LIVE experience.
           </p>
         </header>
 
         <div className="px-4 sm:px-6">
-        <div className="glass-panel rounded-[1.25rem] border border-brand-border p-5 shadow-[0_0_40px_rgba(0,168,255,0.06)] sm:p-7">
+        <div className="cogic-auth-card p-5 sm:p-7">
           <form onSubmit={onSubmit} aria-label="Log in" autoComplete="on" noValidate className="space-y-4">
             <label className="block">
               <span className="mb-1.5 block font-ui text-[0.62rem] font-bold uppercase tracking-[0.18em] text-brand-muted">
@@ -209,23 +203,16 @@ export default function AttendeeAuthLoginPlate({
           </div>
 
           <div className="grid grid-cols-3 gap-2.5">
-            {SOCIAL_BUTTONS.map(({ provider, label, asset }) => (
+            {SOCIAL_BUTTONS.map(({ provider, label }) => (
               <button
                 key={provider}
                 type="button"
                 disabled={isSubmitting}
                 aria-label={`Continue with ${label}`}
                 onClick={() => onOAuthSignIn(provider)}
-                className="touch-target overflow-hidden rounded-xl transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="cogic-auth-social touch-target rounded-xl px-2 py-3 transition disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <Image
-                  src={awakeningAuthAssetUrl(asset.src)}
-                  alt=""
-                  width={asset.width}
-                  height={asset.height}
-                  sizes="(max-width: 640px) 28vw, 120px"
-                  className="h-auto w-full object-contain"
-                />
+                <span aria-hidden="true" className="cogic-auth-social__label">{label}</span>
                 <span className="sr-only">Continue with {label}</span>
               </button>
             ))}
@@ -244,13 +231,7 @@ export default function AttendeeAuthLoginPlate({
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-            <Link
-              href="/experience/join-movement"
-              className="touch-target inline-flex items-center px-2 font-ui text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-brand-muted transition hover:text-brand-blue"
-            >
-              Join the movement
-            </Link>
-            <span className="text-brand-border" aria-hidden="true">
+            <span className="hidden" aria-hidden="true">
               ·
             </span>
             <button

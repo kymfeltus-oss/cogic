@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Radio, Video } from "lucide-react";
+import { listPublishedArchives } from "@/lib/archives/repository";
 import { loadPublishedReplays } from "@/lib/replays/load-published-replays";
+import { createServerSupabaseClient } from "@/lib/supabase/ssr-server";
 
 export const dynamic = "force-dynamic";
 
@@ -10,14 +12,52 @@ export const metadata: Metadata = {
   description: "Published COGIC LIVE service replays.",
 };
 
-export default async function ReplaysPage() {
+type ReplaysPageProps = { searchParams: Promise<{ q?: string; year?: string }> };
+
+export default async function ReplaysPage({ searchParams }: ReplaysPageProps) {
+  const params = await searchParams;
+  const query = params.q?.trim() ?? "";
+  const year = params.year?.trim() ?? "";
   let replays: Awaited<ReturnType<typeof loadPublishedReplays>> = [];
+  let continueWatching: Awaited<ReturnType<typeof loadPublishedReplays>> = [];
+  let archives: Awaited<ReturnType<typeof listPublishedArchives>> = [];
   let loadError: string | null = null;
 
   try {
     replays = await loadPublishedReplays();
+    archives = await listPublishedArchives().catch(() => []);
   } catch {
     loadError = "Unable to load replays right now. Please try again later.";
+  }
+
+  if (!loadError && replays.length > 0) {
+    try {
+      const supabase = await createServerSupabaseClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: progress } = await supabase
+          .from("replay_watch_progress")
+          .select("recording_id")
+          .eq("user_id", user.id)
+          .eq("completed", false)
+          .gt("last_position_seconds", 5)
+          .order("updated_at", { ascending: false })
+          .limit(12);
+        const ids = new Set((progress ?? []).map((row) => row.recording_id));
+        continueWatching = replays.filter((replay) => ids.has(replay.id));
+      }
+    } catch {
+      continueWatching = [];
+    }
+  }
+
+  if (!loadError && (query || year)) {
+    const normalizedQuery = query.toLocaleLowerCase();
+    replays = replays.filter((replay) => {
+      const matchesQuery = !normalizedQuery || [replay.title, replay.description ?? ""]
+        .join(" ").toLocaleLowerCase().includes(normalizedQuery);
+      return matchesQuery && (!year || replay.localDate.startsWith(year));
+    });
   }
 
   return (
@@ -75,16 +115,58 @@ export default async function ReplaysPage() {
                 Published recordings
               </h1>
               <p className="mx-auto mt-3 max-w-prose font-body text-base text-white/75">
-                Select a published replay to open the official recording.
-              </p>
+              Search and select a published replay to open the official recording.
+            </p>
+            <form method="get" className="mb-6 flex flex-col gap-3 sm:flex-row" role="search">
+              <label className="sr-only" htmlFor="replay-search">Search replays</label>
+              <input id="replay-search" name="q" defaultValue={query} placeholder="Search published replays" className="min-h-11 flex-1 rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm text-white outline-none placeholder:text-white/45 focus:border-brand-blue" />
+              <label className="sr-only" htmlFor="replay-year">Filter by year</label>
+              <input id="replay-year" name="year" defaultValue={year} inputMode="numeric" pattern="[0-9]{4}" placeholder="Year" className="min-h-11 w-full rounded-full border border-white/15 bg-white/[0.06] px-4 text-sm text-white outline-none placeholder:text-white/45 focus:border-brand-blue sm:w-28" />
+              <button type="submit" className="touch-target rounded-full bg-brand-blue px-5 py-2 font-ui text-sm font-bold text-brand-black">Search</button>
+            </form>
+            {continueWatching.length > 0 ? (
+              <section className="mb-7" aria-labelledby="continue-watching-heading">
+                <h2 id="continue-watching-heading" className="mb-3 font-headline text-2xl">Continue Watching</h2>
+                <ul className="flex flex-col gap-3">
+                  {continueWatching.map((replay) => (
+                    <li key={`continue-${replay.id}`}>
+                      <Link href={`/replays/${encodeURIComponent(replay.id)}`} className="block rounded-2xl border border-brand-blue/30 bg-brand-blue/[0.08] px-5 py-4 transition hover:border-brand-blue/60">
+                        <p className="font-ui text-xs font-semibold uppercase tracking-[0.14em] text-brand-blue">Resume replay</p>
+                        <p className="mt-1 font-headline text-xl text-white">{replay.title}</p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+            {archives.length > 0 ? (
+              <section className="mb-7" aria-labelledby="archives-heading">
+                <h2 id="archives-heading" className="mb-3 font-headline text-2xl">
+                  Convocation archives
+                </h2>
+                <ul className="flex flex-col gap-3">
+                  {archives.map((archive) => (
+                    <li key={archive.id}>
+                      <Link
+                        href={`/replays/archive/${encodeURIComponent(archive.slug)}`}
+                        className="block rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 transition hover:border-brand-blue/40"
+                      >
+                        <p className="font-ui text-xs font-semibold uppercase tracking-[0.14em] text-brand-blue">
+                          {archive.year}
+                        </p>
+                        <p className="mt-1 font-headline text-xl text-white">{archive.title}</p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
             </header>
             <ul className="flex flex-col gap-4">
               {replays.map((replay) => (
                 <li key={`${replay.occurrenceId}-${replay.id}`}>
-                  <a
-                    href={replay.playbackUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href={`/replays/${encodeURIComponent(replay.id)}`}
                     className="touch-target block rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-4 transition hover:border-brand-blue/40"
                   >
                     <p className="font-ui text-xs font-semibold uppercase tracking-[0.14em] text-brand-blue">
@@ -95,9 +177,9 @@ export default async function ReplaysPage() {
                       <p className="mt-2 font-body text-sm text-white/70">{replay.description}</p>
                     ) : null}
                     <p className="mt-3 font-ui text-xs font-bold uppercase tracking-[0.12em] text-brand-blue">
-                      Open recording
+                      View replay
                     </p>
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

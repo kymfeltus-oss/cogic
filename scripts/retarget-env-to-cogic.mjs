@@ -22,7 +22,6 @@ text = text.replace(
   `NEXT_PUBLIC_SUPABASE_ANON_KEY=${anon}`,
 );
 text = text.replaceAll("tezzihhkqlovynybaypu", "wjlaaluonxiaxmytiqwi");
-text = text.replaceAll("vital-organs-entertainment", "cogic");
 fs.writeFileSync(path, text);
 
 function jwtRef(line) {

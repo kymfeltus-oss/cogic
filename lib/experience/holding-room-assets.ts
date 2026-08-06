@@ -14,5 +14,5 @@ export const HOLDING_ROOM_ART_NATIVE = {
 export const HOLDING_ROOM_ASSET_VERSION = "20260621-holding-v7";
 
 export const HOLDING_ROOM_ASSETS = {
-  mobileBackground: `/holding page/holding-room.png?v=${HOLDING_ROOM_ASSET_VERSION}`,
+  mobileBackground: `/my-sanctuary/banner.png?v=${HOLDING_ROOM_ASSET_VERSION}`,
 } as const;

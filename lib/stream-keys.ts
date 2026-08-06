@@ -1,11 +1,14 @@
 import { isValidRtmpUrl } from "@/lib/live/rtmp";
 
 const DEFAULT_STREAM_KEY_PREFIX = "300awakening_live";
-export const DEFAULT_RTMP_INGEST_SERVER_BASE = "rtmp://vitalorgansent.com/live";
+export const DEFAULT_RTMP_INGEST_SERVER_BASE =
+  "rtmps://global-contribute.live-video.net:443/app";
 
 /** RTMP server base for encoder "Server URL" field (no trailing stream key). */
 export function resolveRtmpIngestServerBase(): string {
-  const fromEnv = process.env.RTMP_INGEST_SERVER_BASE?.trim();
+  const fromEnv =
+    process.env.AWS_IVS_INGEST_SERVER?.trim() ||
+    process.env.RTMP_INGEST_SERVER_BASE?.trim();
   if (fromEnv) {
     const normalized = fromEnv.replace(/\/+$/, "");
     if (isValidRtmpUrl(normalized)) return normalized;

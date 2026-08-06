@@ -1,9 +1,16 @@
 import { isValidHlsUrl } from "@/lib/live/hls";
 import type { ManifestStreamSource } from "@/lib/live/fetch-manifest-stream-config";
 import {
+  isDemoManifestPlaybackUrl,
   normalizeEnvPlaybackString,
   resolvePrimaryAttendeePlaybackFromEnv,
 } from "@/lib/live/manifest-dev-fallback";
+
+function acceptFeedPlaybackUrl(url: string | null): string | null {
+  if (!url) return null;
+  if (isDemoManifestPlaybackUrl(url)) return null;
+  return url;
+}
 
 export type FeedUrlInputs = {
   primary_playback_url?: string | null;
@@ -16,7 +23,7 @@ export type FeedUrlInputs = {
 /** Server-only backup HLS manifest (Amazon IVS, etc.). */
 export function resolveBackupPlaybackFromEnv(): string | null {
   const backup = normalizeEnvPlaybackString(process.env.ATTENDEE_BACKUP_HLS_URL);
-  if (backup && isValidHlsUrl(backup)) return backup;
+  if (backup && isValidHlsUrl(backup)) return acceptFeedPlaybackUrl(backup);
   return null;
 }
 
@@ -25,10 +32,10 @@ export function resolvePrimaryFeedUrl(inputs: FeedUrlInputs = {}): string | null
   if (env) return env;
 
   const dbPrimary = inputs.primary_playback_url?.trim() ?? "";
-  if (dbPrimary && isValidHlsUrl(dbPrimary)) return dbPrimary;
+  if (dbPrimary && isValidHlsUrl(dbPrimary)) return acceptFeedPlaybackUrl(dbPrimary);
 
   const legacy = inputs.playback_url?.trim() ?? "";
-  if (legacy && isValidHlsUrl(legacy)) return legacy;
+  if (legacy && isValidHlsUrl(legacy)) return acceptFeedPlaybackUrl(legacy);
 
   return null;
 }
@@ -38,7 +45,7 @@ export function resolveBackupFeedUrl(inputs: FeedUrlInputs = {}): string | null 
   if (env) return env;
 
   const dbBackup = inputs.backup_playback_url?.trim() ?? "";
-  if (dbBackup && isValidHlsUrl(dbBackup)) return dbBackup;
+  if (dbBackup && isValidHlsUrl(dbBackup)) return acceptFeedPlaybackUrl(dbBackup);
 
   return null;
 }

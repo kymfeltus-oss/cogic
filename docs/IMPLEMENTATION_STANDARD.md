@@ -37,6 +37,35 @@ Do not leave TODOs, stubs, dead buttons, unconnected forms, or UI without persis
 
 ---
 
+## 2A. ADMIN / USER PARITY RULE
+
+Whenever an attendee/user-facing feature requires owner/admin management, the **same implementation phase** must include both sides.
+
+Feature completion **fails** if either side is missing.
+
+Required together in one phase:
+
+1. database/schema
+2. server/API
+3. owner/admin UI
+4. attendee/user UI
+5. permissions/RLS
+6. loading/error/empty states
+7. real persistence
+8. end-to-end tests
+
+A feature is NOT complete if:
+
+- attendee UI exists but owner/admin cannot manage it
+- owner/admin UI exists but attendee experience does not consume it
+- database/API exists without working UI
+- UI exists without persistence
+- controls are decorative or dead
+
+Future Codex/Cursor work must explicitly report both the admin/owner side and the attendee/user side for managed features.
+
+---
+
 ## 3. INTERACTIVE UI
 
 Every control must either:

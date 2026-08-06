@@ -4,7 +4,7 @@ import {
   resolveClientPlaybackUrl,
 } from "@/lib/live/manifest-env-fast-path";
 import {
-  buildDevManifestFallbackPayload,
+  isDemoManifestPlaybackUrl,
   type ManifestExperienceKey,
 } from "@/lib/live/manifest-dev-fallback";
 import { resolveLiveManifestPlayback } from "@/lib/live/resolve-manifest-playback";
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
   }
 
   const resolved = await resolveLiveManifestPlayback();
-  if (resolved.playbackUrl) {
+  if (resolved.playbackUrl && !isDemoManifestPlaybackUrl(resolved.playbackUrl)) {
     return jsonResponse(request, {
       success: true,
       activeExperience: experience,
@@ -62,24 +62,13 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const fallbackPayload = buildDevManifestFallbackPayload(
-    experience,
-    "NO_CONFIGURED_HLS_PLAYBACK_URL",
-    { suppressDemoFallback: true },
-  );
-
-  if (fallbackPayload) {
-    return jsonResponse(request, {
-      ...fallbackPayload,
-      playbackUrl: resolveClientPlaybackUrl(request, fallbackPayload.playbackUrl),
-    });
-  }
-
+  // Offline / not live: never expose a configured IVS/env URL as a live manifest.
+  // resolveLiveManifestPlayback already serves env HLS only when is_live is true.
   return jsonResponse(
     request,
     {
       success: false,
-      error: "Live is open, but no HLS playback URL is configured.",
+      error: "Stream is offline or no HLS playback URL is configured.",
     },
     404,
   );

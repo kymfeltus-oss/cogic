@@ -14,6 +14,7 @@ import AttendeeLiveNavLink from "@/components/navigation/AttendeeLiveNavLink";
 import { PERSONA_HUB_PATH } from "@/lib/auth/routing";
 import { isAttendeeLiveSurfacePath, EXPERIENCE_LIVE_PATH } from "@/lib/experience/live-routes";
 import { ATTENDEE_DASHBOARD_PATH } from "@/lib/navigation/back-to-dashboard";
+import { revokeCurrentDeviceOnLogout } from "@/lib/push/client";
 import { cn } from "@/lib/utils";
 
 export type AwakeningMenuItem = {
@@ -104,6 +105,7 @@ export default function AwakeningMenuButton({
     setIsLoggingOut(true);
 
     try {
+      await revokeCurrentDeviceOnLogout();
       const res = await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include",

@@ -6,6 +6,7 @@ import type {
   PreflightCheck,
   PreflightCheckStatus,
 } from "@/lib/owner/contracts";
+import ProductionSourceAssignments from "@/components/owner/ProductionSourceAssignments";
 
 type OwnerControlDashboardProps = {
   snapshot: OwnerBroadcastSnapshot;
@@ -64,6 +65,9 @@ function PreflightRow({ check }: { check: PreflightCheck }) {
     <li className="flex items-start justify-between gap-3 border-b border-white/5 py-2 last:border-0">
       <div>
         <p className="font-body text-sm text-white/85">{check.label}</p>
+        <p className="mt-0.5 font-ui text-[0.52rem] uppercase tracking-[0.12em] text-white/35">
+          {check.required ? "Required" : "Optional"}
+        </p>
         {check.detail ? (
           <p className="mt-0.5 font-body text-xs text-white/45">{check.detail}</p>
         ) : null}
@@ -123,9 +127,6 @@ function LaneHealthCard({
           <dd className="text-white/85">{lane.hlsUrl ? "Configured" : "Missing"}</dd>
         </div>
       </dl>
-      {lane.hlsUrl ? (
-        <p className="mt-2 break-all font-body text-[0.65rem] text-white/30">{lane.hlsUrl}</p>
-      ) : null}
       {lane.detail && !lane.manifestReachable ? (
         <p className="mt-2 font-body text-xs text-amber-300/80">{lane.detail}</p>
       ) : null}
@@ -225,22 +226,22 @@ export default function OwnerControlDashboard({
 
         <section className="rounded-lg border border-white/15 bg-white/[0.02] p-4">
           <h2 className="font-ui text-[0.62rem] font-bold uppercase tracking-[0.18em] text-brand-blue">
-            Dual-Ingest Hot Redundancy
+            Production Sources
           </h2>
           <p className="mt-2 font-body text-xs text-white/45">
-            Lane A: vMix → Restream. Lane B: owner device → Amazon IVS. Keep both live before curtain.
+            Provider-aware primary contribution with an optional real backup. Playback and ingest credentials remain separate.
           </p>
 
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             <LaneHealthCard
-              title="Lane A — Primary (Restream)"
-              subtitle="vMix program mix via cam operator"
+              title={`Primary — ${snapshot.feed.primary.provider === "ivs" ? "Amazon IVS" : snapshot.feed.primary.provider}`}
+              subtitle="Professional production crew program feed"
               lane={snapshot.feed.primary}
               isActive={activeFeed === "primary"}
             />
             <LaneHealthCard
-              title="Lane B — Backup (IVS)"
-              subtitle="Hot standby — Larix/OBS on owner device"
+              title={`Backup — ${snapshot.feed.backup.hlsUrl ? snapshot.feed.backup.provider : "Unconfigured"}`}
+              subtitle="Optional approved production backup"
               lane={snapshot.feed.backup}
               isActive={activeFeed === "backup"}
             />
@@ -254,9 +255,9 @@ export default function OwnerControlDashboard({
               Current route:{" "}
               <span className="font-semibold text-white">
                 {activeFeed === "backup"
-                  ? "Lane B — AWS IVS (backup)"
+                  ? "Backup source"
                   : activeFeed === "primary"
-                    ? "Lane A — Restream (primary)"
+                    ? `Primary — ${snapshot.feed.primary.provider === "ivs" ? "Amazon IVS" : snapshot.feed.primary.provider}`
                     : "Offline"}
               </span>
             </p>
@@ -267,7 +268,7 @@ export default function OwnerControlDashboard({
                 onClick={() => onSwitchFeed?.("primary")}
                 className="min-h-11 rounded-full border border-white/20 px-5 font-ui text-[0.65rem] font-bold uppercase tracking-[0.12em] text-white disabled:opacity-40"
               >
-                Use Primary (Restream)
+                Use Primary
               </button>
               <button
                 type="button"
@@ -280,7 +281,7 @@ export default function OwnerControlDashboard({
                 onClick={() => onSwitchFeed?.("backup")}
                 className="min-h-11 rounded-full border border-red-400/50 bg-red-500/10 px-5 font-ui text-[0.65rem] font-bold uppercase tracking-[0.12em] text-red-200 disabled:opacity-40"
               >
-                Emergency Failover (IVS)
+                Use Backup
               </button>
             </div>
             {!isLive ? (
@@ -289,6 +290,27 @@ export default function OwnerControlDashboard({
               </p>
             ) : null}
           </div>
+        </section>
+
+        <ProductionSourceAssignments />
+
+        <section className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+          <h2 className="font-ui text-[0.62rem] font-bold uppercase tracking-[0.18em] text-brand-blue">
+            Broadcast Crew Connection
+          </h2>
+          <p className="mt-2 font-body text-xs text-white/45">
+            Safe status only. Stream keys, passphrases, and ingest endpoints are distributed manually by an authorized operator.
+          </p>
+          <dl className="mt-4 grid gap-3 font-body text-sm sm:grid-cols-2 lg:grid-cols-4">
+            <div><dt className="text-white/50">Primary source</dt><dd className="text-white/85">{snapshot.ingest.provider === "ivs" ? "Amazon IVS" : snapshot.ingest.provider}</dd></div>
+            <div><dt className="text-white/50">Ingest</dt><dd className={snapshot.ingest.ingestConfigured ? "text-emerald-400" : "text-amber-300"}>{snapshot.ingest.ingestConfigured ? `${snapshot.ingest.protocol.toUpperCase()} configured` : "Not configured"}</dd></div>
+            <div><dt className="text-white/50">Playback</dt><dd className={snapshot.ingest.playbackConfigured ? "text-emerald-400" : "text-red-400"}>{snapshot.ingest.playbackConfigured ? "Configured" : "Not configured"}</dd></div>
+            <div><dt className="text-white/50">Stream</dt><dd className={isLive ? "text-emerald-400" : "text-white/65"}>{isLive ? "Live" : "Offline"}</dd></div>
+            <div><dt className="text-white/50">Recording configured</dt><dd className="text-white/85">{snapshot.ingest.recordingConfigured ? "Yes" : "No"}</dd></div>
+            <div><dt className="text-white/50">Recording active</dt><dd className="text-white/85">{snapshot.ingest.recordingActive ? "Yes" : "No"}</dd></div>
+            <div><dt className="text-white/50">Backup</dt><dd className="text-white/85">{snapshot.ingest.backupConfigured ? "Configured" : "Unconfigured"}</dd></div>
+            <div><dt className="text-white/50">Crew connection</dt><dd className={snapshot.ingest.crewConnectionReady ? "text-emerald-400" : "text-amber-300"}>{snapshot.ingest.crewConnectionReady ? "Ready" : "Needs operator setup"}</dd></div>
+          </dl>
         </section>
 
         <section className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
@@ -362,8 +384,8 @@ export default function OwnerControlDashboard({
               </button>
             </div>
             <p className="mt-3 font-body text-xs text-white/35">
-              vMix must be configured in Restream as a stream destination. Lower thirds, audio mix, and
-              cameras are handled in vMix — this panel only monitors and sends start/stop commands.
+              vMix is optional. When explicitly enabled, this panel monitors it and sends start/stop commands;
+              Amazon IVS accepts approved professional encoders directly.
             </p>
           </section>
         ) : null}

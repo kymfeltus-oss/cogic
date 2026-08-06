@@ -1,13 +1,10 @@
-import LiveExperienceClient from "@/components/experience/live/LiveExperienceClient";
-import { buildAttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
+import LiveHubClient from "@/components/live/hub/LiveHubClient";
+import { loadLiveHub } from "@/lib/live/load-live-hub";
 
-type LiveDataLoaderProps = Record<string, never>;
-
-/** Renders the clean /live shell without blocking on server profile reads. */
-export default function LiveDataLoader(_props: LiveDataLoaderProps = {}) {
-  const initialProfile = buildAttendeeProfileSnapshot(null, null);
-
-  return (
-    <LiveExperienceClient initialProfile={initialProfile} />
-  );
+/**
+ * Server entry for the attendee Live Hub (legacy name retained for imports).
+ */
+export default async function LiveDataLoader() {
+  const data = await loadLiveHub();
+  return <LiveHubClient data={data} />;
 }

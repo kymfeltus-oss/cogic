@@ -43,7 +43,7 @@ test("attendee dashboard presentation contains no legacy public brand", async ()
   ];
   const combined = (await Promise.all(files.map(source))).join("\n");
   assert.match(combined, /COGIC/);
-  assert.doesNotMatch(combined, /Vital Organs|300 Awakening|Ian Craig/);
+  assert.doesNotMatch(combined, /300 Awakening|Ian Craig/);
 });
 
 test("dashboard sidebar uses the COGIC LIVE PNG logo asset", async () => {
@@ -79,5 +79,6 @@ test("dashboard uses a mobile-first streaming shell with safe fixed navigation",
   assert.match(css, /\.cl-bottom-nav[\s\S]*position:\s*fixed/);
   assert.match(css, /\.cl-hero__image[^}]*object-fit:\s*contain/);
   assert.doesNotMatch(css, /\.cl-hero__image[^}]*object-fit:\s*cover/);
+  assert.match(css, /\.cl-topbar__search\s*\{[^}]*order:\s*3[^}]*width:\s*100%[^}]*display:\s*flex/);
   assert.match(css, /prefers-reduced-motion/);
 });

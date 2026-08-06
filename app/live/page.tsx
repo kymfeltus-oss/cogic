@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
-import LiveDataLoader from "@/components/experience/live/LiveDataLoader";
+import LiveHubClient from "@/components/live/hub/LiveHubClient";
+import { loadLiveHub } from "@/lib/live/load-live-hub";
+import "./live-hub.css";
 
-/** Dynamic — stream state + manifest resolved per request. */
+/** Dynamic — stream state + hub rails resolved per request. */
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Live | COGIC LIVE",
-  description: "Official COGIC LIVE broadcast experience powered by real stream state.",
+  title: "Live Hub | COGIC LIVE",
+  description:
+    "Official COGIC LIVE hub — watch the broadcast, sow a seed, and browse replays from real stream and catalog state.",
 };
 
-/** Attendee live entry — real live_stream_state + HLS/IVS infrastructure. */
-export default function LivePage() {
-  return <LiveDataLoader />;
+/** Attendee Live Hub — single Watch Live destination with full media experience. */
+export default async function LivePage() {
+  const data = await loadLiveHub();
+  return <LiveHubClient data={data} />;
 }

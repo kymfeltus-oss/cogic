@@ -9,6 +9,7 @@ import {
   PrimaryGateButton,
   SecondaryGateButton,
 } from "@/components/auth/EmailGateShell";
+import NotificationPreferencesPanel from "@/components/notifications/NotificationPreferencesPanel";
 import ProfileOrb from "@/components/ProfileOrb";
 import type { AttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
 import { isValidEmail } from "@/lib/auth/validation";
@@ -340,7 +341,11 @@ export default function ProfileEditorModal({
                   Guest sessions can customize your display name and photo here. Create a full
                   account later to keep your profile across devices.
                 </p>
-              ) : null}
+              ) : (
+                <div className="border-t border-brand-border pt-4">
+                  <NotificationPreferencesPanel />
+                </div>
+              )}
             </div>
 
             {error ? (

@@ -83,8 +83,7 @@ export default function DashboardSidebar({
         </a>
       ) : null}
 
-      <div className="cl-sidebar__event" aria-label="118th Holy Convocation">
-        <Image src="/branding/cogic-seal.png" alt="" width={80} height={80} sizes="56px" />
+      <div className="cl-sidebar__event max-[1180px]:hidden" aria-label="118th Holy Convocation">
         <strong>118TH HOLY<br />CONVOCATION</strong>
         <b>ST. LOUIS, MO</b>
         <small>NOVEMBER 3–10, 2026</small>

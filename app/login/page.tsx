@@ -33,7 +33,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <main
       id="main-content"
-      className="flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-brand-black"
+      className="cogic-auth-shell flex min-h-0 w-full flex-1 flex-col overflow-hidden"
       aria-label="Log in page"
     >
       <AttendeeFunnelClient

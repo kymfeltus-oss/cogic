@@ -1,7 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { MonitorDot, Palette, Play, Radio, Timer } from "lucide-react";
+import {
+  Archive,
+  CalendarDays,
+  Megaphone,
+  MonitorDot,
+  Palette,
+  Play,
+  Radio,
+  Timer,
+  Video,
+} from "lucide-react";
 
 const PRODUCTION_NAV_ITEMS = [
   {
@@ -26,9 +36,37 @@ const PRODUCTION_NAV_ITEMS = [
     icon: Radio,
   },
   {
+    id: "events",
+    label: "Events",
+    eyebrow: "Schedule",
+    href: "/owner/events",
+    icon: CalendarDays,
+  },
+  {
+    id: "announcements",
+    label: "Announcements",
+    eyebrow: "Updates & alerts",
+    href: "/owner/announcements",
+    icon: Megaphone,
+  },
+  {
+    id: "replays",
+    label: "Media / Replays",
+    eyebrow: "Publish catalog",
+    href: "/owner/replays",
+    icon: Video,
+  },
+  {
+    id: "archives",
+    label: "Archives",
+    eyebrow: "Year collections",
+    href: "/owner/archives",
+    icon: Archive,
+  },
+  {
     id: "countdown",
     label: "Countdown",
-    eyebrow: "Schedule",
+    eyebrow: "Lobby clock",
     href: "/owner/countdown",
     icon: Timer,
   },

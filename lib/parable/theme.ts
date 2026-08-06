@@ -9,7 +9,7 @@ export const PARABLE_COLORS = {
   panel: "#111111",
   cyan: "#00f2ff",
   green: "#53fc18",
-  violet: "#8b5cf6",
+  violet: "#5c2d91",
   red: "#ef4444",
   muted: "#9ca3af",
   border: "rgba(255, 255, 255, 0.1)",
@@ -77,7 +77,7 @@ export const PARABLE_SHELL = {
   panelHover: "hover:border-[#53fc18]/60 transition",
   accentCyan: "text-[#00f2ff]",
   accentGreen: "text-[#53fc18]",
-  accentViolet: "text-[#8b5cf6]",
+  accentViolet: "text-[#5c2d91]",
   borderCyan: "border-[#00f2ff]/40",
   borderGreen: "border-[#53fc18]/40",
   btnPrimary:

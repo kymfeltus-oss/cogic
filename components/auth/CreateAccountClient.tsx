@@ -163,11 +163,11 @@ export default function CreateAccountClient({ nextPath }: CreateAccountClientPro
   return (
     <>
       {confirmationSent ? (
-        <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 px-4 py-10 text-center">
-          <p className="font-headline text-xl uppercase tracking-[0.12em] text-white">
+        <div className="cogic-auth-page mx-auto flex w-full max-w-md flex-col items-center justify-center gap-4 px-6 py-10 text-center">
+          <p className="cogic-auth-title text-2xl">
             Check Your Email
           </p>
-          <p className="font-body text-sm text-brand-muted">
+          <p className="cogic-auth-copy text-sm leading-relaxed">
             We sent a confirmation link to{" "}
             <span className="text-white">{values.email}</span>. Open it on this device to finish
             setting up your account, then sign in.

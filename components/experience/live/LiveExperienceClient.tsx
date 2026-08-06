@@ -32,7 +32,7 @@ import {
   attendeeStatusMessage,
   mapBroadcastStateToAttendeeStatus,
 } from "@/lib/live/attendee-live-honesty";
-import { useLiveRoomChat } from "@/lib/useLiveRoomChat";
+import LiveRoomChatPanel from "@/components/experience/live/LiveRoomChatPanel";
 import {
   LiveStreamReactionsProvider,
   useLiveStreamReactions,
@@ -44,6 +44,8 @@ const MANIFEST_SYNC_LISTENER_ID = "live-manifest-stream-sync";
 
 type LiveExperienceClientProps = {
   initialProfile: AttendeeProfileSnapshot;
+  /** `hub` embeds the player inside /live Live Hub without full-page chrome. */
+  variant?: "standalone" | "hub";
 };
 
 type ManifestState =
@@ -102,59 +104,22 @@ function LiveReactionsBurst() {
   );
 }
 
-function LiveRoomChatPanel({ enabled }: { enabled: boolean }) {
-  const chat = useLiveRoomChat();
-  if (!enabled) return null;
-
-  return (
-    <aside
-      className="border-t border-white/10 bg-black/80 px-4 py-3 sm:px-6"
-      aria-label="Live chat"
-    >
-      {chat.isLoading ? (
-        <p className="font-body text-xs text-white/55">Loading chat…</p>
-      ) : chat.error ? (
-        <div className="flex items-center justify-between gap-3">
-          <p className="font-body text-xs text-white/70" role="alert">
-            Chat is unavailable right now.
-          </p>
-          <button
-            type="button"
-            onClick={chat.clearError}
-            className="min-h-9 rounded-full border border-white/15 px-3 font-ui text-[0.58rem] font-bold uppercase tracking-[0.12em] text-white"
-          >
-            Dismiss
-          </button>
-        </div>
-      ) : chat.messages.length === 0 ? (
-        <p className="font-body text-xs text-white/55">No chat messages yet.</p>
-      ) : (
-        <ul className="max-h-28 space-y-1.5 overflow-y-auto">
-          {chat.messages.slice(-8).map((message) => (
-            <li key={message.id} className="font-body text-xs text-white/80">
-              <span className="font-semibold text-brand-blue">{message.author}</span>{" "}
-              {message.body}
-            </li>
-          ))}
-        </ul>
-      )}
-    </aside>
-  );
-}
-
 export default function LiveExperienceClient({
   initialProfile,
+  variant = "standalone",
 }: LiveExperienceClientProps) {
   return (
     <LiveStreamReactionsProvider enabled>
-      <LiveExperienceClientInner initialProfile={initialProfile} />
+      <LiveExperienceClientInner initialProfile={initialProfile} variant={variant} />
     </LiveStreamReactionsProvider>
   );
 }
 
 function LiveExperienceClientInner({
   initialProfile,
+  variant = "standalone",
 }: LiveExperienceClientProps) {
+  const isHub = variant === "hub";
   const attendeeName = initialProfile.headerDisplayName || initialProfile.email || "Guest";
   const reactions = useLiveStreamReactions();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -689,6 +654,118 @@ function LiveExperienceClientInner({
     void loadManifest();
   }, [loadManifest, syncAccess]);
 
+  const playerStage = (
+    <section
+      className={
+        isHub
+          ? "relative h-full min-h-0 overflow-hidden bg-[#050505]"
+          : "relative min-h-0 flex-1 overflow-hidden bg-[#050505]"
+      }
+    >
+      {showDirectPlayer ? (
+        <>
+          <video
+            ref={directVideoRef}
+            className="absolute inset-0 h-full w-full bg-black object-contain"
+            controls
+            playsInline
+            autoPlay
+            muted={!directAudioUnlocked}
+          />
+          <LiveReactionsBurst />
+          {!directAudioUnlocked ? (
+            <button
+              type="button"
+              onClick={enableDirectAudio}
+              className="absolute bottom-5 left-1/2 z-10 min-h-11 -translate-x-1/2 rounded-full border border-brand-blue/50 bg-black/75 px-5 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-brand-blue backdrop-blur"
+            >
+              Tap for audio
+            </button>
+          ) : null}
+        </>
+      ) : showPlayer ? (
+        <>
+          <video
+            ref={videoRef}
+            className="absolute inset-0 h-full w-full bg-black object-contain"
+            controls
+            controlsList="nodownload noremoteplayback"
+            disablePictureInPicture
+            playsInline
+            preload="none"
+            autoPlay
+            muted={!audioUnlocked}
+            crossOrigin="anonymous"
+          />
+          <LiveReactionsBurst />
+          {!audioUnlocked ? (
+            <button
+              type="button"
+              onClick={enableAudio}
+              className="absolute bottom-5 left-1/2 z-10 min-h-11 -translate-x-1/2 rounded-full border border-brand-blue/50 bg-black/75 px-5 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-brand-blue backdrop-blur"
+            >
+              Tap for audio
+            </button>
+          ) : null}
+          {reactions.enabled ? (
+            <button
+              type="button"
+              disabled={reactions.isSending}
+              onClick={() => void reactions.sendReaction("heart")}
+              className="absolute bottom-5 right-4 z-10 min-h-11 rounded-full border border-white/20 bg-black/70 px-4 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-white"
+            >
+              React
+            </button>
+          ) : null}
+        </>
+      ) : (
+        <div
+          className={
+            isHub
+              ? "flex h-full min-h-[16rem] items-center justify-center px-6 text-center"
+              : "flex h-full min-h-[calc(100dvh-9rem)] items-center justify-center px-6 text-center"
+          }
+        >
+          <div className="max-w-lg">
+            <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full border border-brand-blue/40 bg-brand-blue/10">
+              <span className="h-3 w-3 rounded-full bg-brand-blue shadow-[0_0_24px_rgba(83,252,255,0.75)]" />
+            </div>
+            <p className="font-ui text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white/60">
+              {waitingForAccess
+                ? "Checking access"
+                : locked
+                  ? "Sign in required"
+                  : statusLabel}
+            </p>
+            <p className="mt-4 font-body text-base text-white/80">{standbyMessage}</p>
+            {manifest.status === "error" || accessError ? (
+              <button
+                type="button"
+                onClick={retryPlayback}
+                className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-white"
+              >
+                Retry
+              </button>
+            ) : null}
+            {locked ? (
+              <Link
+                href={buildAttendeeGateUrl(EXPERIENCE_LIVE_PATH)}
+                className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full border border-brand-blue/50 bg-brand-blue/10 px-6 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-brand-blue"
+              >
+                Sign in
+              </Link>
+            ) : null}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+
+  if (isHub) {
+    // Embeddable player only — Live Hub owns page chrome, giving, and media rails.
+    return <div className="h-full min-h-0 bg-black text-white">{playerStage}</div>;
+  }
+
   return (
     <main className="min-h-dvh bg-black text-white">
       <div className="flex min-h-dvh flex-col">
@@ -706,98 +783,7 @@ function LiveExperienceClientInner({
           </div>
         </header>
 
-        <section className="relative min-h-0 flex-1 overflow-hidden bg-[#050505]">
-          {showDirectPlayer ? (
-            <>
-              <video
-                ref={directVideoRef}
-                className="absolute inset-0 h-full w-full bg-black object-contain"
-                controls
-                playsInline
-                autoPlay
-                muted={!directAudioUnlocked}
-              />
-              <LiveReactionsBurst />
-              {!directAudioUnlocked ? (
-                <button
-                  type="button"
-                  onClick={enableDirectAudio}
-                  className="absolute bottom-5 left-1/2 z-10 min-h-11 -translate-x-1/2 rounded-full border border-brand-blue/50 bg-black/75 px-5 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-brand-blue backdrop-blur"
-                >
-                  Tap for audio
-                </button>
-              ) : null}
-            </>
-          ) : showPlayer ? (
-            <>
-              <video
-                ref={videoRef}
-                className="absolute inset-0 h-full w-full bg-black object-contain"
-                controls
-                controlsList="nodownload noremoteplayback"
-                disablePictureInPicture
-                playsInline
-                preload="none"
-                autoPlay
-                muted={!audioUnlocked}
-                crossOrigin="anonymous"
-              />
-              <LiveReactionsBurst />
-              {!audioUnlocked ? (
-                <button
-                  type="button"
-                  onClick={enableAudio}
-                  className="absolute bottom-5 left-1/2 z-10 min-h-11 -translate-x-1/2 rounded-full border border-brand-blue/50 bg-black/75 px-5 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-brand-blue backdrop-blur"
-                >
-                  Tap for audio
-                </button>
-              ) : null}
-              {reactions.enabled ? (
-                <button
-                  type="button"
-                  disabled={reactions.isSending}
-                  onClick={() => void reactions.sendReaction("heart")}
-                  className="absolute bottom-5 right-4 z-10 min-h-11 rounded-full border border-white/20 bg-black/70 px-4 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-white"
-                >
-                  React
-                </button>
-              ) : null}
-            </>
-          ) : (
-            <div className="flex h-full min-h-[calc(100dvh-9rem)] items-center justify-center px-6 text-center">
-              <div className="max-w-lg">
-                <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full border border-brand-blue/40 bg-brand-blue/10">
-                  <span className="h-3 w-3 rounded-full bg-brand-blue shadow-[0_0_24px_rgba(83,252,255,0.75)]" />
-                </div>
-                <p className="font-ui text-[0.68rem] font-bold uppercase tracking-[0.18em] text-white/60">
-                  {waitingForAccess
-                    ? "Checking access"
-                    : locked
-                      ? "Sign in required"
-                      : statusLabel}
-                </p>
-                <p className="mt-4 font-body text-base text-white/80">{standbyMessage}</p>
-                {manifest.status === "error" || accessError ? (
-                  <button
-                    type="button"
-                    onClick={retryPlayback}
-                    className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-white"
-                  >
-                    Retry
-                  </button>
-                ) : null}
-                {locked ? (
-                  <Link
-                    href={buildAttendeeGateUrl(EXPERIENCE_LIVE_PATH)}
-                    className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full border border-brand-blue/50 bg-brand-blue/10 px-6 font-ui text-[0.68rem] font-bold uppercase tracking-[0.14em] text-brand-blue"
-                  >
-                    Sign in
-                  </Link>
-                ) : null}
-              </div>
-            </div>
-          )}
-        </section>
+        {playerStage}
 
         <LiveRoomChatPanel enabled={Boolean(access?.authenticated)} />
 

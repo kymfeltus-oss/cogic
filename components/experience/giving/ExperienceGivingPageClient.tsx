@@ -32,8 +32,7 @@ function ExperienceGivingPageContent({
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [activePreset, setActivePreset] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
-  const [selectedFrequency, setSelectedFrequency] =
-    useState<GivingFrequency>("one_time");
+  const [selectedFrequency] = useState<GivingFrequency>("one_time");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showThankYou, setShowThankYou] = useState(successParam);
@@ -92,6 +91,7 @@ function ExperienceGivingPageContent({
           fundKey: DEFAULT_GIVING_FUND_KEY,
           frequency: selectedFrequency,
           source: "experience-giving",
+          sourceType: "experience",
           paymentMethod: "card",
         }),
       });

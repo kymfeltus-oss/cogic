@@ -20,7 +20,6 @@ import {
   type CreateAccountFormValues,
 } from "@/lib/auth/create-account-validation";
 import { US_STATES } from "@/lib/auth/us-states";
-import { EXPERIENCE_BRAND_ASSETS } from "@/lib/experience/brand-assets";
 
 type AttendeeAuthCreateAccountPlateProps = {
   loginHref: string;
@@ -43,10 +42,10 @@ type AttendeeAuthCreateAccountPlateProps = {
 };
 
 const inputClassName =
-  "w-full rounded-xl border border-brand-border bg-brand-panel/80 py-3 font-body text-sm text-white outline-none transition placeholder:text-brand-muted/45 focus:border-brand-blue/50 focus:ring-1 focus:ring-brand-blue/25 disabled:opacity-60";
+  "cogic-auth-input w-full py-3 text-sm outline-none transition disabled:opacity-60";
 
 const labelClassName =
-  "mb-1.5 block font-ui text-[0.62rem] font-bold uppercase tracking-[0.18em] text-brand-muted";
+  "cogic-auth-label mb-1.5 block text-[0.62rem] font-bold uppercase tracking-[0.18em]";
 
 export default function AttendeeAuthCreateAccountPlate({
   loginHref,
@@ -65,30 +64,42 @@ export default function AttendeeAuthCreateAccountPlate({
   onSubmit,
 }: AttendeeAuthCreateAccountPlateProps) {
   return (
-    <div className="auth-login-page flex min-h-0 w-full flex-1 flex-col items-center overflow-y-auto py-3 pt-safe pb-safe sm:py-6">
-      <div className="auth-login-page__glow pointer-events-none" aria-hidden="true" />
+    <div className="cogic-auth-page flex min-h-0 w-full flex-1 flex-col items-center overflow-y-auto py-5 pt-safe pb-safe sm:py-10">
+      <div className="cogic-auth-page__glow pointer-events-none" aria-hidden="true" />
 
       <div className="relative z-[1] w-[var(--mobile-app-track-w)] max-w-[100vw] px-4">
         <header className="mb-4 text-center">
-          <div className="relative mx-auto h-[6.75rem] w-full max-w-[17rem] sm:h-[8rem]">
-            <Image
-              src={EXPERIENCE_BRAND_ASSETS.lockup}
-              alt="COGIC LIVE"
-              fill
-              priority
-              sizes="(max-width: 640px) 68vw, 272px"
-              className="object-contain"
-            />
+          <div className="mx-auto flex h-[4.75rem] items-center justify-center gap-3 sm:h-[5.5rem] sm:gap-4">
+            <div className="relative size-[4.6rem] shrink-0 sm:size-[5.25rem]">
+              <Image
+                src="/branding/cogic-seal.png"
+                alt="Church of God in Christ seal"
+                fill
+                priority
+                sizes="84px"
+                className="object-contain"
+              />
+            </div>
+            <div className="relative h-[3.25rem] w-[13rem] sm:h-[3.75rem] sm:w-[15rem]">
+              <Image
+                src="/my-sanctuary/cogic-live-logo.png"
+                alt="COGIC LIVE"
+                fill
+                priority
+                sizes="(max-width: 640px) 208px, 240px"
+                className="object-contain"
+              />
+            </div>
           </div>
-          <h1 className="mt-2 font-headline text-[clamp(1.55rem,6.2vw,2.15rem)] uppercase leading-none tracking-[0.08em] text-white">
+          <h1 className="cogic-auth-title mt-5 text-[clamp(1.65rem,6.2vw,2.3rem)] leading-none">
             Create Account
           </h1>
-          <p className="mx-auto mt-2 max-w-[18rem] font-body text-[0.82rem] leading-snug text-brand-muted">
-            Join the movement and unlock your live experience.
+          <p className="cogic-auth-copy mx-auto mt-3 max-w-[20rem] text-[0.86rem] leading-relaxed">
+            Create your account for the complete COGIC LIVE experience.
           </p>
         </header>
 
-        <div className="glass-panel rounded-[1.25rem] border border-brand-border p-5 shadow-[0_0_40px_rgba(0,168,255,0.06)] sm:p-7">
+        <div className="cogic-auth-card p-5 sm:p-7">
           <form
             onSubmit={onSubmit}
             aria-label="Create account"

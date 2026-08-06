@@ -55,11 +55,11 @@ export function downloadHoldingRoomCalendar(config: {
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Vital Organs Entertainment//300 Awakening//EN",
+    "PRODID:-//COGIC LIVE//Holy Convocation//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:300-awakening-${dtStart}@vitalorgansent.com`,
+    `UID:cogic-live-${dtStart}@cogiclive.com`,
     `DTSTAMP:${formatIcsUtc(new Date().toISOString())}`,
     `DTSTART:${dtStart}`,
     `DTEND:${dtEnd}`,
@@ -73,7 +73,7 @@ export function downloadHoldingRoomCalendar(config: {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = "300-awakening-live.ics";
+  anchor.download = "cogic-live-event.ics";
   anchor.click();
   URL.revokeObjectURL(url);
 }

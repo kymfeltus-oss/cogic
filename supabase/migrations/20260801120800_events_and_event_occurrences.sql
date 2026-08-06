@@ -2,7 +2,7 @@
 -- 20260801120800_events_and_event_occurrences.sql
 -- COGIC STREAM — Event + occurrence foundation (Phase 3B)
 -- Target project: cogic (wjlaaluonxiaxmytiqwi)
--- Historical note: first applied on vital-organs-entertainment (tezzihhkqlovynybaypu)
+-- Historical note: this migration originated in the predecessor project.
 -- Does not modify live_stream_state, chat, reactions, or commerce.
 -- =============================================================================
 

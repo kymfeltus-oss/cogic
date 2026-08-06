@@ -56,7 +56,7 @@ export default function BuySeedsOverlay({
   return (
     <div
       className="buy-seeds-page__overlay"
-      aria-label="Buy Vital Seeds"
+      aria-label="Buy Seeds"
       style={
         {
           "--buy-seeds-baked-mask-top": BUY_SEEDS_BAKED_CONTROLS_MASK.top,

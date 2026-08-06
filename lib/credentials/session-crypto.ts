@@ -43,6 +43,9 @@ function decryptSessionPayload(
   try {
     const raw = Buffer.from(value, "base64url");
     if (raw.length < 29) return null;
+    // Reject non-canonical encodings whose unused base64url bits were altered.
+    // Node's decoder can otherwise map multiple strings to the same bytes.
+    if (raw.toString("base64url") !== value) return null;
 
     const iv = raw.subarray(0, 12);
     const tag = raw.subarray(12, 28);

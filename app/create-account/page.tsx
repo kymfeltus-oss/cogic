@@ -29,7 +29,7 @@ export default async function CreateAccountPage({ searchParams }: CreateAccountP
   return (
     <main
       id="main-content"
-      className="flex min-h-0 w-full flex-1 flex-col overflow-hidden bg-brand-black"
+      className="cogic-auth-shell flex min-h-0 w-full flex-1 flex-col overflow-hidden"
       aria-label="Create account"
     >
       <CreateAccountClient nextPath={nextPath} />

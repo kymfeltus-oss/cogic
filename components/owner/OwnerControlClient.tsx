@@ -19,8 +19,19 @@ const EMPTY_SNAPSHOT: OwnerBroadcastSnapshot = {
   },
   feed: {
     activeSource: "offline",
-    primary: { hlsUrl: null, manifestReachable: false, detail: null },
-    backup: { hlsUrl: null, manifestReachable: false, detail: null },
+    primary: { provider: "external", hlsUrl: null, manifestReachable: false, detail: null },
+    backup: { provider: "external", hlsUrl: null, manifestReachable: false, detail: null },
+  },
+  ingest: {
+    provider: "external",
+    protocol: "unconfigured",
+    ingestConfigured: false,
+    playbackConfigured: false,
+    channelConfigured: false,
+    recordingConfigured: false,
+    recordingActive: false,
+    backupConfigured: false,
+    crewConnectionReady: false,
   },
   preflight: [],
   publisherSessionId: null,
@@ -71,9 +82,12 @@ export default function OwnerControlClient() {
   }, []);
 
   useEffect(() => {
-    void loadSnapshot();
+    const initialId = window.setTimeout(() => void loadSnapshot(), 0);
     const intervalId = window.setInterval(() => void loadSnapshot(true), POLL_MS);
-    return () => window.clearInterval(intervalId);
+    return () => {
+      window.clearTimeout(initialId);
+      window.clearInterval(intervalId);
+    };
   }, [loadSnapshot]);
 
   const runPreflight = useCallback(

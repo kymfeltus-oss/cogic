@@ -6,6 +6,7 @@ import { getPublishedOccurrences } from "@/lib/events/repository";
 import type { PublishedOccurrence } from "@/lib/events/types";
 import { fetchAttendeeProfileRecord } from "@/lib/experience/fetch-attendee-profile";
 import { fetchManifestStreamConfig } from "@/lib/live/fetch-manifest-stream-config";
+import { resolveAuthoritativeLiveState } from "@/lib/live/authoritative-state";
 import {
   buildOccurrenceLookup,
   getChicagoLocalDate,
@@ -80,11 +81,12 @@ export async function loadAttendeeDashboard(): Promise<AttendeeDashboardData> {
   const todayOccurrences = occurrences.filter((item) => item.localDate === today).slice(0, 3);
   const liveOccurrence = activeOccurrence(occurrences);
   const nextOccurrence = resolveNextOccurrenceToday(occurrences);
+  const liveStatus = resolveAuthoritativeLiveState(liveOccurrence, manifest);
 
   return {
     profile,
     live: {
-      isLive: manifest?.is_live === true,
+      isLive: liveStatus === "live",
       title: liveOccurrence?.title ?? null,
       nextTitle: nextOccurrence?.title ?? null,
       nextTime: nextOccurrence

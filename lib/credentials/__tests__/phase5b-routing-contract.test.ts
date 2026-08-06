@@ -44,7 +44,7 @@ describe("Phase 5B routing contract", () => {
       assert.match(url, /^https:\/\/live\.example\.com\/c\/[A-Za-z0-9_-]{43}$/);
       assert.equal(url.includes("@"), false);
       assert.equal(url.includes("registration"), false);
-      assert.equal(url.includes("vitalorgansent"), false);
+      assert.equal(new URL(url).hostname, "live.example.com");
     } finally {
       if (previousOrigin === undefined) {
         delete process.env.COGIC_STREAM_PUBLIC_WEB_ORIGIN;

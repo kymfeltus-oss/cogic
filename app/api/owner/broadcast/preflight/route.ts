@@ -30,7 +30,21 @@ export async function POST(request: Request) {
     }
 
     const { snapshot, blocked } = await runOwnerPreflight(mode);
-    return ownerJsonResponse({ snapshot, blocked });
+    const checks = Object.fromEntries(
+      snapshot.preflight.map((check) => [
+        check.id,
+        {
+          status:
+            check.id === "vmix_api" && check.status === "skipped"
+              ? "NOT_CONFIGURED"
+              : check.status.toUpperCase(),
+          required: check.required,
+          ...(check.provider ? { provider: check.provider } : {}),
+          ...(check.detail ? { detail: check.detail } : {}),
+        },
+      ]),
+    );
+    return ownerJsonResponse({ primaryProvider: snapshot.ingest.provider, checks, blocked, snapshot });
   } catch (error) {
     console.error("[owner/broadcast/preflight] POST failed:", error);
     return ownerJsonResponse({ error: "Preflight failed." }, 500);

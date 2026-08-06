@@ -4,7 +4,7 @@
   "webDir": "out",
   "bundledWebRuntime": false,
   "server": {
-    "url": "https://vital-organs-entertainment.vercel.app",
+    "url": "https://cogiclive.com",
     "cleartext": false
   }
 }

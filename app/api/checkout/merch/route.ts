@@ -41,7 +41,7 @@ function resolveCheckoutLineItem(
 
     const seedLabel =
       ticketTier.seedBonus > 0
-        ? ` Includes ${ticketTier.seedBonus.toLocaleString("en-US")} Vital Seeds.`
+        ? ` Includes ${ticketTier.seedBonus.toLocaleString("en-US")} seeds.`
         : "";
 
     return {

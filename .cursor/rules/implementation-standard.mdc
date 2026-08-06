@@ -13,6 +13,8 @@ Full document: `docs/IMPLEMENTATION_STANDARD.md`
 
 2. **END-TO-END** — Every feature must complete: UI → validation → secure server action/API → persistence/payment → response → UI refresh → correct next route. No stubs, TODOs, or unfinished workflows presented as done.
 
+2A. **ADMIN / USER PARITY** — If an attendee/user feature needs owner/admin management, ship both sides in the same phase: schema, API, owner/admin UI, attendee/user UI, permissions/RLS, loading/error/empty states, real persistence, and e2e tests. Incomplete if either side is missing. Explicitly report both sides in the final verification.
+
 3. **NO DEAD UI** — Every button/link/control must perform a real action or navigate to a real functional destination. Otherwise remove/hide it.
 
 4. **SERVER AUTHORITY** — Never trust client-provided user IDs, prices, amounts, registration/credential status, fund IDs, or roles. Validate server-side. Service role stays server-only.

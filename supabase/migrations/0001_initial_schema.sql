@@ -1,6 +1,6 @@
 -- =============================================================================
 -- 300 Awakening — Initial Production Schema
--- Project: cogic (wjlaaluonxiaxmytiqwi); originally vital-organs-entertainment
+-- Project: cogic (wjlaaluonxiaxmytiqwi); imported from the predecessor project
 --
 -- Tables : attendees, orders, donations, chat_messages, harvest_progress
 -- Auth   : public.handle_new_user() syncs auth.users → public.attendees

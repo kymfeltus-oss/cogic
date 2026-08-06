@@ -1,4 +1,4 @@
-import LiveDataLoader from "@/components/experience/live/LiveDataLoader";
+import { redirect } from "next/navigation";
 import LiveStreamUnavailable from "@/components/live/LiveStreamUnavailable";
 import { isKnownAttendeeStreamId } from "@/lib/live/attendee-live-honesty";
 import { attendeeStatusMessage } from "@/lib/live/attendee-live-honesty";
@@ -10,8 +10,8 @@ type LiveStreamPageProps = {
 };
 
 /**
- * Attendee stream deep-link. Known IDs resolve to the singleton live broadcast
- * via LiveExperienceClient. Unknown IDs show an honest unavailable state.
+ * Legacy attendee stream deep-links resolve to the Live Hub at `/live`.
+ * Unknown IDs stay honest unavailable — no isolated player shell.
  */
 export default async function LiveStreamPage({ params }: LiveStreamPageProps) {
   const { streamId } = await params;
@@ -25,5 +25,5 @@ export default async function LiveStreamPage({ params }: LiveStreamPageProps) {
     );
   }
 
-  return <LiveDataLoader />;
+  redirect("/live");
 }

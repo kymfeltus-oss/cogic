@@ -90,12 +90,33 @@ export default function CogicGivingExperience() {
         return;
       }
 
+      const sourceTypeParam = searchParams.get("sourceType");
+      const mediaId = searchParams.get("mediaId") ?? undefined;
+      const eventOccurrenceId =
+        searchParams.get("occurrenceId") ??
+        searchParams.get("eventOccurrenceId") ??
+        undefined;
+      const collectionId = searchParams.get("collectionId") ?? undefined;
+      const eventId = searchParams.get("eventId") ?? undefined;
+
       const validated = validateGivingCheckoutInput({
         amountInCents: amountCents,
         fundKey,
         note,
-        source: "cogic-giving",
+        source:
+          sourceTypeParam === "replay"
+            ? "replay-giving"
+            : sourceTypeParam === "live"
+              ? "live-giving"
+              : sourceTypeParam === "collection"
+                ? "collection-giving"
+                : "cogic-giving",
         paymentMethod,
+        sourceType: sourceTypeParam ?? "cogic_giving",
+        mediaId,
+        eventId,
+        eventOccurrenceId,
+        collectionId,
       });
 
       if (validated.ok === false) {
@@ -132,7 +153,7 @@ export default function CogicGivingExperience() {
         setLoading(false);
       }
     },
-    [amountCents, fundKey, loading, note, paymentMethod],
+    [amountCents, fundKey, loading, note, paymentMethod, searchParams],
   );
 
   if (status === "success") {

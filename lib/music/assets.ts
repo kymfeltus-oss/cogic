@@ -10,7 +10,7 @@ export const APPLE_MUSIC_SINGLE_URL =
   "https://music.apple.com/us/artist/ian-craig-300/1643247247";
 
 export const MUSIC_ASSETS = {
-  mobileBackground: "/music/background%20image%20mobile.png",
+  mobileBackground: "/my-sanctuary/banner.png",
 } as const;
 
 export const MUSIC_MOBILE_ART = MOBILE_ARTBOARD_REF;

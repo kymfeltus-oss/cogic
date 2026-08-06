@@ -53,12 +53,29 @@ export type PreflightCheck = {
   id: string;
   label: string;
   status: PreflightCheckStatus;
+  required: boolean;
+  provider?: BroadcastProvider;
   detail?: string;
+};
+
+export type BroadcastProvider = "ivs" | "restream" | "external";
+
+export type IngestProfileStatus = {
+  provider: BroadcastProvider;
+  protocol: "rtmps" | "srt" | "rtmp" | "unconfigured";
+  ingestConfigured: boolean;
+  playbackConfigured: boolean;
+  channelConfigured: boolean;
+  recordingConfigured: boolean;
+  recordingActive: boolean;
+  backupConfigured: boolean;
+  crewConnectionReady: boolean;
 };
 
 export type ActiveFeedSource = "primary" | "backup" | "offline";
 
 export type FeedLaneState = {
+  provider: BroadcastProvider;
   hlsUrl: string | null;
   manifestReachable: boolean;
   detail: string | null;
@@ -77,6 +94,7 @@ export type OwnerBroadcastSnapshot = {
   publish: PublishState;
   playback: PlaybackState;
   feed: FeedState;
+  ingest: IngestProfileStatus;
   preflight: PreflightCheck[];
   publisherSessionId: string | null;
   publisherChannel: string | null;

@@ -1,0 +1,82 @@
+:root {
+  color-scheme: dark;
+
+  --cogic-ink: #07040f;
+  --cogic-navy: #0b1220;
+  --cogic-panel: rgb(14 10 28 / 92%);
+  --cogic-panel-raised: rgb(19 14 38 / 96%);
+  --cogic-overlay: rgb(7 4 15 / 82%);
+
+  --cogic-purple: #5c2d91;
+  --cogic-purple-deep: #3b1a63;
+  --cogic-purple-bright: #7b4bb8;
+  --cogic-purple-soft: rgb(92 45 145 / 18%);
+  --cogic-purple-glow: rgb(92 45 145 / 28%);
+
+  --cogic-gold: #c9a227;
+  --cogic-gold-bright: #e0b93a;
+  --cogic-gold-soft: rgb(201 162 39 / 14%);
+
+  --cogic-text: #fff;
+  --cogic-text-muted: rgb(255 255 255 / 68%);
+  --cogic-text-subtle: rgb(255 255 255 / 46%);
+  --cogic-text-disabled: rgb(255 255 255 / 32%);
+  --cogic-text-on-gold: #07040f;
+
+  --cogic-line: rgb(255 255 255 / 10%);
+  --cogic-line-strong: rgb(255 255 255 / 16%);
+  --cogic-line-purple: rgb(92 45 145 / 45%);
+  --cogic-line-gold: rgb(201 162 39 / 28%);
+
+  --cogic-live: #e11d48;
+  --cogic-success: #22c55e;
+  --cogic-warning: #f59e0b;
+  --cogic-error: #ef4444;
+  --cogic-info: #3b82f6;
+
+  --cogic-radius-sm: 0.75rem;
+  --cogic-radius-md: 1rem;
+  --cogic-radius-lg: 1.4rem;
+  --cogic-radius-pill: 999px;
+  --cogic-shadow-card: 0 18px 48px rgb(0 0 0 / 28%), inset 0 1px rgb(255 255 255 / 4%);
+  --cogic-shadow-purple: 0 12px 32px rgb(92 45 145 / 28%);
+  --cogic-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --cogic-duration-fast: 140ms;
+  --cogic-duration-normal: 220ms;
+
+  /* Semantic layer */
+  --cogic-action-primary: var(--cogic-purple);
+  --cogic-action-primary-hover: var(--cogic-purple-bright);
+  --cogic-action-secondary: var(--cogic-purple-soft);
+  --cogic-brand-primary: var(--cogic-purple);
+  --cogic-brand-primary-hover: var(--cogic-purple-bright);
+  --cogic-status-live: var(--cogic-live);
+  --cogic-status-success: var(--cogic-success);
+  --cogic-status-warning: var(--cogic-warning);
+  --cogic-status-error: var(--cogic-error);
+  --cogic-status-info: var(--cogic-info);
+  --cogic-status-offline: var(--cogic-text-subtle);
+  --cogic-surface-page: var(--cogic-ink);
+  --cogic-surface-panel: var(--cogic-panel);
+  --cogic-surface-raised: var(--cogic-panel-raised);
+  --cogic-text-primary: var(--cogic-text);
+  --cogic-text-secondary: var(--cogic-text-muted);
+  --cogic-border-default: var(--cogic-line);
+  --cogic-border-interactive: var(--cogic-line-purple);
+  --cogic-border-ceremonial: var(--cogic-line-gold);
+}
+
+@theme inline {
+  --color-cogic-ink: var(--cogic-ink);
+  --color-cogic-navy: var(--cogic-navy);
+  --color-cogic-panel: var(--cogic-panel);
+  --color-cogic-purple: var(--cogic-purple);
+  --color-cogic-purple-deep: var(--cogic-purple-deep);
+  --color-cogic-purple-bright: var(--cogic-purple-bright);
+  --color-cogic-gold: var(--cogic-gold);
+  --color-cogic-gold-bright: var(--cogic-gold-bright);
+  --color-cogic-live: var(--cogic-live);
+  --color-cogic-success: var(--cogic-success);
+  --color-cogic-warning: var(--cogic-warning);
+  --color-cogic-error: var(--cogic-error);
+}

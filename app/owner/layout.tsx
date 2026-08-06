@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Owner | Vital Organs Entertainment",
+  title: "Owner | COGIC LIVE",
   robots: { index: false, follow: false },
 };
 

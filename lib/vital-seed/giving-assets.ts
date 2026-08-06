@@ -1,19 +1,19 @@
 import { MOBILE_ARTBOARD_REF } from "@/lib/responsive";
 
-/** Vital Seed giving background plates (`/public/images/vital-seed/`). */
+/** Giving background plates — approved COGIC LIVE assets (`/public/giving/`). */
 
-export const VITAL_SEED_GIVING_ASSET_VERSION = "20260622-5";
+export const VITAL_SEED_GIVING_ASSET_VERSION = "20260806-1";
 
 export const VITAL_SEED_GIVING_ASSETS = {
-  /** Header-only plate — logo, GIVING lettering, waveforms (no form panel). */
-  mobileBackground: `/vital seed/mobile-main-background.png?v=${VITAL_SEED_GIVING_ASSET_VERSION}`,
+  /** Header plate — COGIC Giving artwork (no form panel). */
+  mobileBackground: `/giving/giving.png?v=${VITAL_SEED_GIVING_ASSET_VERSION}`,
 } as const;
 
 export const VITAL_SEED_GIVING_MOBILE_ART = MOBILE_ARTBOARD_REF;
 
 /**
- * Native header crop — top of `/vital seed/mobile-main-background.png`.
- * Stops above baked preset rows (~53% of full 1672px plate) so taps hit the native form.
+ * Native header crop — top of `/giving/giving.png`.
+ * Stops above form region so taps hit the native form.
  */
 export const VITAL_SEED_GIVING_MOBILE_ART_NATIVE = {
   width: 941,

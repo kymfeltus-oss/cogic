@@ -1,5 +1,7 @@
 import Image from "next/image";
-import { Bell, ChevronDown, Search, UserRound } from "lucide-react";
+import { ChevronDown, UserRound } from "lucide-react";
+import AnnouncementBell from "@/components/dashboard/AnnouncementBell";
+import DashboardSearch from "@/components/dashboard/DashboardSearch";
 import type { AttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
 
 export default function DashboardTopBar({
@@ -27,25 +29,11 @@ export default function DashboardTopBar({
           sizes="(max-width: 720px) 148px, 168px"
           className="cl-topbar__logo"
         />
-        <div className="cl-topbar__organization">
-          <Image
-            src="/branding/cogic-seal.png"
-            alt="Church of God in Christ seal"
-            width={96}
-            height={64}
-            sizes="48px"
-            className="cl-topbar__seal"
-          />
-          <span>Church of God in Christ, Inc.</span>
-        </div>
       </div>
 
       <div className="cl-topbar__tools" aria-label="Dashboard tools">
-        <div className="cl-topbar__search" role="search" aria-label="Search COGIC LIVE">
-          <Search aria-hidden="true" />
-          <span>Search COGIC LIVE</span>
-        </div>
-        <Bell className="cl-topbar__bell" aria-hidden="true" />
+        <DashboardSearch />
+        <AnnouncementBell />
         <span className="cl-topbar__divider" aria-hidden="true" />
 
       {profile.userId ? (

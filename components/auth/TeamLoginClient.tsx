@@ -91,7 +91,7 @@ export default function TeamLoginClient({ nextPath, authError }: TeamLoginClient
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             onBlur={() => setEmailTouched(true)}
-            placeholder="producer@vitalorgansent.com"
+            placeholder="producer@cogiclive.com"
             className={gateFieldClass(emailState === "valid", emailState === "invalid")}
           />
           <ValidationHint

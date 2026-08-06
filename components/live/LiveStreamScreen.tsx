@@ -1,6 +1,7 @@
 "use client";
 
-import LiveDataLoader from "@/components/experience/live/LiveDataLoader";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import LiveStreamUnavailable from "@/components/live/LiveStreamUnavailable";
 import {
   attendeeStatusMessage,
@@ -12,11 +13,19 @@ type LiveStreamScreenProps = {
 };
 
 /**
- * Legacy social-shell entry. Production attendee playback uses LiveExperienceClient
- * via LiveDataLoader — no mock viewers/chat.
+ * Legacy social-shell entry — known streams route into the Live Hub at `/live`.
  */
 export default function LiveStreamScreen({ streamId }: LiveStreamScreenProps) {
-  if (!isKnownAttendeeStreamId(streamId)) {
+  const router = useRouter();
+  const known = isKnownAttendeeStreamId(streamId);
+
+  useEffect(() => {
+    if (known) {
+      router.replace("/live");
+    }
+  }, [known, router]);
+
+  if (!known) {
     return (
       <LiveStreamUnavailable
         title="Stream not found"
@@ -25,5 +34,9 @@ export default function LiveStreamScreen({ streamId }: LiveStreamScreenProps) {
     );
   }
 
-  return <LiveDataLoader />;
+  return (
+    <div className="flex min-h-[40vh] items-center justify-center bg-[#04070f] px-6 text-center text-white/70">
+      <p className="font-body text-sm">Opening COGIC LIVE Hub…</p>
+    </div>
+  );
 }
