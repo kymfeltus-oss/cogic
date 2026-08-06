@@ -7,7 +7,7 @@ const viewports = [
 ] as const;
 
 test("Giving controls support amount, fund, note, payment, and keyboard interaction", async ({ page }) => {
-  await page.goto("/giving");
+  await page.goto("http://localhost:3000/giving");
   const amount = page.getByLabel("Gift amount in US dollars");
   await page.getByRole("button", { name: "$25", exact: true }).click();
   await expect(amount).toHaveValue("25.00");
@@ -26,7 +26,7 @@ test("Giving controls support amount, fund, note, payment, and keyboard interact
 test("Giving layout has no horizontal overflow at required viewports", async ({ page }) => {
   for (const [width, height] of viewports) {
     await page.setViewportSize({ width, height });
-    await page.goto("/giving");
+    await page.goto("http://localhost:3000/giving");
     const metrics = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
       clientWidth: document.documentElement.clientWidth,

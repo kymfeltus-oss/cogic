@@ -1,34 +1,85 @@
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, CircleHelp, HandHeart, Home, IdCard, Play, Radio, Video } from "lucide-react";
+import {
+  CalendarDays,
+  CircleHelp,
+  HandHeart,
+  Home,
+  IdCard,
+  Radio,
+  Sparkles,
+  Video,
+} from "lucide-react";
 
 const items = [
-  ["Home", "/my-convocation", Home],
-  ["Watch Live", "/live", Radio],
-  ["Schedule", "/program", CalendarDays],
-  ["My Convocation", "/register", IdCard],
-  ["Giving", "/giving", HandHeart],
-  ["Replays", "/replays", Video],
+  { label: "Home", href: "/my-convocation", icon: Home, match: "home" },
+  { label: "Watch Live", href: "/live", icon: Radio, match: "prefix" },
+  { label: "Program", href: "/program", icon: CalendarDays, match: "prefix" },
+  { label: "My Sanctuary", href: "/my-sanctuary", icon: Sparkles, match: "exact" },
+  { label: "Give", href: "/giving", icon: HandHeart, match: "prefix" },
+  { label: "My Convocation", href: "/register", icon: IdCard, match: "prefix" },
+  { label: "Replays", href: "/replays", icon: Video, match: "exact" },
 ] as const;
 
-export default function DashboardSidebar({ homeHref = "/my-convocation" }: { homeHref?: string }) {
+function isActive(pathname: string, homeHref: string, item: (typeof items)[number]) {
+  if (item.match === "home") {
+    return pathname === homeHref || pathname === "/my-convocation";
+  }
+  if (item.match === "exact") return pathname === item.href;
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
+}
+
+export default function DashboardSidebar({
+  homeHref = "/my-convocation",
+  pathname = "/my-convocation",
+}: {
+  homeHref?: string;
+  pathname?: string;
+}) {
   const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim();
+
   return (
-    <aside className="cogic-sidebar" aria-label="Dashboard navigation">
-      <Link href={homeHref} className="cogic-wordmark" aria-label="COGIC LIVE home">
-        <span>COGIC</span><strong><Play aria-hidden="true" />LIVE</strong>
+    <aside className="cl-sidebar" aria-label="Dashboard navigation">
+      <Link href={homeHref} className="cl-sidebar__brand" aria-label="COGIC LIVE home">
+        <Image
+          src="/my-sanctuary/cogic-live-logo.png"
+          alt="COGIC LIVE"
+          width={1250}
+          height={270}
+          priority
+          sizes="200px"
+          className="cogic-wordmark__image"
+        />
       </Link>
-      <nav className="cogic-sidebar__nav">
-        {items.map(([label, href, Icon], index) => (
-          <Link key={label} href={index === 0 ? homeHref : href} className={`cogic-sidebar__link${index === 0 ? " is-active" : ""}`} aria-current={index === 0 ? "page" : undefined}>
-            <Icon aria-hidden="true" />
-            <span>{label}</span>
-          </Link>
-        ))}
+
+      <nav className="cl-sidebar__nav">
+        {items.map((item) => {
+          const Icon = item.icon;
+          const href = item.match === "home" ? homeHref : item.href;
+          const active = isActive(pathname, homeHref, item);
+          return (
+            <Link
+              key={item.label}
+              href={href}
+              className={`cl-sidebar__link${active ? " is-active" : ""}`}
+              aria-current={active ? "page" : undefined}
+            >
+              <Icon aria-hidden="true" />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
+
       {supportEmail ? (
-        <a className="cogic-help" href={`mailto:${supportEmail}`}>
+        <a className="cl-sidebar__help" href={`mailto:${supportEmail}`}>
           <CircleHelp aria-hidden="true" />
-          <span><strong>Need Help?</strong><small>Visit our Help Center</small></span>
+          <span>
+            <strong>Need help?</strong>
+            <small>Contact support</small>
+          </span>
         </a>
       ) : null}
     </aside>

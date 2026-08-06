@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProfileEditorModal from "@/components/profile/ProfileEditorModal";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
-import ConvocationHero from "@/components/dashboard/ConvocationHero";
+import DashboardHero from "@/components/dashboard/DashboardHero";
+import NowNextSection from "@/components/dashboard/NowNextSection";
 import WatchLiveCard from "@/components/dashboard/WatchLiveCard";
 import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
 import GivingCard from "@/components/dashboard/GivingCard";
 import MyConvocationCard from "@/components/dashboard/MyConvocationCard";
+import SanctuaryPreview from "@/components/dashboard/SanctuaryPreview";
 import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
+import DashboardSection from "@/components/dashboard/DashboardSection";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 import type { ReactNode } from "react";
 
@@ -24,6 +27,7 @@ export default function DashboardShell({
   hero?: ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname() || dashboardPath;
   const searchParams = useSearchParams();
   const [profile, setProfile] = useState(data.profile);
   const [profileOpen, setProfileOpen] = useState(() => {
@@ -38,25 +42,47 @@ export default function DashboardShell({
   }, [dashboardPath, router, searchParams]);
 
   return (
-    <div className="cogic-dashboard">
-      <DashboardSidebar homeHref={dashboardPath} />
-      <main id="main-content" className="cogic-dashboard__main">
+    <div className="cl-dash">
+      <DashboardSidebar homeHref="/my-convocation" pathname={pathname} />
+
+      <div className="cl-dash__stage">
         <DashboardTopBar
           profile={profile}
           profileReturnPath={dashboardPath}
           onProfile={() => setProfileOpen(true)}
         />
-        <div className="cogic-dashboard__content">
-          {hero ?? <ConvocationHero />}
-          <section className="cogic-dashboard__cards" aria-label="Convocation overview">
-            <WatchLiveCard live={data.live} />
-            <TodayScheduleCard schedule={data.schedule} scheduleAvailable={data.scheduleAvailable} />
-            <GivingCard />
-            <MyConvocationCard registration={data.registration} signedIn={Boolean(profile.userId)} />
-          </section>
-        </div>
-      </main>
-      <DashboardMobileNav homeHref={dashboardPath} />
+
+        <main id="main-content" className="cl-dash__main">
+          <div className="cl-dash__canvas">
+            {hero ?? (
+              <DashboardHero live={data.live} firstName={profile.firstName} />
+            )}
+
+            <NowNextSection live={data.live} schedule={data.schedule} />
+
+            <TodayScheduleCard
+              schedule={data.schedule}
+              scheduleAvailable={data.scheduleAvailable}
+            />
+
+            <DashboardSection eyebrow="For you" title="Your experience">
+              <div className="cl-action-grid">
+                <WatchLiveCard live={data.live} />
+                <SanctuaryPreview />
+                <GivingCard />
+                <MyConvocationCard
+                  registration={data.registration}
+                  signedIn={Boolean(profile.userId)}
+                />
+              </div>
+            </DashboardSection>
+
+          </div>
+        </main>
+      </div>
+
+      <DashboardMobileNav homeHref="/my-convocation" pathname={pathname} />
+
       {profile.userId ? (
         <ProfileEditorModal
           isOpen={profileOpen}

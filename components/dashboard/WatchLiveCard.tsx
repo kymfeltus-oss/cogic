@@ -1,20 +1,32 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock, Play, Radio } from "lucide-react";
-import DashboardCard from "@/components/dashboard/DashboardCard";
+import { ArrowRight, Play, Radio } from "lucide-react";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 
+/** Compact live shortcut for the action grid (hero owns the cinematic treatment). */
 export default function WatchLiveCard({ live }: { live: AttendeeDashboardData["live"] }) {
   return (
-    <DashboardCard title="Watch Live" className="watch-card">
-      <div className={`watch-card__visual${live.isLive ? " is-live" : ""}`}>
-        {live.isLive ? <span className="watch-card__badge"><i /> Live</span> : null}
-        <span className="watch-card__play">{live.isLive ? <Play /> : <Radio />}</span>
+    <article className={`cl-action-card${live.isLive ? " cl-action-card--live" : ""}`}>
+      <div className="cl-action-card__icon">
+        {live.isLive ? <Play aria-hidden="true" /> : <Radio aria-hidden="true" />}
       </div>
-      <div className="watch-card__body">
-        <strong>{live.isLive ? (live.title ?? "COGIC LIVE broadcast") : "No service is live right now."}</strong>
-        {live.nextTitle ? <p><CalendarClock aria-hidden="true" />Next: {live.nextTitle}{live.nextTime ? ` · ${live.nextTime}` : ""}</p> : <p>Published broadcasts will appear here when production goes live.</p>}
-      </div>
-      <Link href={live.isLive ? "/live" : "/program"} className="dashboard-button">{live.isLive ? "Watch Live" : "View Schedule"}<ArrowRight aria-hidden="true" /></Link>
-    </DashboardCard>
+      <p className="cl-action-card__eyebrow">{live.isLive ? "Live Now" : "Watch Live"}</p>
+      <h3 className="cl-action-card__title">
+        {live.isLive ? live.title ?? "COGIC LIVE broadcast" : "Live lobby"}
+      </h3>
+      <p className="cl-action-card__body">
+        {live.isLive
+          ? "Join the official broadcast experience."
+          : live.nextTitle
+            ? `Next: ${live.nextTitle}${live.nextTime ? ` · ${live.nextTime}` : ""}`
+            : "Published broadcasts appear here when production goes live."}
+      </p>
+      <Link
+        href="/live"
+        className={`cl-btn ${live.isLive ? "cl-btn--primary" : "cl-btn--ghost"} cl-btn--block`}
+      >
+        {live.isLive ? "Watch Live" : "Open Live"}
+        <ArrowRight aria-hidden="true" className="size-4" />
+      </Link>
+    </article>
   );
 }

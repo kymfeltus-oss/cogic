@@ -45,3 +45,41 @@ test("attendee dashboard presentation contains no legacy public brand", async ()
   assert.match(combined, /COGIC/);
   assert.doesNotMatch(combined, /Vital Organs|300 Awakening|Ian Craig/);
 });
+
+test("dashboard sidebar uses the COGIC LIVE PNG logo asset", async () => {
+  const [sidebar, css] = await Promise.all([
+    source("components/dashboard/DashboardSidebar.tsx"),
+    source("app/my-convocation/dashboard.css"),
+  ]);
+  assert.match(sidebar, /\/my-sanctuary\/cogic-live-logo\.png/);
+  assert.doesNotMatch(sidebar, /<span>COGIC<\/span>/);
+  assert.doesNotMatch(sidebar, /<Play[\s/>]/);
+  assert.match(css, /\.cogic-wordmark__image[^}]*object-fit:\s*contain/);
+  const logoPath = path.join(root, "public", "my-sanctuary", "cogic-live-logo.png");
+  assert.equal((await readFile(logoPath)).byteLength > 0, true);
+});
+
+test("dashboard uses a mobile-first streaming shell with safe fixed navigation", async () => {
+  const [shell, hero, nowNext, mobileNav, css] = await Promise.all([
+    source("components/dashboard/DashboardShell.tsx"),
+    source("components/dashboard/DashboardHero.tsx"),
+    source("components/dashboard/NowNextSection.tsx"),
+    source("components/dashboard/DashboardMobileNav.tsx"),
+    source("app/my-convocation/dashboard.css"),
+  ]);
+  assert.match(shell, /DashboardHero/);
+  assert.match(shell, /NowNextSection/);
+  assert.match(hero, /width=\{2172\}/);
+  assert.match(hero, /height=\{724\}/);
+  assert.doesNotMatch(hero, /\bfill\b/);
+  assert.match(nowNext, /live\.isLive/);
+  for (const label of ["Home", "Watch Live", "Program", "My Sanctuary", "Give"]) {
+    assert.match(mobileNav, new RegExp(label));
+  }
+  assert.match(css, /@media \(max-width: 720px\)/);
+  assert.match(css, /env\(safe-area-inset-bottom\)/);
+  assert.match(css, /\.cl-bottom-nav[\s\S]*position:\s*fixed/);
+  assert.match(css, /\.cl-hero__image[^}]*object-fit:\s*contain/);
+  assert.doesNotMatch(css, /\.cl-hero__image[^}]*object-fit:\s*cover/);
+  assert.match(css, /prefers-reduced-motion/);
+});

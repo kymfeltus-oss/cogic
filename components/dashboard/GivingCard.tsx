@@ -1,14 +1,21 @@
 import Link from "next/link";
 import { ArrowRight, HeartHandshake } from "lucide-react";
-import DashboardCard from "@/components/dashboard/DashboardCard";
 
 export default function GivingCard() {
   return (
-    <DashboardCard title="Giving" className="giving-card">
-      <div className="giving-card__heart"><HeartHandshake aria-hidden="true" /></div>
-      <p className="giving-card__label">COGIC Giving</p>
-      <strong>Support the mission of the<br />118th Holy Convocation.</strong>
-      <Link href="/giving" className="dashboard-button">Give Now <ArrowRight aria-hidden="true" /></Link>
-    </DashboardCard>
+    <article className="cl-action-card cl-action-card--giving">
+      <div className="cl-action-card__icon">
+        <HeartHandshake aria-hidden="true" />
+      </div>
+      <p className="cl-action-card__eyebrow">COGIC Giving</p>
+      <h3 className="cl-action-card__title">Support the mission</h3>
+      <p className="cl-action-card__body">
+        Give securely to Church of God in Christ, Inc.
+      </p>
+      <Link href="/giving" className="cl-btn cl-btn--primary cl-btn--block">
+        Give Now
+        <ArrowRight aria-hidden="true" className="size-4" />
+      </Link>
+    </article>
   );
 }
