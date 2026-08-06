@@ -175,8 +175,12 @@ describe("web push notification contracts", () => {
     assert.match(deliver, /status:\s*"expired"/);
   });
 
-  it("schedule reminders reported blocked without fake scheduler", () => {
-    const prefs = read("app/api/push/preferences/route.ts");
-    assert.match(prefs, /BLOCKED BY SCHEDULING INFRASTRUCTURE/);
+  it("schedule reminders use Vercel Cron batch processing", () => {
+    const vercel = read("vercel.json");
+    const cron = read("app/api/cron/process-reminders/route.ts");
+    assert.match(vercel, /\/api\/cron\/process-reminders/);
+    assert.match(cron, /CRON_SECRET/);
+    assert.match(cron, /processDueScheduleReminders/);
+    assert.match(cron, /Unauthorized/);
   });
 });

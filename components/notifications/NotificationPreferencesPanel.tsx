@@ -128,7 +128,7 @@ export default function NotificationPreferencesPanel() {
     { key: "liveBroadcasts", label: "Live Broadcasts" },
     { key: "announcements", label: "Announcements & Updates" },
     { key: "importantAlerts", label: "Important / Urgent Alerts" },
-    { key: "scheduleReminders", label: "Schedule Reminders", blocked: true },
+    { key: "scheduleReminders", label: "Schedule Reminders" },
   ];
 
   return (

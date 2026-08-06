@@ -48,9 +48,9 @@ export async function GET(request: Request) {
         lastSeenAt: row.last_seen_at,
         createdAt: row.created_at,
       })),
-      scheduleRemindersStatus: "blocked",
+      scheduleRemindersStatus: "available",
       scheduleRemindersNote:
-        "Schedule Reminders — BLOCKED BY SCHEDULING INFRASTRUCTURE",
+        "Schedule reminders require device notifications enabled and a published occurrence.",
     },
     { headers: { "Cache-Control": "private, no-store" } },
   );
@@ -76,7 +76,6 @@ export async function PATCH(request: Request) {
       typeof body.announcements === "boolean" ? body.announcements : undefined,
     importantAlerts:
       typeof body.importantAlerts === "boolean" ? body.importantAlerts : undefined,
-    // Persisted for future use, but delivery remains blocked without scheduler.
     scheduleReminders:
       typeof body.scheduleReminders === "boolean" ? body.scheduleReminders : undefined,
   });
@@ -84,9 +83,9 @@ export async function PATCH(request: Request) {
   return NextResponse.json(
     {
       preferences,
-      scheduleRemindersStatus: "blocked",
+      scheduleRemindersStatus: "available",
       scheduleRemindersNote:
-        "Schedule Reminders — BLOCKED BY SCHEDULING INFRASTRUCTURE",
+        "Schedule reminders require device notifications enabled and a published occurrence.",
     },
     { headers: { "Cache-Control": "private, no-store" } },
   );

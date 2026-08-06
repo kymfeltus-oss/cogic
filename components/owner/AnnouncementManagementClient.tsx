@@ -91,14 +91,21 @@ export default function AnnouncementManagementClient() {
   const [sendPush, setSendPush] = useState(false);
   const [eligiblePushDevices, setEligiblePushDevices] = useState(0);
   const [liveAutoAlertEnabled, setLiveAutoAlertEnabled] = useState(false);
+  const [reminderStats, setReminderStats] = useState<{
+    pending: number;
+    sent: number;
+    failed: number;
+    canceled: number;
+  } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [annRes, occRes] = await Promise.all([
+      const [annRes, occRes, pushRes] = await Promise.all([
         fetch("/api/owner/announcements", { credentials: "include", cache: "no-store" }),
         fetch("/api/owner/occurrences", { credentials: "include", cache: "no-store" }),
+        fetch("/api/owner/push/status", { credentials: "include", cache: "no-store" }),
       ]);
       if (annRes.status === 401 || annRes.status === 403) {
         throw new Error("Owner access denied. Sign in with an authorized operator account.");
@@ -119,6 +126,25 @@ export default function AnnouncementManagementClient() {
       if (occRes.ok) {
         const occJson = (await occRes.json()) as { occurrences?: Occurrence[] };
         setOccurrences(occJson.occurrences ?? []);
+      }
+      if (pushRes.ok) {
+        const pushJson = (await pushRes.json()) as {
+          scheduleReminders?: {
+            pending?: number;
+            sent?: number;
+            failed?: number;
+            canceled?: number;
+          };
+        };
+        const sr = pushJson.scheduleReminders;
+        if (sr) {
+          setReminderStats({
+            pending: typeof sr.pending === "number" ? sr.pending : 0,
+            sent: typeof sr.sent === "number" ? sr.sent : 0,
+            failed: typeof sr.failed === "number" ? sr.failed : 0,
+            canceled: typeof sr.canceled === "number" ? sr.canceled : 0,
+          });
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to load announcements.");
@@ -385,6 +411,16 @@ export default function AnnouncementManagementClient() {
                 ? "enabled (OFFLINE→LIVE authoritative transition)"
                 : "disabled until Web Push VAPID is configured"}
             </p>
+            {reminderStats ? (
+              <p className="mt-1 text-[0.7rem] text-white/50">
+                Schedule reminders — pending {reminderStats.pending}, sent{" "}
+                {reminderStats.sent}, failed {reminderStats.failed}, canceled{" "}
+                {reminderStats.canceled}
+                {channels.push
+                  ? ` · ${eligiblePushDevices} opted-in devices`
+                  : ""}
+              </p>
+            ) : null}
             {form.priority === "important" || form.priority === "urgent" ? (
               <p className="mt-1 text-[0.7rem] text-[#E8D48B]">
                 {form.priority === "urgent"

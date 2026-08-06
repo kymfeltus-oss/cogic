@@ -112,8 +112,16 @@ export function mapPublishedOccurrenceToProgramDTO(
     (input.liveOccurrenceId !== null &&
       occurrence.occurrenceId === input.liveOccurrenceId);
 
+  const canRemind =
+    !isLiveOccurrence &&
+    occurrence.status !== "canceled" &&
+    occurrence.status !== "completed" &&
+    Boolean(occurrence.scheduledStartAt) &&
+    Date.parse(occurrence.scheduledStartAt as string) > Date.now();
+
   return {
     occurrenceKey: occurrenceStableKey(occurrence),
+    occurrenceId: occurrence.occurrenceId,
     title: occurrence.title,
     eventType: occurrence.eventType,
     categoryLabel: programCategoryLabel(occurrence.eventType),
@@ -126,6 +134,7 @@ export function mapPublishedOccurrenceToProgramDTO(
     status: occurrence.status,
     statusLabel: formatOccurrenceStatusLabel(occurrence.status),
     isLiveNow: isLiveOccurrence,
+    canRemind,
     watchLiveAction: resolveProgramWatchLiveAction({
       occurrence,
       broadcastIsLive: input.broadcastIsLive,

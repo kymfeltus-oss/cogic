@@ -58,3 +58,9 @@ export function preferenceAllowsAnnouncement(
 export function preferenceAllowsLive(prefs: NotificationPreferences): boolean {
   return prefs.masterEnabled && prefs.liveBroadcasts;
 }
+
+export function preferenceAllowsScheduleReminders(
+  prefs: NotificationPreferences,
+): boolean {
+  return prefs.masterEnabled && prefs.scheduleReminders;
+}

@@ -298,9 +298,9 @@
   .cl-topbar__identity { display: none; }
   .cl-topbar__divider, .cl-topbar__chevron { display: none; }
   .cl-topbar__tools { display: contents; }
-  .cl-topbar__bell-wrap { order: 2; }
+  .cl-topbar__bell-wrap { display: none; }
   .cl-topbar__search { order: 3; width: 100%; height: 2.8rem; flex: 0 0 100%; display: flex; }
-  .cl-topbar__account, .cl-topbar__tools > .cl-btn { order: 2; }
+  .cl-topbar__account, .cl-topbar__tools > .cl-btn { order: 2; margin-left: auto; }
   .cl-topbar__profile, .cl-topbar__avatar { width: 2.8rem; height: 2.8rem; }
   .cl-topbar__account-copy { display: grid; min-width: 0; max-width: 8rem; }
   .cl-topbar__account-copy strong { overflow: hidden; font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }

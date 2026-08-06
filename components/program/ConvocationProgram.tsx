@@ -8,9 +8,13 @@ import ProgramToolbar from "./ProgramToolbar";
 
 type ConvocationProgramProps = {
   view: ProgramViewState;
+  signedIn?: boolean;
 };
 
-export default function ConvocationProgram({ view }: ConvocationProgramProps) {
+export default function ConvocationProgram({
+  view,
+  signedIn = false,
+}: ConvocationProgramProps) {
   return (
     <div className="convocation-program-shell">
       <div className="convocation-program-layout">
@@ -51,6 +55,7 @@ export default function ConvocationProgram({ view }: ConvocationProgramProps) {
           <ProgramDaySection
             heading={view.selectedDayHeading}
             occurrences={view.occurrences}
+            signedIn={signedIn}
           />
         ) : null}
       </div>

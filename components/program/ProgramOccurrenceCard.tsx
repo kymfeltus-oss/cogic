@@ -1,12 +1,17 @@
 ﻿import Link from "next/link";
 
+import RemindMeControl from "@/components/reminders/RemindMeControl";
 import type { ProgramOccurrenceDTO } from "@/lib/program/types";
 
 type ProgramOccurrenceCardProps = {
   occurrence: ProgramOccurrenceDTO;
+  signedIn?: boolean;
 };
 
-export default function ProgramOccurrenceCard({ occurrence }: ProgramOccurrenceCardProps) {
+export default function ProgramOccurrenceCard({
+  occurrence,
+  signedIn = false,
+}: ProgramOccurrenceCardProps) {
   return (
     <li className="convocation-program-card">
       <article aria-labelledby={`program-event-${occurrence.occurrenceKey}`}>
@@ -41,16 +46,21 @@ export default function ProgramOccurrenceCard({ occurrence }: ProgramOccurrenceC
           <p className="convocation-program-card-description">{occurrence.description}</p>
         ) : null}
 
-        {occurrence.watchLiveAction ? (
-          <div className="convocation-program-card-actions">
+        <div className="convocation-program-card-actions">
+          {occurrence.watchLiveAction ? (
             <Link
               href={occurrence.watchLiveAction.href}
               className="convocation-program-btn convocation-program-btn-primary"
             >
               {occurrence.watchLiveAction.label}
             </Link>
-          </div>
-        ) : null}
+          ) : null}
+          <RemindMeControl
+            occurrenceId={occurrence.occurrenceId}
+            canRemind={occurrence.canRemind}
+            signedIn={signedIn}
+          />
+        </div>
       </article>
     </li>
   );

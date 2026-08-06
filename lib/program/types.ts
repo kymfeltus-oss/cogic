@@ -3,6 +3,7 @@
 /** Allowlisted attendee-facing program occurrence DTO. */
 export type ProgramOccurrenceDTO = {
   occurrenceKey: string;
+  occurrenceId: string;
   title: string;
   eventType: EventType;
   categoryLabel: string;
@@ -15,6 +16,7 @@ export type ProgramOccurrenceDTO = {
   status: OccurrenceStatus;
   statusLabel: string;
   isLiveNow: boolean;
+  canRemind: boolean;
   watchLiveAction: { label: string; href: string } | null;
 };
 

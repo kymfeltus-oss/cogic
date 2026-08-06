@@ -12,6 +12,7 @@ import {
 } from "@/lib/events/types";
 import { isOwnerAuthed, ownerAuthFailureResponse } from "@/lib/owner/api-response";
 import { requireOwnerUser } from "@/lib/owner/auth";
+import { syncPendingRemindersForOccurrence } from "@/lib/reminders/repository";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -256,6 +257,21 @@ export async function PATCH(request: Request, context: RouteContext) {
           : "Unable to update occurrence.",
       },
       { status: 400 },
+    );
+  }
+
+  try {
+    await syncPendingRemindersForOccurrence({
+      occurrenceId,
+      scheduledStartAt:
+        typeof data.scheduled_start_at === "string" ? data.scheduled_start_at : null,
+      visibility: String(data.visibility ?? ""),
+      status: String(data.status ?? ""),
+    });
+  } catch (syncError) {
+    console.error(
+      "[owner/occurrences] reminder sync failed:",
+      syncError instanceof Error ? syncError.message : "unknown",
     );
   }
 

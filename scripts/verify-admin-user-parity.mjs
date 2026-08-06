@@ -44,6 +44,17 @@ const FEATURES = [
     ],
     permissionMarkers: ["requireOwnerUser", "getUserFromSession", "sendAnnouncementPush"],
   },
+  {
+    name: "Schedule reminders",
+    adminRoute: "app/owner/announcements/page.tsx",
+    attendeeRoute: "app/program/page.tsx",
+    apis: [
+      "app/api/reminders/route.ts",
+      "app/api/cron/process-reminders/route.ts",
+      "app/api/owner/push/status/route.ts",
+    ],
+    permissionMarkers: ["getUserFromSession", "CRON_SECRET", "processDueScheduleReminders"],
+  },
 ];
 
 let failed = 0;

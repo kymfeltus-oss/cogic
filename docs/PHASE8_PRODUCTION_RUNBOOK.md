@@ -46,6 +46,12 @@ In Vercel → Project → Settings → Environment Variables (Production), set a
 | `ADMIN_EMAILS` | comma-separated owner emails |
 | `REDIS_URL` or `UPSTASH_REDIS_URL` or `RATE_LIMIT_REDIS_URL` | distributed rate limiting |
 | `TOKEN_ENCRYPTION_KEY` | if stream-key encrypt/save is used |
+| `WEB_PUSH_VAPID_PUBLIC_KEY` | Web Push public key (`npx web-push generate-vapid-keys`) |
+| `WEB_PUSH_VAPID_PRIVATE_KEY` | Web Push private key — **server-only**, never `NEXT_PUBLIC_*` |
+| `WEB_PUSH_VAPID_SUBJECT` | optional `mailto:support@…` contact for VAPID |
+| `CRON_SECRET` | Bearer secret protecting `/api/cron/process-reminders` (Vercel Cron) |
+
+Generate VAPID once and persist the same keypair across deploys. Do not regenerate on every deploy.
 
 Also ensure:
 

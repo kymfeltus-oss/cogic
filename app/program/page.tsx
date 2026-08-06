@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 
 import ConvocationProgram from "@/components/program/ConvocationProgram";
+import { getUserFromSession } from "@/lib/auth/session";
 import { loadConvocationProgram } from "@/lib/program/load-program";
 import "./program.css";
 
@@ -22,15 +23,18 @@ type ProgramPageProps = {
 
 export default async function ProgramPage({ searchParams }: ProgramPageProps) {
   const params = await searchParams;
-  const { view } = await loadConvocationProgram({
-    day: params.day,
-    category: params.category,
-    search: params.q,
-  });
+  const [programResult, user] = await Promise.all([
+    loadConvocationProgram({
+      day: params.day,
+      category: params.category,
+      search: params.q,
+    }),
+    getUserFromSession(),
+  ]);
 
   return (
     <main id="main-content">
-      <ConvocationProgram view={view} />
+      <ConvocationProgram view={programResult.view} signedIn={Boolean(user)} />
     </main>
   );
 }
