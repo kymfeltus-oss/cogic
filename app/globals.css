@@ -871,10 +871,11 @@ body::-webkit-scrollbar {
   height: 100%;
   width: auto;
   max-width: min(100cqw, var(--mobile-app-track-w));
-  aspect-ratio: 1080 / 1920;
+  aspect-ratio: var(--intro-art-w) / var(--intro-art-h);
 }
 
-.intro-flash-artboard__video {
+.intro-flash-artboard__video,
+.intro-flash-artboard__image {
   display: block;
   width: 100%;
   height: 100%;

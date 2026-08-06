@@ -1,11 +1,9 @@
-import VideoIntroExperience from "@/components/intro/VideoIntroExperience";
+import { redirect } from "next/navigation";
+import { DEFAULT_ATTENDEE_NEXT } from "@/lib/auth/routing";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
-export default function IntroPage() {
-  return (
-    <div className="fixed inset-0 h-dvh w-full overflow-hidden bg-brand-black">
-      <VideoIntroExperience />
-    </div>
-  );
+/** The welcome artwork is no longer shown at the root; enter the live app directly. */
+export default function HomePage() {
+  redirect(DEFAULT_ATTENDEE_NEXT);
 }

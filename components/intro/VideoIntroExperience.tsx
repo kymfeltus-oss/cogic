@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AccessContext } from "@/lib/access";
 import { fetchAccessContext } from "@/lib/access";
@@ -28,203 +29,73 @@ async function resolveIntroDestination(): Promise<string> {
         );
       }),
     ]);
-
-    return context.userId
-      ? DEFAULT_ATTENDEE_NEXT
-      : INTRO_FALLBACK_DESTINATION;
+    return context.userId ? DEFAULT_ATTENDEE_NEXT : INTRO_FALLBACK_DESTINATION;
   } catch {
     return INTRO_FALLBACK_DESTINATION;
   }
 }
 
 export default function VideoIntroExperience() {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const musicRef = useRef<HTMLAudioElement>(null);
   const isNavigatingRef = useRef(false);
-  const musicPlayingRef = useRef(false);
   const [isExiting, setIsExiting] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-
     return () => {
       document.body.style.overflow = previousOverflow;
     };
   }, []);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.muted = true;
-    video.playsInline = true;
-    video.loop = true;
-    video.preload = "auto";
-
-    const tryPlay = () => {
-      void video.play().catch(() => {
-        /* Autoplay may require user gesture — enter tap will start playback. */
-      });
-    };
-
-    const onReady = () => {
-      setVideoReady(true);
-      tryPlay();
-    };
-
-    if (video.readyState >= 2) {
-      onReady();
-    }
-
-    video.addEventListener("loadeddata", onReady);
-    video.addEventListener("canplay", onReady);
-    video.addEventListener("loadedmetadata", onReady);
-
-    return () => {
-      video.removeEventListener("loadeddata", onReady);
-      video.removeEventListener("canplay", onReady);
-      video.removeEventListener("loadedmetadata", onReady);
-    };
-  }, []);
-
-  const stopIntroVideo = useCallback(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.pause();
-    video.currentTime = 0;
-  }, []);
-
-  const stopIntroMusic = useCallback(() => {
-    const audio = musicRef.current;
-    if (!audio) return;
-    musicPlayingRef.current = false;
-    audio.pause();
-    audio.currentTime = 0;
-  }, []);
-
   const playIntroMusic = useCallback(async () => {
     const audio = musicRef.current;
     if (!audio) return;
-
     audio.volume = 0.85;
     audio.loop = true;
-
     try {
-      if (audio.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-        audio.load();
-        await new Promise<void>((resolve, reject) => {
-          if (audio.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-            resolve();
-            return;
-          }
-
-          const onReady = () => {
-            cleanup();
-            resolve();
-          };
-
-          const onError = () => {
-            cleanup();
-            reject(new Error("Intro music failed to load."));
-          };
-
-          const cleanup = () => {
-            audio.removeEventListener("canplaythrough", onReady);
-            audio.removeEventListener("error", onError);
-          };
-
-          audio.addEventListener("canplaythrough", onReady);
-          audio.addEventListener("error", onError);
-        });
-      }
-
-      if (audio.paused) {
-        await audio.play();
-        musicPlayingRef.current = true;
-      }
+      await audio.play();
     } catch {
-      musicPlayingRef.current = false;
-      /* Browser autoplay policy — unlocks on first tap. */
+      // Browser autoplay policy may require the user's Enter gesture.
     }
   }, []);
 
-  const unlockIntroAudio = useCallback(() => {
+  useEffect(() => {
     void playIntroMusic();
-
-    const video = videoRef.current;
-    if (!video || !video.paused) return;
-
-    void video.play().catch(() => {
-      /* Autoplay may require user gesture — enter tap will start playback. */
-    });
+    const audio = musicRef.current;
+    const unlock = () => void playIntroMusic();
+    window.addEventListener("pointerdown", unlock, { passive: true });
+    window.addEventListener("touchstart", unlock, { passive: true });
+    window.addEventListener("keydown", unlock, { passive: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("touchstart", unlock);
+      window.removeEventListener("keydown", unlock);
+      audio?.pause();
+    };
   }, [playIntroMusic]);
-
-  useEffect(() => {
-    void playIntroMusic();
-
-    const unlockOnGesture = () => {
-      unlockIntroAudio();
-    };
-
-    window.addEventListener("pointerdown", unlockOnGesture, { passive: true });
-    window.addEventListener("touchstart", unlockOnGesture, { passive: true });
-    window.addEventListener("keydown", unlockOnGesture, { passive: true });
-
-    return () => {
-      window.removeEventListener("pointerdown", unlockOnGesture);
-      window.removeEventListener("touchstart", unlockOnGesture);
-      window.removeEventListener("keydown", unlockOnGesture);
-    };
-  }, [playIntroMusic, unlockIntroAudio]);
-
-  useEffect(() => {
-    return () => {
-      stopIntroVideo();
-      stopIntroMusic();
-    };
-  }, [stopIntroVideo, stopIntroMusic]);
 
   const handleEnter = useCallback(() => {
     if (isNavigatingRef.current) return;
-
-    unlockIntroAudio();
-
     isNavigatingRef.current = true;
-
+    void playIntroMusic();
     setIsExiting(true);
-
-    const reducedMotion =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const navigate = (destination: string) => {
-      stopIntroMusic();
-      stopIntroVideo();
-
-      if (reducedMotion) {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    void resolveIntroDestination().then((destination) => {
+      const navigate = () => {
+        musicRef.current?.pause();
         window.location.assign(destination);
-        return;
-      }
-
-      window.setTimeout(() => {
-        window.location.assign(destination);
-      }, EXIT_MS);
-    };
-
-    void resolveIntroDestination()
-      .then(navigate)
-      .catch(() => navigate(INTRO_FALLBACK_DESTINATION));
-  }, [stopIntroMusic, stopIntroVideo, unlockIntroAudio]);
+      };
+      if (reducedMotion) navigate();
+      else window.setTimeout(navigate, EXIT_MS);
+    });
+  }, [playIntroMusic]);
 
   return (
     <div
-      className={`intro-flash-root fixed inset-0 z-50 h-dvh w-full overflow-hidden bg-brand-black transition-opacity duration-500 ease-out ${
-        isExiting ? "opacity-0" : "opacity-100"
-      }`}
-      onPointerDown={unlockIntroAudio}
-      onTouchStart={unlockIntroAudio}
+      className={`intro-flash-root fixed inset-0 z-50 h-dvh w-full overflow-hidden bg-brand-black transition-opacity duration-500 ease-out ${isExiting ? "opacity-0" : "opacity-100"}`}
+      onPointerDown={() => void playIntroMusic()}
+      onTouchStart={() => void playIntroMusic()}
     >
       <audio ref={musicRef} loop preload="auto" className="intro-flash-audio" aria-hidden="true">
         <source src={INTRO_MUSIC_SRC} type="audio/mp4" />
@@ -244,26 +115,14 @@ export default function VideoIntroExperience() {
             ["--mobile-art-h" as string]: String(INTRO_MOBILE_ART.height),
           }}
         >
-          <video
-            ref={videoRef}
+          <Image
             src={INTRO_VIDEO_SRC}
-            className="intro-flash-artboard__video"
-            width={INTRO_VIDEO_ART.width}
-            height={INTRO_VIDEO_ART.height}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            aria-hidden="true"
+            alt="118th Holy Convocation — Enter COGIC LIVE"
+            fill
+            priority
+            sizes="100vw"
+            className="intro-flash-artboard__image"
           />
-
-          {!videoReady ? (
-            <div className="intro-flash-video-loading" aria-hidden="true">
-              <span className="intro-flash-video-loading-bar" />
-            </div>
-          ) : null}
-
           <div className="intro-flash-overlay">
             <a
               href={INTRO_FALLBACK_DESTINATION}
@@ -271,7 +130,7 @@ export default function VideoIntroExperience() {
                 event.preventDefault();
                 handleEnter();
               }}
-              aria-label="Let's get awakened — enter experience"
+              aria-label="Enter COGIC LIVE"
               className="intro-flash-enter-hit"
               style={introRectStyle(INTRO_ENTER_PANEL)}
             />
