@@ -1,5 +1,5 @@
 import { getGivingFund, isActiveGivingFundKey } from "@/lib/giving/funds";
-import type { GivingCheckoutRequest, GivingFundKey } from "@/lib/giving/types";
+import type { GivingCheckoutRequest, GivingFundKey, GivingPaymentMethodId } from "@/lib/giving/types";
 
 export const MIN_GIVING_AMOUNT_CENTS = 50;
 export const MAX_GIVING_AMOUNT_CENTS = 1_000_000_00; // $1,000,000.00
@@ -22,6 +22,7 @@ export function validateGivingCheckoutInput(input: {
   fundKey?: unknown;
   note?: unknown;
   source?: unknown;
+  paymentMethod?: unknown;
 }): GivingValidationResult {
   const amountInCents = input.amountInCents;
 
@@ -52,6 +53,11 @@ export function validateGivingCheckoutInput(input: {
     typeof input.source === "string" && input.source.trim()
       ? input.source.trim().slice(0, 80)
       : "cogic-giving";
+  const paymentMethodRaw =
+    typeof input.paymentMethod === "string" ? input.paymentMethod.trim() : "card";
+  if (!["card", "apple_pay", "ach"].includes(paymentMethodRaw)) {
+    return { ok: false, error: "Please select a valid payment method." };
+  }
 
   return {
     ok: true,
@@ -61,6 +67,7 @@ export function validateGivingCheckoutInput(input: {
       note,
       frequency: "one_time",
       source,
+      paymentMethod: paymentMethodRaw as GivingPaymentMethodId,
     },
   };
 }

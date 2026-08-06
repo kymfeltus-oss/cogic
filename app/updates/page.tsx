@@ -1,5 +1,3 @@
-"use client";
-
 import UpdateRegistryFeed from "@/components/updates/UpdateRegistryFeed";
 
 export default function UpdatesPage() {
@@ -8,15 +6,14 @@ export default function UpdatesPage() {
       <div className="w-full px-4 py-6 md:px-6 lg:px-8">
         <header className="border-b border-white/10 pb-6">
           <p className="text-xs font-bold uppercase tracking-[0.35em] text-[#1E40AF]">
-            Global Update Registry
+            Announcements
           </p>
           <h1 className="mt-2 text-xl font-bold uppercase tracking-widest md:text-2xl">
             Event Updates
           </h1>
           <p className="mt-2 max-w-3xl text-sm text-zinc-400">
-            Push communications, countdown events, and hub alert metrics —
-            organized as a guided timeline on mobile and a masonry card grid on
-            larger screens.
+            Published communications from COGIC LIVE. This feed stays empty until real
+            updates are available.
           </p>
         </header>
 

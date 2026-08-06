@@ -31,7 +31,6 @@ export const AWAKENING_MENU_ITEMS: AwakeningMenuItem[] = [
   { id: "music", label: "Music", href: "/experience/music", match: "prefix" },
   { id: "contact", label: "Contact", href: "/experience/contact-us", match: "prefix" },
   { id: "profile", label: "Profile", href: `${ATTENDEE_DASHBOARD_PATH}?view=profile` },
-  { id: "settings", label: "Settings", href: `${ATTENDEE_DASHBOARD_PATH}?view=settings` },
 ];
 
 type AwakeningMenuButtonProps = {
@@ -127,7 +126,7 @@ export default function AwakeningMenuButton({
         className={cn("awakening-menu-button touch-target", className)}
         aria-expanded={open}
         aria-controls={panelId}
-        aria-label={open ? "Close awakening menu" : "Open awakening menu"}
+        aria-label={open ? "Close menu" : "Open menu"}
         onClick={() => setOpen((current) => !current)}
       >
         <span
@@ -173,7 +172,7 @@ export default function AwakeningMenuButton({
                   </p>
                 </div>
 
-                <nav aria-label="Awakening menu" className="awakening-menu-nav">
+                <nav aria-label="COGIC LIVE menu" className="awakening-menu-nav">
                   <ul className="flex flex-col gap-1">
                     {items.map((item) => {
                       const active = isMenuItemActive(pathname, item);

@@ -65,7 +65,8 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      payment_method_types: ["card", "link"],
+      // Let Stripe dynamically present eligible cards, wallets, and flexible
+      // payment methods configured for registration in the Stripe Dashboard.
       client_reference_id: buyer.userId,
       customer_email: registration.email ?? buyer.email,
       line_items: [
@@ -130,4 +131,3 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
     };
   }
 }
-

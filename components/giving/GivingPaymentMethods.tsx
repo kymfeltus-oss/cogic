@@ -1,11 +1,11 @@
 "use client";
 
-import { CreditCard } from "lucide-react";
+import { Apple, CreditCard, Landmark } from "lucide-react";
 import type { GivingPaymentMethodId } from "@/lib/giving/types";
 
 /**
- * Only payment methods supported by production checkout are shown.
- * Hosted Stripe Checkout uses card (+ Link when available in Stripe).
+ * Each choice creates a real Stripe Checkout session restricted to the
+ * selected payment rail. Apple Pay still requires an eligible Apple device.
  */
 export default function GivingPaymentMethods({
   selected,
@@ -27,12 +27,32 @@ export default function GivingPaymentMethods({
           onClick={() => onSelect("card")}
         >
           <CreditCard className="size-5" aria-hidden="true" />
-          Card / Link
+          <span>Debit / Credit Card</span>
+          <small>Visa, Mastercard, and more</small>
+        </button>
+        <button
+          type="button"
+          className="cogic-giving-pay__btn touch-target"
+          aria-pressed={selected === "apple_pay"}
+          onClick={() => onSelect("apple_pay")}
+        >
+          <Apple className="size-5" aria-hidden="true" />
+          <span>Apple Pay</span>
+          <small>Eligible Apple devices</small>
+        </button>
+        <button
+          type="button"
+          className="cogic-giving-pay__btn touch-target"
+          aria-pressed={selected === "ach"}
+          onClick={() => onSelect("ach")}
+        >
+          <Landmark className="size-5" aria-hidden="true" />
+          <span>ACH Bank</span>
+          <small>US bank account</small>
         </button>
       </div>
       <p className="mt-2 text-center text-[0.72rem] text-[var(--cg-muted)]">
-        Continues to secure Stripe Checkout. Additional wallets may appear there when your device
-        supports them.
+        Secure Stripe Checkout. ACH gifts can take several business days to settle.
       </p>
     </section>
   );

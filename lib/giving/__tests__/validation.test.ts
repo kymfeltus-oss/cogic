@@ -32,13 +32,34 @@ describe("COGIC Giving validation", () => {
       amountInCents: 7550,
       fundKey: "offering",
       note: "  For the saints  ",
+      paymentMethod: "ach",
     });
     assert.equal(result.ok, true);
     if (result.ok) {
       assert.equal(result.value.note, "For the saints");
       assert.equal(result.value.fundKey, "offering");
       assert.equal(result.value.frequency, "one_time");
+      assert.equal(result.value.paymentMethod, "ach");
     }
+  });
+
+  it("accepts real Giving payment rails and rejects unknown methods", () => {
+    for (const paymentMethod of ["card", "apple_pay", "ach"] as const) {
+      const result = validateGivingCheckoutInput({
+        amountInCents: 2500,
+        fundKey: "tithes",
+        paymentMethod,
+      });
+      assert.equal(result.ok, true);
+    }
+    assert.equal(
+      validateGivingCheckoutInput({
+        amountInCents: 2500,
+        fundKey: "tithes",
+        paymentMethod: "cash",
+      }).ok,
+      false,
+    );
   });
 
   it("rejects invalid amounts and inactive/unknown funds", () => {

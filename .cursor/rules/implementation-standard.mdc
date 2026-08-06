@@ -1,0 +1,26 @@
+---
+description: COGIC LIVE master implementation standard — live mode only, end-to-end, no mock/demo data, no dead UI
+alwaysApply: true
+---
+
+# COGIC LIVE Implementation Standard
+
+Full document: `docs/IMPLEMENTATION_STANDARD.md`
+
+## Non-negotiables
+
+1. **LIVE MODE ONLY** — Never invent mock/demo/sample data, fake success, fake metrics, fake schedules, fake credentials, or fake notifications in production UI. Use real DB/API/auth/Stripe data or show a truthful empty state.
+
+2. **END-TO-END** — Every feature must complete: UI → validation → secure server action/API → persistence/payment → response → UI refresh → correct next route. No stubs, TODOs, or unfinished workflows presented as done.
+
+3. **NO DEAD UI** — Every button/link/control must perform a real action or navigate to a real functional destination. Otherwise remove/hide it.
+
+4. **SERVER AUTHORITY** — Never trust client-provided user IDs, prices, amounts, registration/credential status, fund IDs, or roles. Validate server-side. Service role stays server-only.
+
+5. **PAYMENTS** — Stripe webhook is authoritative. Bind amounts/metadata server-side. Never mark paid from client redirect alone.
+
+6. **SECURITY** — Session identity, RLS, rate limits on high-risk routes, secret redaction, production bypasses disabled.
+
+7. **BLOCKED ≠ FAKE** — If credentials/schema/content are missing, mark `BLOCKED — OPERATOR ACTION REQUIRED`. Do not fake completion.
+
+8. **VERIFY** — Targeted tests, then `npm test`, `npm run build`, phase verifiers, and `/api/health` before claiming done.

@@ -29,24 +29,34 @@ describe("COGIC Giving UI and checkout contract", () => {
     assert.match(submit, /aria-busy=\{loading\}/);
   });
 
-  it("uses only production Card and Stripe Link checkout", async () => {
-    const [methods, checkout] = await Promise.all([
+  it("uses real Stripe Checkout rails for cards, Apple Pay, and ACH", async () => {
+    const [methods, checkout, webhook] = await Promise.all([
       read("components/giving/GivingPaymentMethods.tsx"),
       read("app/api/checkout/route.ts"),
+      read("app/api/webhooks/stripe/route.ts"),
     ]);
-    assert.match(methods, /Card \/ Link/);
-    assert.doesNotMatch(methods, /Apple Pay|Bank|Cash App|Givelify/);
-    assert.match(checkout, /payment_method_types:\s*\["card", "link"\]/);
+    assert.match(methods, /Debit \/ Credit Card/);
+    assert.match(methods, />Apple Pay</);
+    assert.match(methods, />ACH Bank</);
+    assert.doesNotMatch(methods, /Cash App|Givelify/);
+    assert.match(checkout, /\["us_bank_account"\]/);
+    assert.match(checkout, /\["card"\]/);
     assert.match(checkout, /validateGivingCheckoutInput/);
     assert.match(checkout, /status:\s*"pending"/);
+    assert.match(webhook, /checkout\.session\.async_payment_succeeded/);
+    assert.match(webhook, /checkout\.session\.async_payment_failed/);
+    assert.match(webhook, /session\.payment_status !== "paid"/);
     assert.doesNotMatch(checkout, /demo|mock|fake_success/i);
+    assert.match(checkout, /enforceGivingCheckoutRateLimit/);
   });
 
   it("preserves fluid responsive and safe-area layout rules", async () => {
     const css = await read("app/giving/giving.css");
     assert.match(css, /width:\s*min\(100%, 64rem\)/);
-    assert.match(css, /overflow-x:\s*hidden/);
-    assert.match(css, /overflow-y:\s*auto/);
+    assert.match(css, /min-height:\s*100dvh/);
+    assert.match(css, /height:\s*auto/);
+    assert.match(css, /overflow-x:\s*clip/);
+    assert.match(css, /overflow-y:\s*visible/);
     assert.match(css, /env\(safe-area-inset-top\)/);
     assert.match(css, /env\(safe-area-inset-bottom/);
     assert.match(css, /@media \(max-width: 599px\)/);

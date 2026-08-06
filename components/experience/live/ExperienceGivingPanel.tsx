@@ -6,6 +6,7 @@ import { Heart, Loader2 } from "lucide-react";
 import { getClientAppUrl } from "@/lib/client-api";
 import { buildAttendeeGateUrl } from "@/lib/auth/routing";
 import { useAttendeeLiveNavTarget } from "@/lib/experience/useAttendeeLiveNavTarget";
+import { DEFAULT_GIVING_FUND_KEY } from "@/lib/giving/funds";
 
 const PRESET_AMOUNTS = [25, 50, 100, 250, 500, 1000] as const;
 
@@ -48,14 +49,19 @@ export default function ExperienceGivingPanel() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ amountInCents }),
+        body: JSON.stringify({
+          amountInCents,
+          fundKey: DEFAULT_GIVING_FUND_KEY,
+          source: "live-giving-panel",
+          paymentMethod: "card",
+        }),
       });
 
       const data = (await response.json()) as { url?: string; error?: string };
 
       if (response.status === 401) {
         setNeedsSignIn(true);
-        setError("Sign in before sowing a seed.");
+        setError("Sign in before giving.");
         return;
       }
 
@@ -84,7 +90,7 @@ export default function ExperienceGivingPanel() {
         Every Gift Has A Frequency
       </p>
       <p className="mt-2 font-body text-sm leading-relaxed text-brand-muted">
-        Support the mission through Vital Seed.
+        Support the mission through COGIC Giving.
       </p>
       <p className="mt-2 font-body text-xs leading-relaxed text-brand-muted">
         Secure checkout opens in a new tab — your live stream stays on this page.
@@ -95,7 +101,7 @@ export default function ExperienceGivingPanel() {
       </div>
 
       <p className="mt-4 text-center font-ui text-[0.58rem] font-bold uppercase tracking-[0.16em] text-brand-muted">
-        Choose Your Seed
+        Choose an amount
       </p>
 
       <div className="mt-3 grid grid-cols-3 gap-2 sm:gap-3">

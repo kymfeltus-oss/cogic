@@ -14,6 +14,7 @@ const nextConfig = {
   typedRoutes: false,
   images: {
     unoptimized: true,
+    qualities: [75, 90],
   },
   async redirects() {
     return [

@@ -23,6 +23,8 @@ type RegistrationWizardProps = {
   initialRegistration: Registration;
   initialStep: 1 | 2 | 3 | 4;
   mode: "wizard" | "review" | "submitted" | "payment_pending" | "confirmed";
+  feeLabel?: string | null;
+  checkoutCanceled?: boolean;
 };
 
 function fieldId(prefix: string, field: string): string {
@@ -33,6 +35,8 @@ export default function RegistrationWizard({
   initialRegistration,
   initialStep,
   mode,
+  feeLabel = null,
+  checkoutCanceled = false,
 }: RegistrationWizardProps) {
   const router = useRouter();
   const formId = useId();
@@ -82,6 +86,8 @@ export default function RegistrationWizard({
       <RegistrationStatusPanel
         registration={registration}
         viewMode={viewMode}
+        feeLabel={feeLabel}
+        checkoutCanceled={checkoutCanceled}
       />
     );
   }
@@ -346,7 +352,7 @@ export default function RegistrationWizard({
           </button>
         ) : (
           <Link
-            href="/attendee-dashboard"
+            href="/my-convocation"
             className="registration-btn registration-btn-secondary"
           >
             Cancel

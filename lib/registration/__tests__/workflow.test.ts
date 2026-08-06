@@ -91,16 +91,17 @@ describe("registration workflow", () => {
     assert.equal("status" in picked, false);
   });
 
-  it("uses truthful submitted copy without QR or payment claims", () => {
+  it("uses truthful submitted copy that requires payment without fake QR claims", () => {
     const copy = honestSubmittedCopy();
     assert.match(copy.title, /received/i);
     assert.doesNotMatch(copy.title, /you.?re registered/i);
-    assert.doesNotMatch(copy.body, /payment|qr code|you're registered/i);
-    assert.match(copy.body, /remaining registration requirements/i);
-    assert.equal(copy.statusLabel, "Submitted");
+    assert.match(copy.body, /payment/i);
+    assert.doesNotMatch(copy.body, /qr code|you're registered/i);
+    assert.match(copy.statusLabel, /payment required/i);
     assert.equal(
       registrationReference(baseRegistration()),
       "AAAAAAAA",
     );
   });
 });
+

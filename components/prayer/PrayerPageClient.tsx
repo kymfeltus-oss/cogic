@@ -7,7 +7,7 @@ import ContactUsForm, { type ContactUsFormValues } from "@/components/prayer/Con
 import AwakeningMenuButton from "@/components/AwakeningMenuButton";
 import ProfileOrbEditor from "@/components/profile/ProfileOrbEditor";
 import { COGIC_LIVE_PUBLIC_NAME } from "@/lib/brand/public-display";
-import { buildContactMailto } from "@/lib/prayer/contact";
+import { buildContactMailto, isSupportEmailConfigured } from "@/lib/prayer/contact";
 import type { AttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
 import { ATTENDEE_DASHBOARD_PATH } from "@/lib/navigation/back-to-dashboard";
 import { CONTENT_WITH_NAV } from "@/lib/responsive";
@@ -67,8 +67,23 @@ export default function ContactUsPageClient({ initialProfile }: ContactUsPageCli
 
     if (!canSubmit) return;
 
+    if (!isSupportEmailConfigured) {
+      setFormError(
+        "Support email is not configured. Set NEXT_PUBLIC_SUPPORT_EMAIL before launch.",
+      );
+      return;
+    }
+
+    const mailto = buildContactMailto(values);
+    if (!mailto) {
+      setFormError(
+        "Support email is not configured. Set NEXT_PUBLIC_SUPPORT_EMAIL before launch.",
+      );
+      return;
+    }
+
     setIsSubmitting(true);
-    window.location.href = buildContactMailto(values);
+    window.location.href = mailto;
     window.setTimeout(() => setIsSubmitting(false), 1200);
   };
 

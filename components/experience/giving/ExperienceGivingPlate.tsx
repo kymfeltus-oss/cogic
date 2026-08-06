@@ -92,7 +92,7 @@ export default function ExperienceGivingPlate({
           <img
             ref={bgImgRef}
             src={VITAL_SEED_GIVING_ASSETS.mobileBackground}
-            alt="Vital Seed Giving"
+            alt="COGIC Giving"
             width={VITAL_SEED_GIVING_MOBILE_ART_NATIVE.width}
             height={VITAL_SEED_GIVING_MOBILE_ART_NATIVE.height}
             className="vital-giving-page__bg"

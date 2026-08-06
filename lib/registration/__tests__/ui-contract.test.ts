@@ -8,23 +8,38 @@ import { isAttendeeProtectedPath } from "@/lib/auth/routing";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("registration UI / security contracts", () => {
+  it("uses Stripe dynamic payment methods for registration checkout", () => {
+    const checkout = fs.readFileSync(path.join(root, "lib/registration/checkout.ts"), "utf8");
+    assert.doesNotMatch(checkout, /payment_method_types/);
+    assert.match(checkout, /dynamically present eligible cards, wallets, and flexible/);
+  });
+
   it("protects registration routes for authenticated attendees", () => {
     assert.equal(isAttendeeProtectedPath("/register"), true);
     assert.equal(isAttendeeProtectedPath("/register/review"), true);
+    assert.equal(isAttendeeProtectedPath("/register/payment/complete"), true);
   });
 
-  it("does not create checkout or confirmation fake-success routes", () => {
-    assert.equal(fs.existsSync(path.join(root, "app/register/checkout")), false);
+  it("wires registration checkout API and payment complete surface", () => {
+    assert.equal(fs.existsSync(path.join(root, "app/api/registration/checkout/route.ts")), true);
+    assert.equal(
+      fs.existsSync(path.join(root, "app/register/payment/complete/page.tsx")),
+      true,
+    );
     assert.equal(fs.existsSync(path.join(root, "app/register/confirmation")), false);
   });
 
-  it("wizard uses real submit/save actions and honest submitted copy", () => {
+  it("wizard uses real submit/save actions and payment status UI", () => {
     const wizard = fs.readFileSync(
       path.join(root, "components/registration/RegistrationWizard.tsx"),
       "utf8",
     );
     const status = fs.readFileSync(
       path.join(root, "components/registration/RegistrationStatusPanel.tsx"),
+      "utf8",
+    );
+    const payButton = fs.readFileSync(
+      path.join(root, "components/registration/RegistrationCheckoutButton.tsx"),
       "utf8",
     );
     const actions = fs.readFileSync(
@@ -42,11 +57,15 @@ describe("registration UI / security contracts", () => {
     assert.doesNotMatch(wizard, /href="#"/);
     assert.doesNotMatch(wizard, /console\.log/);
     assert.doesNotMatch(wizard, /You're registered|You are registered/i);
-    assert.doesNotMatch(wizard, /qr code|Stripe Checkout|You're registered/i);
 
     assert.match(status, /honestSubmittedCopy/);
-    assert.match(status, /No QR credential/);
+    assert.match(status, /RegistrationCheckoutButton/);
+    assert.match(status, /server webhook/);
     assert.doesNotMatch(status, /You're registered/i);
+    assert.doesNotMatch(status, /Payment processing is not available in this step yet/);
+
+    assert.match(payButton, /\/api\/registration\/checkout/);
+    assert.match(payButton, /credentials:\s*"include"/);
 
     assert.match(actions, /getUserFromSession/);
     assert.match(actions, /parseAccessContext/);
@@ -76,6 +95,7 @@ describe("registration UI / security contracts", () => {
     );
     assert.match(page, /buildAttendeeGateUrl\("\/register"\)/);
     assert.match(page, /isGuest/);
+    assert.match(page, /getRegistrationFeeLabelOrNull/);
     assert.match(review, /buildAttendeeGateUrl\("\/register\/review"\)/);
     assert.match(review, /loadRegistrationForCurrentUser|createOrResumeRegistrationDraft/);
   });

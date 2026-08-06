@@ -116,8 +116,8 @@ export default function IanCraigLiveExperience({
   }, [router]);
 
   const handlePrayAction = useCallback(() => {
-    setSheetAction("prayer");
-  }, []);
+    router.push("/experience/contact-us");
+  }, [router]);
 
   const handleShare = useCallback(async () => {
     const url = typeof window !== "undefined" ? window.location.href : "";

@@ -7,11 +7,9 @@ import EmailGateShell, {
   PrimaryGateButton,
   ValidationHint,
 } from "@/components/auth/EmailGateShell";
-import OtpVerificationPlaceholder from "@/components/auth/OtpVerificationPlaceholder";
 import { startOAuthSignIn, type OAuthProviderId } from "@/lib/auth/oauth-sign-in";
 import {
   AUTH_NEXT_COOKIE,
-  buildAttendeeGateUrl,
   buildCreateAccountUrl,
   buildForgotPasswordUrl,
   buildPersonaHubUrl,
@@ -19,7 +17,6 @@ import {
 } from "@/lib/auth/routing";
 import {
   emailValidationState,
-  formatPhoneDisplay,
   isValidEmail,
   isValidPhone,
   normalizePhoneDigits,
@@ -45,9 +42,7 @@ export default function AttendeeFunnelClient({
   const hubBackHref = buildPersonaHubUrl(destination);
 
   const [activeTab, setActiveTab] = useState<AttendeeTab>("login");
-  const [guestStep, setGuestStep] = useState<"form" | "otp">("form");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -124,17 +119,12 @@ export default function AttendeeFunnelClient({
     }
   };
 
-  const handleGuestFormSubmit = (e: React.FormEvent) => {
+  const handleGuestFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailTouched(true);
     setPhoneTouched(true);
     if (!guestFormValid) return;
-    setError(null);
-    // OTP delivery is not implemented — create the guest session directly.
-    void handleGuestVerificationComplete();
-  };
 
-  const handleGuestVerificationComplete = async () => {
     setStatus("submitting");
     setError(null);
 
@@ -163,24 +153,16 @@ export default function AttendeeFunnelClient({
     }
   };
 
-  if (activeTab === "guest" && guestStep === "otp") {
-    return (
-      <OtpVerificationPlaceholder
-        email={email.trim().toLowerCase()}
-        phone={formatPhoneDisplay(phone)}
-        backHref={buildAttendeeGateUrl(destination)}
-        onBack={() => setGuestStep("form")}
-        onVerify={() => void handleGuestVerificationComplete()}
-        isSubmitting={status === "submitting"}
-        error={error}
-      />
-    );
-  }
-
   if (activeTab === "guest") {
     return (
-      <EmailGateShell backHref={hubBackHref} backLabel="Back to entry hub">
-        <form onSubmit={handleGuestFormSubmit} className="space-y-3">
+      <EmailGateShell
+        backHref={hubBackHref}
+        backLabel="Back to entry hub"
+        eyebrow="Guest access"
+        title="Continue as guest"
+        description="Guest access does not send a verification code. Create an account for registration and credential features."
+      >
+        <form onSubmit={(event) => void handleGuestFormSubmit(event)} className="space-y-3">
           <input
             type="email"
             required
@@ -216,8 +198,8 @@ export default function AttendeeFunnelClient({
             invalidMessage="Enter a 10-digit US phone number"
           />
 
-          <PrimaryGateButton type="submit" disabled={!guestFormValid}>
-            Continue
+          <PrimaryGateButton type="submit" disabled={!guestFormValid || status === "submitting"}>
+            {status === "submitting" ? "Continuing…" : "Continue as guest"}
           </PrimaryGateButton>
 
           <button
@@ -248,7 +230,6 @@ export default function AttendeeFunnelClient({
       email={email}
       password={password}
       showPassword={showPassword}
-      rememberMe={rememberMe}
       isSubmitting={status === "submitting"}
       formError={displayError}
       formNotice={displayNotice}
@@ -256,7 +237,6 @@ export default function AttendeeFunnelClient({
       onPasswordChange={setPassword}
       onEmailBlur={() => setEmailTouched(true)}
       onToggleShowPassword={() => setShowPassword((current) => !current)}
-      onRememberMeChange={setRememberMe}
       onSubmit={(event) => void handleCredentialSubmit(event)}
       onGuest={() => {
         setActiveTab("guest");

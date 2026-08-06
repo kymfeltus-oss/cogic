@@ -16,10 +16,16 @@ test("Giving controls support amount, fund, note, payment, and keyboard interact
   await page.getByRole("button", { name: "Offering" }).click();
   await expect(page.getByRole("button", { name: "Offering" })).toHaveAttribute("aria-pressed", "true");
   await page.getByLabel("Optional giving note").fill("For the mission");
-  const card = page.getByRole("button", { name: "Card / Link" });
+  const card = page.getByRole("button", { name: /Debit \/ Credit Card/ });
   await card.focus();
   await page.keyboard.press("Enter");
   await expect(card).toHaveAttribute("aria-pressed", "true");
+  const applePay = page.getByRole("button", { name: /Apple Pay/ });
+  await applePay.click();
+  await expect(applePay).toHaveAttribute("aria-pressed", "true");
+  const ach = page.getByRole("button", { name: /ACH Bank/ });
+  await ach.click();
+  await expect(ach).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: /Give Now/ })).toBeEnabled();
 });
 
@@ -38,7 +44,9 @@ test("Giving layout has no horizontal overflow at required viewports", async ({ 
       page.getByLabel("Gift amount in US dollars"),
       page.getByRole("button", { name: "$25", exact: true }),
       page.getByRole("button", { name: "General Fund" }),
-      page.getByRole("button", { name: "Card / Link" }),
+      page.getByRole("button", { name: /Debit \/ Credit Card/ }),
+      page.getByRole("button", { name: /Apple Pay/ }),
+      page.getByRole("button", { name: /ACH Bank/ }),
       page.getByRole("button", { name: /Give Now/ }),
     ]) {
       const box = await locator.boundingBox();
@@ -50,7 +58,9 @@ test("Giving layout has no horizontal overflow at required viewports", async ({ 
     for (const button of [
       page.getByRole("button", { name: "$25", exact: true }),
       page.getByRole("button", { name: "General Fund" }),
-      page.getByRole("button", { name: "Card / Link" }),
+      page.getByRole("button", { name: /Debit \/ Credit Card/ }),
+      page.getByRole("button", { name: /Apple Pay/ }),
+      page.getByRole("button", { name: /ACH Bank/ }),
       page.getByRole("button", { name: /Give Now/ }),
     ]) {
       const box = await button.boundingBox();

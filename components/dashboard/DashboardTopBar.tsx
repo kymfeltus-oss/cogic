@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { UserRound } from "lucide-react";
+import { Bell, ChevronDown, Search, UserRound } from "lucide-react";
 import type { AttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
 import { chicagoDayGreeting, greetingName } from "@/lib/dashboard/greeting";
 
@@ -19,7 +19,7 @@ export default function DashboardTopBar({
     <header className="cl-topbar">
       <div className="cl-topbar__brand">
         <Image
-          src="/my-sanctuary/cogic-live-logo.png"
+          src="/my-sanctuary/cogic-live-logo-purple.png"
           alt="COGIC LIVE"
           width={1250}
           height={270}
@@ -44,21 +44,29 @@ export default function DashboardTopBar({
         </div>
       </div>
 
+      <div className="cl-topbar__tools" aria-label="Dashboard tools">
+        <div className="cl-topbar__search" role="search" aria-label="Search COGIC LIVE">
+          <Search aria-hidden="true" />
+          <span>Search COGIC LIVE</span>
+        </div>
+        <Bell className="cl-topbar__bell" aria-hidden="true" />
+        <span className="cl-topbar__divider" aria-hidden="true" />
+
       {profile.userId ? (
-        <button
-          type="button"
-          className="cl-topbar__profile"
-          onClick={onProfile}
-          aria-label="Open attendee profile"
-        >
-          {profile.avatarUrl ? (
-            <Image src={profile.avatarUrl} alt="" width={40} height={40} unoptimized />
-          ) : (
-            <span className="cl-topbar__avatar">
-              <UserRound aria-hidden="true" />
-            </span>
-          )}
-        </button>
+        <div className="cl-topbar__account">
+          <button type="button" className="cl-topbar__profile" onClick={onProfile} aria-label="Open attendee profile">
+            {profile.avatarUrl ? (
+              <Image src={profile.avatarUrl} alt="" width={40} height={40} unoptimized />
+            ) : (
+              <span className="cl-topbar__avatar"><UserRound aria-hidden="true" /></span>
+            )}
+          </button>
+          <button type="button" className="cl-topbar__account-copy" onClick={onProfile}>
+            <strong>{[profile.firstName, profile.lastName].filter(Boolean).join(" ") || "Attendee"}</strong>
+            <span>Attendee</span>
+          </button>
+          <ChevronDown className="cl-topbar__chevron" aria-hidden="true" />
+        </div>
       ) : (
         <a
           href={`/login?next=${encodeURIComponent(profileReturnPath)}`}
@@ -67,6 +75,7 @@ export default function DashboardTopBar({
           Sign in
         </a>
       )}
+      </div>
     </header>
   );
 }

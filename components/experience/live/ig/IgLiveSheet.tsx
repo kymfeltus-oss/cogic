@@ -20,7 +20,7 @@ const MORE_ITEMS: {
   icon: typeof Heart;
 }[] = [
   { id: "prayer", label: "Prayer", icon: HandHeart },
-  { id: "give", label: "Give Seeds", icon: Heart },
+  { id: "give", label: "Give", icon: Heart },
   { id: "program", label: "Event Program", icon: ListOrdered },
   { id: "polls", label: "Live Polls", icon: BarChart3 },
 ];

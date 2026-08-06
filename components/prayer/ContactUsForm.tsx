@@ -2,7 +2,7 @@
 
 import { Loader2, Mail, Send } from "lucide-react";
 import type { FormEvent } from "react";
-import { PRAYER_CONTACT } from "@/lib/prayer/contact";
+import { isSupportEmailConfigured, PRAYER_CONTACT } from "@/lib/prayer/contact";
 
 export type ContactUsFormValues = {
   fullName: string;
@@ -128,18 +128,24 @@ export default function ContactUsForm({
         </button>
       </form>
 
-      <div className="mt-8 text-center">
-        <p className="font-ui text-[0.62rem] font-bold uppercase tracking-[0.2em] text-brand-muted">
-          Or reach us directly
+      {isSupportEmailConfigured ? (
+        <div className="mt-8 text-center">
+          <p className="font-ui text-[0.62rem] font-bold uppercase tracking-[0.2em] text-brand-muted">
+            Or reach us directly
+          </p>
+          <a
+            href={PRAYER_CONTACT.emailMailto}
+            className="touch-target mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-panel/60 px-5 font-body text-sm text-white transition hover:border-brand-pink/40 hover:text-brand-pink"
+          >
+            <Mail className="size-4 text-brand-blue" aria-hidden="true" />
+            {PRAYER_CONTACT.email}
+          </a>
+        </div>
+      ) : (
+        <p className="mt-8 text-center font-body text-sm text-brand-muted" role="status">
+          Support email is not configured yet (NEXT_PUBLIC_SUPPORT_EMAIL).
         </p>
-        <a
-          href={PRAYER_CONTACT.emailMailto}
-          className="touch-target mt-3 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-panel/60 px-5 font-body text-sm text-white transition hover:border-brand-pink/40 hover:text-brand-pink"
-        >
-          <Mail className="size-4 text-brand-blue" aria-hidden="true" />
-          {PRAYER_CONTACT.email}
-        </a>
-      </div>
+      )}
     </div>
   );
 }

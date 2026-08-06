@@ -1,21 +1,21 @@
 import Link from "next/link";
-import { ArrowRight, HeartHandshake } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
 export default function GivingCard() {
   return (
-    <article className="cl-action-card cl-action-card--giving">
-      <div className="cl-action-card__icon">
-        <HeartHandshake aria-hidden="true" />
+    <article className="cl-feature-card cl-feature-card--giving">
+      <p className="cl-feature-card__eyebrow">COGIC Giving</p>
+      <div className="cl-feature-card__giving-mark">
+        <Image src="/branding/cogic-seal.png" alt="" width={64} height={64} sizes="42px" />
+        <span><strong>COGIC</strong><b>GIVING</b></span>
       </div>
-      <p className="cl-action-card__eyebrow">COGIC Giving</p>
-      <h3 className="cl-action-card__title">Support the mission</h3>
-      <p className="cl-action-card__body">
-        Give securely to Church of God in Christ, Inc.
-      </p>
+      <p className="cl-feature-card__body">Reaching souls.<br />Changing lives.</p>
       <Link href="/giving" className="cl-btn cl-btn--primary cl-btn--block">
-        Give Now
+        Make a Gift
         <ArrowRight aria-hidden="true" className="size-4" />
       </Link>
+      <Link href="/giving" className="cl-btn cl-btn--ghost cl-btn--block">Open Giving</Link>
     </article>
   );
 }

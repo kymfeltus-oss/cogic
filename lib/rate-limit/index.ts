@@ -57,6 +57,19 @@ export async function enforceRegistrationCheckoutRateLimit(
   });
 }
 
+export async function enforceGivingCheckoutRateLimit(
+  request: Request,
+  userId: string,
+): Promise<RateLimitDecision> {
+  const ipHash = hashRateLimitIdentifier(clientIpFromRequest(request));
+  const userHash = hashRateLimitIdentifier(userId);
+  return store.hit({
+    key: bucketKey(["giving-checkout", userHash, ipHash]),
+    limit: CHECKOUT_LIMIT,
+    windowSeconds: CHECKOUT_WINDOW_SECONDS,
+  });
+}
+
 export function rateLimitResponseHeaders(decision: RateLimitDecision): HeadersInit {
   const headers: Record<string, string> = {};
   if (decision.retryAfterSeconds != null) {

@@ -2,13 +2,17 @@
 
 /** Operator: set NEXT_PUBLIC_SUPPORT_EMAIL to the official COGIC LIVE mailbox before launch. */
 export const PRAYER_CONTACT_EMAIL =
-  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || "support@example.com";
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL?.trim() || "";
+
+export const isSupportEmailConfigured = PRAYER_CONTACT_EMAIL.length > 0;
 
 export const PRAYER_CONTACT = {
   email: PRAYER_CONTACT_EMAIL,
-  website: process.env.NEXT_PUBLIC_APP_URL?.trim() || "https://example.com",
-  prayerRequestMailto: `mailto:${PRAYER_CONTACT_EMAIL}?subject=${encodeURIComponent("Prayer Request")}&body=${encodeURIComponent("Please share your prayer request below:\n\n")}`,
-  emailMailto: `mailto:${PRAYER_CONTACT_EMAIL}`,
+  website: process.env.NEXT_PUBLIC_APP_URL?.trim() || "",
+  prayerRequestMailto: isSupportEmailConfigured
+    ? `mailto:${PRAYER_CONTACT_EMAIL}?subject=${encodeURIComponent("Prayer Request")}&body=${encodeURIComponent("Please share your prayer request below:\n\n")}`
+    : "",
+  emailMailto: isSupportEmailConfigured ? `mailto:${PRAYER_CONTACT_EMAIL}` : "",
 } as const;
 
 export function buildContactMailto(input: {
@@ -16,7 +20,9 @@ export function buildContactMailto(input: {
   email: string;
   subject: string;
   message: string;
-}): string {
+}): string | null {
+  if (!isSupportEmailConfigured) return null;
+
   const subject = input.subject.trim() || "Contact from COGIC LIVE";
   const body = [
     `Name: ${input.fullName.trim()}`,

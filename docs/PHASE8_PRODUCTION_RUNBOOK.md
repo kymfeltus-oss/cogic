@@ -5,6 +5,8 @@
 **Authoritative Supabase:** `wjlaaluonxiaxmytiqwi`  
 **Stripe mode:** LIVE (intentional — no demo/fake payment mode)
 
+**Implementation standard:** All features must follow [`docs/IMPLEMENTATION_STANDARD.md`](./IMPLEMENTATION_STANDARD.md) (live mode only, end-to-end, no mock/demo data, no dead UI).
+
 Never paste real secrets into tickets, chat, or this document.
 
 ---

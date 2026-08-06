@@ -16,7 +16,7 @@ test("My Sanctuary reuses the real attendee dashboard loader and cards", async (
   ]);
   assert.match(page, /loadAttendeeDashboard/);
   assert.match(page, /dashboardPath="\/my-sanctuary"/);
-  assert.match(shell, /WatchLiveCard/);
+  assert.match(shell, /DashboardLiveStage/);
   assert.match(shell, /TodayScheduleCard/);
   assert.match(shell, /GivingCard/);
   assert.match(shell, /MyConvocationCard/);

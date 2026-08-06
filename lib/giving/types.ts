@@ -12,7 +12,7 @@ export type GivingFund = {
   sortOrder: number;
 };
 
-export type GivingPaymentMethodId = "card";
+export type GivingPaymentMethodId = "card" | "apple_pay" | "ach";
 
 export type GivingCheckoutRequest = {
   amountInCents: number;
@@ -20,4 +20,5 @@ export type GivingCheckoutRequest = {
   note?: string;
   frequency?: "one_time";
   source?: string;
+  paymentMethod?: GivingPaymentMethodId;
 };

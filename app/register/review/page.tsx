@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/routing";
 import { getUserFromSession } from "@/lib/auth/session";
 import { loadRegistrationForCurrentUser } from "@/lib/registration/actions";
+import { getRegistrationFeeLabelOrNull } from "@/lib/registration/fee-display";
 import { resolveRegistrationViewMode } from "@/lib/registration/workflow";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,14 @@ export const metadata: Metadata = {
   description: "Review and submit your Holy Convocation registration.",
 };
 
-export default async function RegisterReviewPage() {
+type RegisterReviewPageProps = {
+  searchParams: Promise<{ checkout?: string }>;
+};
+
+export default async function RegisterReviewPage({
+  searchParams,
+}: RegisterReviewPageProps) {
+  const params = await searchParams;
   const user = await getUserFromSession();
   if (!user) {
     redirect(buildAttendeeGateUrl("/register/review"));
@@ -71,11 +79,16 @@ export default async function RegisterReviewPage() {
     }
   }
 
+  const feeLabel = getRegistrationFeeLabelOrNull();
+  const checkoutCanceled = params.checkout === "canceled";
+
   return (
     <main id="main-content" className="registration-page">
       <RegistrationWizard
         initialRegistration={result.registration}
         initialStep={4}
+        feeLabel={feeLabel}
+        checkoutCanceled={checkoutCanceled}
         mode={
           viewMode === "wizard"
             ? "review"

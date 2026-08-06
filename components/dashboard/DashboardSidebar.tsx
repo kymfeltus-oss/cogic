@@ -19,7 +19,7 @@ const items = [
   { label: "Program", href: "/program", icon: CalendarDays, match: "prefix" },
   { label: "My Sanctuary", href: "/my-sanctuary", icon: Sparkles, match: "exact" },
   { label: "Give", href: "/giving", icon: HandHeart, match: "prefix" },
-  { label: "My Convocation", href: "/register", icon: IdCard, match: "prefix" },
+  { label: "Registration", href: "/register", icon: IdCard, match: "prefix" },
   { label: "Replays", href: "/replays", icon: Video, match: "exact" },
 ] as const;
 
@@ -44,7 +44,7 @@ export default function DashboardSidebar({
     <aside className="cl-sidebar" aria-label="Dashboard navigation">
       <Link href={homeHref} className="cl-sidebar__brand" aria-label="COGIC LIVE home">
         <Image
-          src="/my-sanctuary/cogic-live-logo.png"
+          src="/my-sanctuary/cogic-live-logo-purple.png"
           alt="COGIC LIVE"
           width={1250}
           height={270}
@@ -82,6 +82,13 @@ export default function DashboardSidebar({
           </span>
         </a>
       ) : null}
+
+      <div className="cl-sidebar__event" aria-label="118th Holy Convocation">
+        <Image src="/branding/cogic-seal.png" alt="" width={80} height={80} sizes="56px" />
+        <strong>118TH HOLY<br />CONVOCATION</strong>
+        <b>ST. LOUIS, MO</b>
+        <small>NOVEMBER 3–10, 2026</small>
+      </div>
     </aside>
   );
 }

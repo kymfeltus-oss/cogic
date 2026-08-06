@@ -7,6 +7,10 @@ import {
 } from "@/lib/checkout/server";
 import { getGivingFund } from "@/lib/giving/funds";
 import { validateGivingCheckoutInput } from "@/lib/giving/validation";
+import {
+  enforceGivingCheckoutRateLimit,
+  rateLimitResponseHeaders,
+} from "@/lib/rate-limit";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { redactForLog, safeErrorMessage } from "@/lib/security/redact";
 
@@ -48,6 +52,15 @@ export async function POST(request: NextRequest) {
     }
 
     const { buyer, withSessionCookies } = auth;
+
+    const rate = await enforceGivingCheckoutRateLimit(request, buyer.userId);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: "Too many checkout attempts. Please try again shortly." },
+        { status: 429, headers: rateLimitResponseHeaders(rate) },
+      );
+    }
+
     const body = (await request.json()) as Record<string, unknown>;
     const validated = validateGivingCheckoutInput(body);
 
@@ -55,7 +68,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: validated.error }, { status: 400 });
     }
 
-    const { amountInCents, fundKey, note, source } = validated.value;
+    const { amountInCents, fundKey, note, source, paymentMethod = "card" } = validated.value;
     const fund = getGivingFund(fundKey);
     if (!fund) {
       return NextResponse.json({ error: "Please select a valid fund." }, { status: 400 });
@@ -63,11 +76,17 @@ export async function POST(request: NextRequest) {
 
     const stripe = new Stripe(stripeSecretKey);
     const appUrl = getAppUrl(request);
+    const paymentMethodTypes: Stripe.Checkout.SessionCreateParams.PaymentMethodType[] =
+      paymentMethod === "ach"
+        ? ["us_bank_account"]
+        : paymentMethod === "apple_pay"
+          ? ["card"]
+          : ["card", "link"];
     const productName = `COGIC Giving — ${fund.label}`;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      payment_method_types: ["card", "link"],
+      payment_method_types: paymentMethodTypes,
       client_reference_id: buyer.userId,
       customer_email: buyer.email,
       line_items: [
@@ -94,6 +113,7 @@ export async function POST(request: NextRequest) {
         source: source ?? "cogic-giving",
         fund_key: fund.key,
         fund_label: fund.label,
+        payment_method_preference: paymentMethod,
         ...(note ? { donor_note: note } : {}),
       },
       success_url: `${appUrl}/giving?success=true`,

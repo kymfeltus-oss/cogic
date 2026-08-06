@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, ClipboardList } from "lucide-react";
+import { ArrowRight, BadgeCheck, ClipboardList, Check } from "lucide-react";
 import type { DashboardRegistrationState } from "@/lib/dashboard/load-attendee-dashboard";
 
 function content(registration: DashboardRegistrationState, signedIn: boolean) {
@@ -30,8 +30,8 @@ function content(registration: DashboardRegistrationState, signedIn: boolean) {
     case "submitted":
       return [
         "Registration Submitted",
-        "Your information has been received for review.",
-        "Review Registration",
+        "Your information is on file. Complete payment to confirm registration.",
+        "Complete Payment",
         "/register",
       ] as const;
     case "payment_pending":
@@ -68,21 +68,22 @@ export default function MyConvocationCard({
   const [title, body, label, href] = content(registration, signedIn);
 
   return (
-    <article className="cl-action-card">
-      <div className="cl-action-card__icon">
+    <article className="cl-feature-card cl-feature-card--registration">
+      <p className="cl-feature-card__eyebrow">My Convocation</p>
+      <div className="cl-feature-card__credential-icon">
         {registration.credentialReady ? (
           <BadgeCheck aria-hidden="true" />
         ) : (
           <ClipboardList aria-hidden="true" />
         )}
       </div>
-      <p className="cl-action-card__eyebrow">My Registration</p>
-      <h3 className="cl-action-card__title">{title}</h3>
-      <p className="cl-action-card__body">{body}</p>
-      <Link href={href} className="cl-btn cl-btn--ghost cl-btn--block">
+      <div className="cl-feature-card__status"><strong>{title}</strong>{signedIn && registration.status === "confirmed" ? <Check aria-hidden="true" /> : null}</div>
+      <p className="cl-feature-card__body">{body}</p>
+      <Link href={href} className="cl-btn cl-btn--primary cl-btn--block">
         {label}
         <ArrowRight aria-hidden="true" className="size-4" />
       </Link>
+      <Link href="/my-convocation" className="cl-btn cl-btn--ghost cl-btn--block">Open My Convocation</Link>
     </article>
   );
 }

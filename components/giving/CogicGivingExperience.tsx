@@ -44,7 +44,7 @@ export default function CogicGivingExperience() {
   const [activePreset, setActivePreset] = useState<number | null>(null);
   const [fundKey, setFundKey] = useState<GivingFundKey>(DEFAULT_GIVING_FUND_KEY);
   const [note, setNote] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<GivingPaymentMethodId | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<GivingPaymentMethodId | null>("card");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<"form" | "success" | "canceled">(
@@ -72,10 +72,11 @@ export default function CogicGivingExperience() {
   }, []);
 
   const canSubmit = useMemo(() => {
-    return paymentMethod === "card" && validateGivingCheckoutInput({
+    return paymentMethod !== null && validateGivingCheckoutInput({
       amountInCents: amountCents,
       fundKey,
       note,
+      paymentMethod,
     }).ok;
   }, [amountCents, fundKey, note, paymentMethod]);
 
@@ -84,7 +85,7 @@ export default function CogicGivingExperience() {
       event.preventDefault();
       if (loading) return;
 
-      if (paymentMethod !== "card") {
+      if (!paymentMethod) {
         setError("Please select the available payment method.");
         return;
       }
@@ -94,6 +95,7 @@ export default function CogicGivingExperience() {
         fundKey,
         note,
         source: "cogic-giving",
+        paymentMethod,
       });
 
       if (validated.ok === false) {

@@ -90,43 +90,68 @@ export async function POST(request: Request) {
     );
   }
 
+  async function fulfillDonation(session: Stripe.Checkout.Session) {
+    try {
+      const { error } = await supabaseAdmin.rpc("fulfill_donation_checkout", {
+        p_stripe_session_id: session.id,
+      });
+
+      if (error) {
+        if (isIdempotencyConflict(error)) {
+          return NextResponse.json(
+            { received: true, message: "Donation already fulfilled." },
+            { status: 200 },
+          );
+        }
+        throw error;
+      }
+
+      console.info("✅ [DONATION_FULFILLMENT_SUCCESS]:", session.id);
+      return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });
+    } catch (error) {
+      console.error("❌ [DATABASE_WEBHOOK_FULFILL_CRASH]:", redactForLog(error));
+      return NextResponse.json(
+        { error: "Server transactional processing lock failed." },
+        { status: 500 },
+      );
+    }
+  }
+
+  if (event.type === "checkout.session.async_payment_succeeded") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    if (session.metadata?.checkout_type === "donation") {
+      return fulfillDonation(session);
+    }
+  }
+
+  if (event.type === "checkout.session.async_payment_failed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    if (session.metadata?.checkout_type === "donation") {
+      const { error } = await supabaseAdmin
+        .from("donations")
+        .update({ status: "failed" })
+        .eq("stripe_session_id", session.id)
+        .eq("status", "pending");
+      if (error) {
+        console.error("❌ [DONATION_ASYNC_FAILURE_UPDATE]:", redactForLog(error));
+        return NextResponse.json({ error: "Unable to record failed payment." }, { status: 500 });
+      }
+      return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });
+    }
+  }
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const checkoutType = session.metadata?.checkout_type;
 
     if (checkoutType === "donation") {
-      try {
-        const { error } = await supabaseAdmin.rpc("fulfill_donation_checkout", {
-          p_stripe_session_id: session.id,
-        });
-
-        if (error) {
-          if (isIdempotencyConflict(error)) {
-            console.warn(
-              `⚠️ [IDEMPOTENCY_INTERCEPT]: Donation session ${session.id} was already fulfilled.`,
-            );
-            return NextResponse.json(
-              { received: true, message: "Idempotency checkpoint bypassed." },
-              { status: 200 },
-            );
-          }
-
-          throw error;
-        }
-
-        console.info("✅ [DONATION_FULFILLMENT_SUCCESS]:", session.id);
-      } catch (error) {
-        console.error(
-          "❌ [DATABASE_WEBHOOK_FULFILL_CRASH]:",
-          redactForLog(error),
-        );
+      if (session.payment_status !== "paid") {
         return NextResponse.json(
-          { error: "Server transactional processing lock failed." },
-          { status: 500 },
+          { received: true, message: "Donation payment is pending settlement." },
+          { status: 200 },
         );
       }
-
-      return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });
+      return fulfillDonation(session);
     }
 
     if (checkoutType === REGISTRATION_CHECKOUT_TYPE) {

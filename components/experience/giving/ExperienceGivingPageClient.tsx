@@ -9,6 +9,7 @@ import { getClientAppUrl } from "@/lib/client-api";
 import { type GivingFrequency } from "@/lib/experience/giving-mobile-slots";
 import type { AttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
 import { CONTENT_WITH_NAV } from "@/lib/responsive";
+import { DEFAULT_GIVING_FUND_KEY } from "@/lib/giving/funds";
 import {
   amountToCents,
   parseAmountDollars,
@@ -88,8 +89,10 @@ function ExperienceGivingPageContent({
         credentials: "include",
         body: JSON.stringify({
           amountInCents,
+          fundKey: DEFAULT_GIVING_FUND_KEY,
           frequency: selectedFrequency,
-          source: "vital-seed-giving",
+          source: "experience-giving",
+          paymentMethod: "card",
         }),
       });
 
@@ -118,7 +121,7 @@ function ExperienceGivingPageContent({
       <section
         id="sow-seed"
         className={`${CONTENT_WITH_NAV} flex min-h-0 w-full flex-1 flex-col overflow-hidden text-white`}
-        aria-label="Vital Seed giving"
+        aria-label="COGIC Giving"
       >
         <ExperienceGivingPlate profile={profile} onProfileChange={setProfile}>
           <ExperienceGivingNativeForm
@@ -151,13 +154,13 @@ function ExperienceGivingPageContent({
               onClick={(event) => event.stopPropagation()}
             >
               <p className="text-xs font-bold uppercase tracking-[0.35em] text-brand-blue">
-                Seed Received
+                Gift received
               </p>
               <h2 className="mt-4 font-headline text-xl uppercase tracking-widest text-white">
                 Thank You
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-brand-muted">
-                Your Vital Seed has been received. Thank you for sowing into this historic moment.
+                Your gift has been received. Thank you for supporting COGIC LIVE.
               </p>
               <button
                 type="button"

@@ -6,16 +6,16 @@ import ProfileEditorModal from "@/components/profile/ProfileEditorModal";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
 import DashboardHero from "@/components/dashboard/DashboardHero";
-import NowNextSection from "@/components/dashboard/NowNextSection";
-import WatchLiveCard from "@/components/dashboard/WatchLiveCard";
+import DashboardLiveStage from "@/components/dashboard/DashboardLiveStage";
+import DashboardLinkCard from "@/components/dashboard/DashboardLinkCard";
 import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
 import GivingCard from "@/components/dashboard/GivingCard";
 import MyConvocationCard from "@/components/dashboard/MyConvocationCard";
-import SanctuaryPreview from "@/components/dashboard/SanctuaryPreview";
 import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
 import DashboardSection from "@/components/dashboard/DashboardSection";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 import type { ReactNode } from "react";
+import { Headphones, HeartHandshake, PlaySquare, UsersRound } from "lucide-react";
 
 export default function DashboardShell({
   data,
@@ -55,25 +55,25 @@ export default function DashboardShell({
         <main id="main-content" className="cl-dash__main">
           <div className="cl-dash__canvas">
             {hero ?? (
-              <DashboardHero live={data.live} firstName={profile.firstName} />
+              <DashboardHero />
             )}
 
-            <NowNextSection live={data.live} schedule={data.schedule} />
+            <div className="cl-primary-row">
+              <DashboardLiveStage live={data.live} />
+              <TodayScheduleCard schedule={data.schedule} scheduleAvailable={data.scheduleAvailable} />
+            </div>
 
-            <TodayScheduleCard
-              schedule={data.schedule}
-              scheduleAvailable={data.scheduleAvailable}
-            />
-
-            <DashboardSection eyebrow="For you" title="Your experience">
-              <div className="cl-action-grid">
-                <WatchLiveCard live={data.live} />
-                <SanctuaryPreview />
-                <GivingCard />
+            <DashboardSection eyebrow="Explore COGIC LIVE" title="Your experience">
+              <div className="cl-action-grid cl-action-grid--six">
                 <MyConvocationCard
                   registration={data.registration}
                   signedIn={Boolean(profile.userId)}
                 />
+                <GivingCard />
+                <DashboardLinkCard eyebrow="COGIC Tube" title="Watch again" body="On-demand sermons, replays, and more." href="/replays" action="Watch now" secondaryAction="Browse all" icon={PlaySquare} />
+                <DashboardLinkCard eyebrow="Prayer Room" title="Find strength" body="Prayer resources for the Convocation journey." href="/prayer" action="Enter prayer room" secondaryAction="Prayer resources" icon={Headphones} tone="gold" />
+                <DashboardLinkCard eyebrow="COGIC Connect" title="Connect with COGIC" body="Reach the team and find your next step." href="/contact-us" action="Get connected" secondaryAction="Contact COGIC" icon={UsersRound} />
+                <DashboardLinkCard eyebrow="Need Help" title="We’re here to help" body="Contact the COGIC LIVE support team." href="/contact-us" action="Get support" secondaryAction="Help center" icon={HeartHandshake} />
               </div>
             </DashboardSection>
 

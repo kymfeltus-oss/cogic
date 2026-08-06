@@ -16,7 +16,6 @@ type AttendeeAuthLoginPlateProps = {
   email: string;
   password: string;
   showPassword: boolean;
-  rememberMe: boolean;
   isSubmitting: boolean;
   formError?: string | null;
   formNotice?: string | null;
@@ -24,7 +23,6 @@ type AttendeeAuthLoginPlateProps = {
   onPasswordChange: (value: string) => void;
   onEmailBlur: () => void;
   onToggleShowPassword: () => void;
-  onRememberMeChange: (checked: boolean) => void;
   onSubmit: (event: React.FormEvent) => void;
   onGuest: () => void;
   onOAuthSignIn: (provider: OAuthProviderId) => void;
@@ -61,7 +59,6 @@ export default function AttendeeAuthLoginPlate({
   email,
   password,
   showPassword,
-  rememberMe,
   isSubmitting,
   formError,
   formNotice,
@@ -69,7 +66,6 @@ export default function AttendeeAuthLoginPlate({
   onPasswordChange,
   onEmailBlur,
   onToggleShowPassword,
-  onRememberMeChange,
   onSubmit,
   onGuest,
   onOAuthSignIn,
@@ -167,17 +163,7 @@ export default function AttendeeAuthLoginPlate({
               </div>
             </label>
 
-            <div className="flex items-center justify-between gap-3 pt-1">
-              <label className="touch-target inline-flex cursor-pointer items-center gap-2.5 font-ui text-xs text-brand-muted">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  disabled={isSubmitting}
-                  onChange={(event) => onRememberMeChange(event.target.checked)}
-                  className="auth-login-page__checkbox size-4 rounded border-brand-border bg-brand-panel accent-brand-blue"
-                />
-                Remember me
-              </label>
+            <div className="flex items-center justify-end gap-3 pt-1">
               <Link
                 href={forgotPasswordHref}
                 className="touch-target inline-flex items-center px-2 font-ui text-xs font-semibold text-brand-pink transition hover:opacity-80"

@@ -86,7 +86,48 @@ export function honestSubmittedCopy(): {
 } {
   return {
     title: "Registration information received",
-    body: "Your information has been received. Final registration confirmation will be provided after the remaining registration requirements are completed.",
-    statusLabel: "Submitted",
+    body: "Your information has been received. Complete payment to confirm your Convocation registration and receive your credential.",
+    statusLabel: "Submitted — payment required",
   };
+}
+
+export function honestPaymentPendingCopy(): {
+  title: string;
+  body: string;
+  statusLabel: string;
+} {
+  return {
+    title: "Registration payment is still pending",
+    body: "Your registration is on file. Finish checkout to confirm payment and continue to credential issuance.",
+    statusLabel: "Payment pending",
+  };
+}
+
+export function honestConfirmedCopy(): {
+  title: string;
+  body: string;
+  statusLabel: string;
+} {
+  return {
+    title: "Registration confirmed",
+    body: "Your Convocation registration payment was confirmed. Your credential will appear in My Convocation when issuance completes.",
+    statusLabel: "Confirmed",
+  };
+}
+
+/** Format server-validated registration fee for attendee UI. */
+export function formatRegistrationFeeLabel(
+  amountCents: number,
+  currency: string,
+): string {
+  try {
+    return (amountCents / 100).toLocaleString("en-US", {
+      style: "currency",
+      currency: currency.toUpperCase(),
+      minimumFractionDigits: amountCents % 100 === 0 ? 0 : 2,
+      maximumFractionDigits: 2,
+    });
+  } catch {
+    return `$${(amountCents / 100).toFixed(2)}`;
+  }
 }

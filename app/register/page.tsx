@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/routing";
 import { getUserFromSession } from "@/lib/auth/session";
 import { createOrResumeRegistrationDraft } from "@/lib/registration/actions";
+import { getRegistrationFeeLabelOrNull } from "@/lib/registration/fee-display";
 import { resolveRegistrationViewMode } from "@/lib/registration/workflow";
 
 export const dynamic = "force-dynamic";
@@ -67,12 +68,14 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
   const viewMode = resolveRegistrationViewMode(result.registration);
   const step = parseStep(params.step);
+  const feeLabel = getRegistrationFeeLabelOrNull();
 
   return (
     <main id="main-content" className="registration-page">
       <RegistrationWizard
         initialRegistration={result.registration}
         initialStep={viewMode === "wizard" ? step : 1}
+        feeLabel={feeLabel}
         mode={
           viewMode === "wizard"
             ? "wizard"
