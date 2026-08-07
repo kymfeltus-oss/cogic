@@ -25,6 +25,14 @@ export async function GET(request: Request) {
     db.from("registration_policy_acceptances").select("policy_id"),
   ]);
   if (error) return NextResponse.json({error:"Unable to load registrations."},{status:500});
+  if (url.searchParams.get("format") === "csv") {
+    const escape = (value: unknown) => `"${String(value ?? "").replaceAll('"', '""')}"`;
+    const rows = [
+      ["Reference", "Registrant", "Email", "Phone", "Product", "Status", "Amount", "Credential", "Created"],
+      ...(data ?? []).map((row: any) => [row.confirmation_reference, `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(), row.email, row.mobile_phone, row.registration_products?.name, row.status, row.amount_cents, row.registration_credentials?.[0]?.status, row.created_at]),
+    ];
+    return new NextResponse(rows.map((row) => row.map(escape).join(",")).join("\n"), { headers: { "Content-Type": "text/csv", "Content-Disposition": "attachment; filename=registrations.csv", "Cache-Control": "private, no-store" } });
+  }
   const counts = new Map<string,number>(); for (const row of acceptances ?? []) counts.set(row.policy_id,(counts.get(row.policy_id)??0)+1);
   return NextResponse.json({registrations:data??[],products:products??[],policies:(policies??[]).map(policy=>({...policy,acceptanceCount:counts.get(policy.id)??0}))},{headers:{"Cache-Control":"private, no-store"}});
 }
