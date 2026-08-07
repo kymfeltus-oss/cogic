@@ -18,6 +18,7 @@ import StayConnectedPrompt from "@/components/notifications/StayConnectedPrompt"
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 import type { ReactNode } from "react";
 import { Headphones, PlaySquare, UsersRound } from "lucide-react";
+import TicketStoreClient from "@/components/tickets/TicketStoreClient";
 
 export default function DashboardShell({
   data,
@@ -80,6 +81,7 @@ export default function DashboardShell({
                 <DashboardLinkCard eyebrow="COGIC Connect" title="Connect with COGIC" body="Reach the team and find your next step." href="/contact-us" action="Get connected" secondaryAction="Contact COGIC" icon={UsersRound} />
               </div>
             </DashboardSection>
+            {profile.userId?<DashboardSection eyebrow="Event admission" title="My Tickets"><TicketStoreClient compact/></DashboardSection>:null}
 
           </div>
         </main>

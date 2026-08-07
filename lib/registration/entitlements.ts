@@ -35,6 +35,7 @@ export const ACCESS_REASON_CODES = [
   "PREFERRED_SEATING_WINDOW_EXPIRED", "WRONG_EVENT", "TICKET_ALREADY_USED",
   "REGISTRATION_CANCELED", "PAYMENT_NOT_CONFIRMED", "CREDENTIAL_REVOKED",
   "GUARDIAN_REQUIRED", "ENTITLEMENT_EXPIRED", "NO_APPLICABLE_ENTITLEMENT",
+  "MUSICAL_TICKET_REQUIRED",
 ] as const;
 export type AccessReasonCode = (typeof ACCESS_REASON_CODES)[number];
 
@@ -61,6 +62,13 @@ function applies(entitlement: OwnedEntitlement, occurrence: ResolveAttendeeAcces
   if (entitlement.eventType && entitlement.eventType !== occurrence.eventType) return false;
   if (entitlement.venueKey && entitlement.venueKey !== occurrence.venueKey) return false;
   return true;
+}
+
+export function resolveMusicalTicketAccess(input:{ticketStatus:string;ticketOccurrenceId:string;requestedOccurrenceId:string;usedAt?:string|null}):AccessDecision{
+  if(input.ticketOccurrenceId!==input.requestedOccurrenceId)return {result:"DENIED",reasonCode:"WRONG_EVENT",accessZone:null,entitlementId:null,preferredUntil:null};
+  if(input.ticketStatus==="used"||input.usedAt)return {result:"DENIED",reasonCode:"TICKET_ALREADY_USED",accessZone:null,entitlementId:null,preferredUntil:null};
+  if(input.ticketStatus!=="valid")return {result:"DENIED",reasonCode:"MUSICAL_TICKET_REQUIRED",accessZone:null,entitlementId:null,preferredUntil:null};
+  return {result:"ALLOWED",reasonCode:"VALID_TICKET",accessZone:"musical",entitlementId:null,preferredUntil:null};
 }
 
 export function resolveAttendeeAccess(input: ResolveAttendeeAccessInput): AccessDecision {

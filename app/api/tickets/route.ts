@@ -1,0 +1,2 @@
+import {NextResponse} from "next/server";import {getUserFromSession} from "@/lib/auth/session";import {loadTicketStore} from "@/lib/tickets/repository";
+export const dynamic="force-dynamic";export async function GET(){const user=await getUserFromSession();if(!user?.id)return NextResponse.json({error:"Sign in required."},{status:401});return NextResponse.json(await loadTicketStore(user.id),{headers:{"Cache-Control":"private, no-store"}});}

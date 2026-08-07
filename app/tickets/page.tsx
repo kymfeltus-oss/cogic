@@ -1,0 +1,1 @@
+import {redirect} from "next/navigation";import {getUserFromSession} from "@/lib/auth/session";import TicketStoreClient from "@/components/tickets/TicketStoreClient";export const dynamic="force-dynamic";export default async function Page(){const user=await getUserFromSession();if(!user)redirect("/login?next=%2Ftickets");return <TicketStoreClient/>}

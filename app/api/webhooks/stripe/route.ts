@@ -12,6 +12,7 @@ import { fulfillRegistrationCheckoutFromWebhook } from "@/lib/registration/strip
 import { REGISTRATION_CHECKOUT_TYPE } from "@/lib/registration/types";
 import { getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
 import { redactForLog, safeErrorMessage } from "@/lib/security/redact";
+import { failTicketCheckout, fulfillTicketCheckout } from "@/lib/tickets/stripe-webhook";
 
 function getStripeClient(): Stripe {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -126,6 +127,7 @@ export async function POST(request: Request) {
 
   if (event.type === "checkout.session.async_payment_failed") {
     const session = event.data.object as Stripe.Checkout.Session;
+    if (session.metadata?.checkout_type === "ticket_purchase") { await failTicketCheckout(session,supabaseAdmin); return NextResponse.json({received:true,eventId:event.id}); }
     if (session.metadata?.checkout_type === "donation") {
       const { error } = await supabaseAdmin
         .from("donations")
@@ -138,6 +140,11 @@ export async function POST(request: Request) {
       }
       return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });
     }
+  }
+
+  if (event.type === "checkout.session.expired") {
+    const session=event.data.object as Stripe.Checkout.Session;
+    if(session.metadata?.checkout_type==="ticket_purchase"){await failTicketCheckout(session,supabaseAdmin);return NextResponse.json({received:true,eventId:event.id});}
   }
 
   if (event.type === "checkout.session.completed") {
@@ -184,6 +191,12 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });
+    }
+
+    if (checkoutType === "ticket_purchase") {
+      const result=await fulfillTicketCheckout(session,supabaseAdmin);
+      if(!result.ok)return NextResponse.json({error:result.error},{status:result.status});
+      return NextResponse.json({received:true,eventId:event.id,idempotent:result.idempotent});
     }
 
     if (checkoutType === "seed_pack") {

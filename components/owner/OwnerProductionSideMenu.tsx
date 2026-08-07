@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 const PRODUCTION_NAV_ITEMS = [
+  { id: "tickets", label: "Tickets & Add-ons", eyebrow: "Commerce", href: "/owner/tickets", icon: ScanLine },
   {
     id: "registrations",
     label: "Registration Access",
