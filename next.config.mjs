@@ -1,5 +1,9 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 /** @type {import('next').NextConfig} */
 const isCapacitorBuild = process.env.CAPACITOR_BUILD === "true";
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const credentialSecurityHeaders = [
   { key: "Cache-Control", value: "private, no-store, max-age=0, must-revalidate" },
@@ -11,6 +15,10 @@ const credentialSecurityHeaders = [
 
 const nextConfig = {
   ...(isCapacitorBuild ? { output: "export" } : {}),
+  // Pin Turbopack root so OneDrive / parent lockfiles don't desync CSS chunks.
+  turbopack: {
+    root: projectRoot,
+  },
   typedRoutes: false,
   images: {
     unoptimized: true,
