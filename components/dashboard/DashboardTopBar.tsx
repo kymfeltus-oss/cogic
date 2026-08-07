@@ -42,7 +42,7 @@ export default function DashboardTopBar({
             width={1250}
             height={270}
             priority
-            sizes="(max-width: 720px) 148px, 168px"
+            sizes="(max-width: 720px) 116px, 168px"
             className="cl-topbar__logo"
           />
         </Link>

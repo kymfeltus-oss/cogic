@@ -652,26 +652,77 @@
   .cl-topbar,
   .cl-topbar--hub,
   .cl-topbar--shared {
-    min-height: 5.25rem;
-    grid-template-columns: 1fr auto;
-    row-gap: .65rem;
-    padding-inline: 1rem;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: .55rem;
+    row-gap: .7rem;
+    padding: max(.65rem, env(safe-area-inset-top)) .85rem .7rem;
   }
   .cl-topnav { display: none; }
-  .cl-topbar__brand { order: 1; }
-  .cl-topbar__seal { width: 4.5rem; }
-  .cl-topbar__logo { display: block; width: clamp(9rem, 42vw, 11.5rem); }
+  .cl-topbar__brand {
+    order: 1;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  .cl-topbar__brand-link {
+    gap: .4rem;
+    max-width: 100%;
+  }
+  /* Keep seal visible without colliding with the profile cluster. */
+  .cl-topbar__seal { width: 2.85rem; flex-shrink: 0; }
+  .cl-topbar__logo {
+    display: block;
+    width: clamp(5.5rem, 30vw, 7.25rem);
+    min-width: 0;
+    flex: 0 1 auto;
+  }
   .cl-topbar__organization { display: none; }
   .cl-topbar__identity { display: none; }
   .cl-topbar__divider, .cl-topbar__chevron { display: none; }
   .cl-topbar__tools { display: contents; }
   .cl-topbar__bell-wrap { display: none; }
-  .cl-topbar__search { order: 3; width: 100%; height: 2.8rem; flex: 0 0 100%; display: flex; grid-column: 1 / -1; }
-  .cl-topbar__account, .cl-topbar__tools > .cl-btn { order: 2; margin-left: auto; }
-  .cl-topbar__profile, .cl-topbar__avatar { width: 2.8rem; height: 2.8rem; }
-  .cl-topbar__account-copy { display: grid; min-width: 0; max-width: 8rem; }
-  .cl-topbar__account-copy strong { overflow: hidden; font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
-  .cl-topbar__account-copy span { font-size: .6rem; }
+  .cl-topbar__search {
+    order: 3;
+    width: 100%;
+    height: 2.8rem;
+    flex: 0 0 100%;
+    display: flex;
+    grid-column: 1 / -1;
+  }
+  .cl-topbar__account,
+  .cl-topbar__tools > .cl-btn {
+    order: 2;
+    flex-shrink: 0;
+    margin-left: 0;
+    gap: .45rem;
+  }
+  .cl-topbar__profile,
+  .cl-topbar__avatar {
+    width: 2.55rem;
+    height: 2.55rem;
+    flex-shrink: 0;
+  }
+  .cl-topbar__account-copy {
+    display: grid;
+    gap: .12rem;
+    min-width: 0;
+    max-width: min(11.5rem, 46vw);
+  }
+  .cl-topbar__account-copy strong {
+    overflow: hidden;
+    font-size: 1.22rem;
+    font-weight: 760;
+    line-height: 1.12;
+    letter-spacing: .01em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cl-topbar__account-copy span {
+    font-size: .72rem;
+    line-height: 1.1;
+  }
   .cl-topbar__greeting { gap: .35rem; }
   .cl-topbar__welcome-word, .cl-topbar__welcome-name { font-size: 1.25rem; }
   .cl-dash__canvas { padding: .85rem clamp(1rem, 4.5vw, 1.25rem) 2rem; }
