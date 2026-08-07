@@ -19,6 +19,7 @@ import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashbo
 import type { ReactNode } from "react";
 import { Headphones, PlaySquare, UsersRound } from "lucide-react";
 import TicketStoreClient from "@/components/tickets/TicketStoreClient";
+import HousingExperience from "@/components/housing/HousingExperience";
 
 export default function DashboardShell({
   data,
@@ -82,6 +83,7 @@ export default function DashboardShell({
               </div>
             </DashboardSection>
             {profile.userId?<DashboardSection eyebrow="Event admission" title="My Tickets"><TicketStoreClient compact/></DashboardSection>:null}
+            {profile.userId?<DashboardSection eyebrow="Accommodation" title="My Housing"><HousingExperience compact/></DashboardSection>:null}
 
           </div>
         </main>

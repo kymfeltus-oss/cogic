@@ -10,6 +10,7 @@ import path from "node:path";
 const root = process.cwd();
 
 const FEATURES = [
+  { name: "Registration Slice 4 housing", adminRoute: "app/owner/housing/page.tsx", attendeeRoute: "app/housing/page.tsx", apis: ["app/api/owner/housing/route.ts", "app/api/housing/route.ts"], permissionMarkers: ["requireOwnerUser", "getUserFromSession"] },
   {
     name: "Registration Slice 3 tickets and add-ons",
     adminRoute: "app/owner/tickets/page.tsx",

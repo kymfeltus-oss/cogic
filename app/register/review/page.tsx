@@ -11,6 +11,7 @@ import { getUserFromSession } from "@/lib/auth/session";
 import { loadRegistrationForCurrentUser } from "@/lib/registration/actions";
 import { getRegistrationFeeLabelOrNull } from "@/lib/registration/fee-display";
 import { resolveRegistrationViewMode } from "@/lib/registration/workflow";
+import HousingExperience from "@/components/housing/HousingExperience";
 
 export const dynamic = "force-dynamic";
 
@@ -84,6 +85,7 @@ export default async function RegisterReviewPage({
 
   return (
     <main id="main-content" className="registration-page">
+      <div className="registration-shell"><h2>Housing</h2><HousingExperience compact/><p>Hotel deposits are separate and are not included in the registration total.</p></div>
       <RegistrationWizard
         initialRegistration={result.registration}
         initialStep={4}
