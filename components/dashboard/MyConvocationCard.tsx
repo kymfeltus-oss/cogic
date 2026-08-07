@@ -29,7 +29,7 @@ export default function MyConvocationCard({ registration, signedIn }: { registra
   if (!signedIn || registration.status === "none") return <article className="cl-feature-card cl-feature-card--registration"><p className="cl-feature-card__eyebrow">Registration Hub</p><ClipboardList aria-hidden="true"/><h2>No Registration</h2><p>Sign in or start registration for the 118th Holy Convocation.</p><Link href={signedIn?"/register":"/login?next=%2Fregister"} className="cl-btn cl-btn--primary cl-btn--block">{signedIn?"Open Registration Hub":"Sign In"}<ArrowRight aria-hidden="true"/></Link></article>;
 
   return <article className="cl-feature-card cl-feature-card--registration">
-    <p className="cl-feature-card__eyebrow">Registration Hub</p>
+    <p className="cl-feature-card__eyebrow">Registration Hub · My Registration</p>
     <div className="cl-feature-card__credential-icon">{registration.credentialReady?<BadgeCheck aria-hidden="true"/>:<ClipboardList aria-hidden="true"/>}</div>
     <h2>{registration.status === "confirmed" ? "Registration Complete" : "Registration In Progress"}</h2>
     <dl className="grid gap-2 text-sm">

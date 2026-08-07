@@ -61,7 +61,7 @@ export default function StayConnectedPrompt({ signedIn }: { signedIn: boolean })
 
   return (
     <section
-      className="mt-4 rounded-2xl border border-[rgba(92,45,145,0.45)] bg-[linear-gradient(150deg,rgba(16,10,30,0.96),rgba(5,2,13,0.98))] px-4 py-4 sm:px-5"
+      className="mt-4 rounded-2xl border border-[rgba(75,49,116,0.52)] bg-[linear-gradient(150deg,rgba(16,10,30,0.96),rgba(5,2,13,0.98))] px-4 py-4 sm:px-5"
       aria-labelledby="stay-connected-heading"
     >
       <div className="flex gap-3">
@@ -101,7 +101,7 @@ export default function StayConnectedPrompt({ signedIn }: { signedIn: boolean })
           type="button"
           disabled={busy}
           onClick={() => void turnOn()}
-          className="inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--cogic-purple,#5C2D91)] px-4 text-xs font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50"
+          className="brand-ombre-bg inline-flex min-h-11 items-center justify-center rounded-md px-4 text-xs font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50"
         >
           {busy ? "Enabling…" : "Turn on notifications"}
         </button>

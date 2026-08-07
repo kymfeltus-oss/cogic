@@ -18,7 +18,7 @@ function priorityClass(priority: Announcement["priority"]): string {
   if (priority === "important") {
     return "border-[#C9A227]/45 bg-[#2a220c]/70";
   }
-  return "border-[rgba(92,45,145,0.45)] bg-[rgba(16,10,30,0.88)]";
+  return "border-[rgba(75,49,116,0.52)] bg-[rgba(16,10,30,0.88)]";
 }
 
 function formatWhen(iso: string | null): string {
@@ -209,7 +209,7 @@ export default function AnnouncementsFeed() {
                 {item.ctaHref && item.ctaLabel ? (
                   <Link
                     href={item.ctaHref}
-                    className="inline-flex min-h-11 items-center justify-center rounded-md bg-[var(--cogic-purple,#5C2D91)] px-4 text-xs font-bold uppercase tracking-[0.12em] text-white"
+                    className="brand-ombre-bg inline-flex min-h-11 items-center justify-center rounded-md px-4 text-xs font-bold uppercase tracking-[0.12em] text-white"
                   >
                     {item.ctaLabel}
                   </Link>

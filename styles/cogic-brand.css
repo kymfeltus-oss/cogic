@@ -7,11 +7,24 @@
   --cogic-panel-raised: rgb(19 14 38 / 96%);
   --cogic-overlay: rgb(7 4 15 / 82%);
 
-  --cogic-purple: #5c2d91;
-  --cogic-purple-deep: #3b1a63;
-  --cogic-purple-bright: #7b4bb8;
-  --cogic-purple-soft: rgb(92 45 145 / 18%);
-  --cogic-purple-glow: rgb(92 45 145 / 28%);
+  --brand-ombre-start: #204366;
+  --brand-ombre-blue: #2b5989;
+  --brand-ombre-slate: #3a4c83;
+  --brand-ombre-violet: #4b3174;
+  --brand-ombre-plum: #6b2f6e;
+  --brand-ombre-end: #742b62;
+  --brand-ombre: linear-gradient(110deg, #204366 0%, #2b5989 20%, #3a4c83 40%, #4b3174 60%, #6b2f6e 80%, #742b62 100%);
+  --brand-ombre-hover: linear-gradient(110deg, #2b5989 0%, #3a4c83 24%, #4b3174 50%, #6b2f6e 76%, #742b62 100%);
+  --brand-ombre-soft: linear-gradient(110deg, rgb(32 67 102 / 24%) 0%, rgb(58 76 131 / 20%) 42%, rgb(107 47 110 / 22%) 78%, rgb(116 43 98 / 24%) 100%);
+  --brand-ombre-border: linear-gradient(110deg, rgb(43 89 137 / 72%), rgb(75 49 116 / 72%), rgb(116 43 98 / 72%));
+  --brand-ombre-glow: 0 12px 32px rgb(75 49 116 / 28%), 0 0 24px rgb(43 89 137 / 14%), 0 0 28px rgb(116 43 98 / 12%);
+
+  /* Compatibility aliases: routine purple now resolves to the approved ombré palette. */
+  --cogic-purple: var(--brand-ombre-violet);
+  --cogic-purple-deep: var(--brand-ombre-start);
+  --cogic-purple-bright: var(--brand-ombre-plum);
+  --cogic-purple-soft: rgb(75 49 116 / 18%);
+  --cogic-purple-glow: rgb(75 49 116 / 28%);
 
   --cogic-gold: #c9a227;
   --cogic-gold-bright: #e0b93a;
@@ -25,7 +38,7 @@
 
   --cogic-line: rgb(255 255 255 / 10%);
   --cogic-line-strong: rgb(255 255 255 / 16%);
-  --cogic-line-purple: rgb(92 45 145 / 45%);
+  --cogic-line-purple: rgb(75 49 116 / 52%);
   --cogic-line-gold: rgb(201 162 39 / 28%);
 
   --cogic-live: #e11d48;
@@ -39,14 +52,14 @@
   --cogic-radius-lg: 1.4rem;
   --cogic-radius-pill: 999px;
   --cogic-shadow-card: 0 18px 48px rgb(0 0 0 / 28%), inset 0 1px rgb(255 255 255 / 4%);
-  --cogic-shadow-purple: 0 12px 32px rgb(92 45 145 / 28%);
+  --cogic-shadow-purple: var(--brand-ombre-glow);
   --cogic-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --cogic-duration-fast: 140ms;
   --cogic-duration-normal: 220ms;
 
   /* Semantic layer */
-  --cogic-action-primary: var(--cogic-purple);
-  --cogic-action-primary-hover: var(--cogic-purple-bright);
+  --cogic-action-primary: var(--brand-ombre);
+  --cogic-action-primary-hover: var(--brand-ombre-hover);
   --cogic-action-secondary: var(--cogic-purple-soft);
   --cogic-brand-primary: var(--cogic-purple);
   --cogic-brand-primary-hover: var(--cogic-purple-bright);
@@ -73,10 +86,38 @@
   --color-cogic-purple: var(--cogic-purple);
   --color-cogic-purple-deep: var(--cogic-purple-deep);
   --color-cogic-purple-bright: var(--cogic-purple-bright);
+  --color-purple-400: var(--brand-ombre-plum);
+  --color-purple-500: var(--brand-ombre-violet);
+  --color-purple-700: var(--brand-ombre-violet);
   --color-cogic-gold: var(--cogic-gold);
   --color-cogic-gold-bright: var(--cogic-gold-bright);
   --color-cogic-live: var(--cogic-live);
   --color-cogic-success: var(--cogic-success);
   --color-cogic-warning: var(--cogic-warning);
   --color-cogic-error: var(--cogic-error);
+}
+
+@layer utilities {
+  .brand-ombre,
+  .brand-ombre-bg {
+    background: var(--brand-ombre);
+    color: #fff;
+  }
+
+  .brand-ombre-border {
+    border-color: transparent;
+    background: linear-gradient(var(--cogic-panel-raised), var(--cogic-panel-raised)) padding-box, var(--brand-ombre-border) border-box;
+  }
+
+  .brand-ombre-text {
+    background: var(--brand-ombre);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .bg-purple-700 {
+    background: var(--brand-ombre);
+    color: #fff;
+  }
 }

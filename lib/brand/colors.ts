@@ -1,5 +1,14 @@
 /** Canonical COGIC LIVE visual tokens. Components should prefer semantic CSS aliases. */
 export const cogicBrand = {
+  ombre: {
+    start: "#204366",
+    blue: "#2B5989",
+    slate: "#3A4C83",
+    violet: "#4B3174",
+    plum: "#6B2F6E",
+    end: "#742B62",
+    gradient: "linear-gradient(110deg, #204366 0%, #2B5989 20%, #3A4C83 40%, #4B3174 60%, #6B2F6E 80%, #742B62 100%)",
+  },
   surfaces: {
     ink: "#07040F",
     navy: "#0B1220",
@@ -9,11 +18,11 @@ export const cogicBrand = {
   },
   purple: {
     /** Episcopal / institutional primary — darker than neon tech violet */
-    primary: "#5C2D91",
-    deep: "#3B1A63",
-    bright: "#7B4BB8",
-    soft: "rgba(92, 45, 145, 0.18)",
-    glow: "rgba(92, 45, 145, 0.28)",
+    primary: "#4B3174",
+    deep: "#204366",
+    bright: "#6B2F6E",
+    soft: "rgba(75, 49, 116, 0.18)",
+    glow: "rgba(75, 49, 116, 0.28)",
   },
   gold: {
     primary: "#C9A227",
@@ -31,7 +40,7 @@ export const cogicBrand = {
   border: {
     default: "rgba(255, 255, 255, 0.10)",
     strong: "rgba(255, 255, 255, 0.16)",
-    purple: "rgba(92, 45, 145, 0.45)",
+    purple: "rgba(75, 49, 116, 0.52)",
     gold: "rgba(201, 162, 39, 0.28)",
   },
   status: {
