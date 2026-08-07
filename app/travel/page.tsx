@@ -37,7 +37,7 @@ export default async function TravelPage(){
         </div>
       </section>
 
-      {hotelState?.primary?<section className="mx-[38px] mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-green-400/30 bg-green-400/10 p-5"><div><p className="font-black text-green-300">YOUR STAY IS SET ✓</p><h2 className="mt-1 text-xl font-bold">{hotelState.primary.hotel_name_snapshot}</h2><p>{hotelState.primary.check_in} – {hotelState.primary.check_out}</p></div><Link href="/my-convocation/travel" className="rounded-lg bg-white px-5 py-3 font-bold text-black">View My Trip</Link></section>:null}
+      {hotelState?.primary?<section className="mx-[38px] mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-green-400/30 bg-green-400/10 p-5"><div><p className="font-black text-green-300">YOUR STAY IS SET ✓</p><h2 className="mt-1 text-xl font-bold">{hotelState.primary.hotel_name_snapshot}</h2><p>{hotelState.primary.check_in} – {hotelState.primary.check_out}</p></div><Link href="/travel" className="rounded-lg bg-white px-5 py-3 font-bold text-black">View COGIC Travel</Link></section>:null}
 
       <section className="ct-search" aria-label="Travel search">
         <div className="ct-tabs"><Link className="active" href="/travel/hotels"><BedDouble/> Hotels</Link><Link href="/travel/flights"><Plane/> Flights</Link><Link href="/travel/cars"><Car/> Rental Cars</Link></div>
@@ -59,8 +59,8 @@ export default async function TravelPage(){
         <aside className="ct-aside">
           <Link href="/travel/getting-around"><span><Plane/></span><div><strong>Airport Information</strong><small>Lambert–St. Louis International Airport (STL)</small></div><ChevronRight/></Link>
           <Link href="/travel/getting-around"><span><Car/></span><div><strong>Ground Transportation</strong><small>Shuttles, rideshares, taxis & more</small></div><ChevronRight/></Link>
-          <Link href="/my-convocation/travel"><span><BriefcaseBusiness/></span><div><strong>My Trip</strong><small>View your travel plans, reservations, & details</small></div><ChevronRight/></Link>
-          <div className="ct-trip-preview"><div><strong>My Trip</strong><Link href="/my-convocation/travel">View Details <ChevronRight/></Link></div><p>Your private itinerary is ready when you are.</p><Link href="/my-convocation/travel">Add travel details</Link></div>
+          <Link href="/travel"><span><BriefcaseBusiness/></span><div><strong>COGIC Travel Hub</strong><small>View official hotels, transportation, and travel details</small></div><ChevronRight/></Link>
+          <div className="ct-trip-preview"><div><strong>My Trip</strong><Link href="/travel">View Details <ChevronRight/></Link></div><p>Your private itinerary is ready when you are.</p><Link href="/travel">Add travel details</Link></div>
         </aside>
       </div>
 

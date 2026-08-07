@@ -1,1 +1,5 @@
-import {TravelShell} from "@/components/travel/TravelShell";import MyTripClient from "@/components/travel/MyTripClient";export default function Page(){return <TravelShell back><p className="mt-8 font-bold tracking-[.25em] text-[#efbbff]">TRIP TO ST. LOUIS</p><h1 className="mt-3 text-5xl font-black">My Trip</h1><p className="mt-4 max-w-3xl text-xl text-white/70">Keep your registration, hotel, flight, rental car, ground transportation, and Convocation schedule together. Confirmation details are private to your account.</p><MyTripClient/></TravelShell>}
+import { redirect } from "next/navigation";
+
+export default function LegacyTravelRedirect() {
+  redirect("/travel");
+}
