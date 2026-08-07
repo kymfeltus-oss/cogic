@@ -1,0 +1,6 @@
+export const TRAVEL_PROGRAM_KEY = "cogic-stream-2026";
+export type TravelSearchKind = "hotels" | "flights" | "cars";
+export type ProviderStatus = { id: string; name: string; configured: boolean };
+export type TravelNight={stay_date:string;availability_status:"AVAILABLE"|"UNAVAILABLE";nightly_rate_cents:number};
+export type TravelRoomType={id:string;name:string;nightly_rate_cents:number;currency:string;travel_hotel_nightly_availability:TravelNight[]};
+export type TravelHotel = { id:string; slug:string|null; name:string; description:string|null; image_url:string|null; address:string|null; city:string; state:string; postal_code:string|null; distance_label:string|null; negotiated_rate_cents:number|null; reference_rate_cents:number|null; rate_currency:string; booking_url:string|null; booking_code:string|null; booking_deadline:string|null; availability_message:string|null; amenities:string[]; parking_info:string|null; breakfast_info:string|null; shuttle_info:string|null; accessibility_info:string|null; map_url:string|null;cogic_designation:"GENERAL"|"BISHOPS";minimum_nights:number|null;source_type:string|null;source_event:string|null;source_year:number|null;source_verified_at:string|null;travel_hotel_room_types?:TravelRoomType[] };

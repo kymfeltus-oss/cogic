@@ -1,0 +1,6 @@
+import Link from "next/link";
+import { Archive, Radio } from "lucide-react";
+import OwnerProductionSideMenu from "@/components/owner/OwnerProductionSideMenu";
+import ReplayManagementClient from "@/components/owner/ReplayManagementClient";
+export const dynamic = "force-dynamic";
+export default function OwnerMediaPage(){return <main className="min-h-dvh bg-[#020203] px-2 py-2 text-white"><div className="mx-auto grid w-full max-w-[112rem] gap-2 xl:grid-cols-[12rem_minmax(0,1fr)]"><OwnerProductionSideMenu active="media"/><div className="min-w-0"><header className="rounded-md border border-white/10 bg-[#050814]/94 p-4"><p className="font-headline text-3xl uppercase"><span className="text-[#00a8ff]">Media</span> <span className="text-[#ff2faf]">Library</span></p><p className="mt-1 text-sm text-white/65">Upload, classify, organize, feature, publish, unpublish, and archive legitimate media.</p><div className="mt-3 flex gap-2"><Link href="/owner/archives" className="rounded border border-white/15 px-3 py-2 text-xs uppercase"><Archive className="mr-2 inline h-4 w-4"/>Archives</Link><Link href="/live" className="rounded border border-white/15 px-3 py-2 text-xs uppercase"><Radio className="mr-2 inline h-4 w-4"/>Live Hub</Link></div></header><div className="mt-2"><ReplayManagementClient/></div></div></div></main>}

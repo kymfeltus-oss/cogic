@@ -172,6 +172,8 @@ export const config = {
     "/dashboard/:path*",
     "/attendee-dashboard",
     "/my-convocation",
+    "/my-convocation/:path*",
+    "/admin/:path*",
     "/my-sanctuary",
     "/experience",
     "/experience/:path*",

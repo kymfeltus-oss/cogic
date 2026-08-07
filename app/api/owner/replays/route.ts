@@ -19,7 +19,7 @@ export async function GET() {
   const { data, error } = await admin
     .from("past_broadcast_recordings")
     .select(
-      "id, stream_title, description, restream_event_id, recording_url, thumbnail_url, duration_seconds, broadcast_date, archive_id, publication_status, published_at, archived_at, updated_at, updated_by, media_source_type, storage_bucket, storage_path, upload_status",
+      "id, stream_title, description, short_description, speaker_name, restream_event_id, recording_url, thumbnail_url, duration_seconds, broadcast_date, archive_id, publication_status, published_at, archived_at, updated_at, updated_by, media_source_type, storage_bucket, storage_path, upload_status, content_type, featured, publication_destinations, sort_order, original_filename",
     )
     .order("updated_at", { ascending: false });
   if (error) {

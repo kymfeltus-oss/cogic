@@ -11,12 +11,14 @@ import {
   Radio,
   Sparkles,
   Video,
+  Plane,
 } from "lucide-react";
 
 const items = [
   { label: "Home", href: "/my-convocation", icon: Home, match: "home" },
   { label: "Watch Live", href: "/live", icon: Radio, match: "prefix" },
   { label: "Program", href: "/program", icon: CalendarDays, match: "prefix" },
+  { label: "COGIC Travel", href: "/travel", icon: Plane, match: "prefix" },
   { label: "My Sanctuary", href: "/my-sanctuary", icon: Sparkles, match: "exact" },
   { label: "Give", href: "/giving", icon: HandHeart, match: "prefix" },
   { label: "Registration", href: "/register", icon: IdCard, match: "prefix" },

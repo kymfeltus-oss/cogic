@@ -94,6 +94,19 @@ export async function PATCH(
   if (typeof body?.description === "string") {
     patch.description = body.description.trim() || null;
   }
+  const contentTypes = new Set(["REPLAY", "PRE_PRODUCTION", "PROMO", "LEADERSHIP_MESSAGE", "INTERVIEW", "EVENT_PREVIEW", "DEVOTIONAL", "ANNOUNCEMENT_VIDEO", "HISTORICAL", "OTHER"]);
+  if (typeof body?.contentType === "string") {
+    if (!contentTypes.has(body.contentType)) return NextResponse.json({ error: "Invalid content type." }, { status: 400 });
+    patch.content_type = body.contentType;
+  }
+  if (typeof body?.shortDescription === "string") patch.short_description = body.shortDescription.trim() || null;
+  if (typeof body?.speakerName === "string") patch.speaker_name = body.speakerName.trim() || null;
+  if (typeof body?.featured === "boolean") patch.featured = body.featured;
+  if (Array.isArray(body?.publicationDestinations)) {
+    const destinations = new Set(["HOME", "LIVE_HUB", "REPLAY_LIBRARY", "EVENT_DETAIL", "ANNOUNCEMENT"]);
+    if (!body.publicationDestinations.every((value) => typeof value === "string" && destinations.has(value))) return NextResponse.json({ error: "Invalid publication destination." }, { status: 400 });
+    patch.publication_destinations = body.publicationDestinations;
+  }
   if (body?.recordingUrl !== undefined) patch.recording_url = nextUrl;
   if (body?.thumbnailUrl === null || typeof body?.thumbnailUrl === "string") {
     const thumbnailUrl = typeof body.thumbnailUrl === "string" ? body.thumbnailUrl : "";

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { Registration } from "@/lib/registration/types";
 import {
   honestConfirmedCopy,
@@ -20,6 +20,7 @@ export default function RegistrationPaymentCompleteClient({
   feeLabel,
 }: RegistrationPaymentCompleteClientProps) {
   const router = useRouter();
+  const [hotel, setHotel] = useState<{hotel_name_snapshot:string;check_in:string;check_out:string}|null>(null);
   const confirmed = registration.status === "confirmed";
   const pending =
     registration.status === "payment_pending" || registration.status === "submitted";
@@ -31,6 +32,13 @@ export default function RegistrationPaymentCompleteClient({
     }, 3000);
     return () => window.clearInterval(timer);
   }, [confirmed, router]);
+
+  useEffect(() => {
+    if (!confirmed) return;
+    void fetch("/api/travel/reservations", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((state) => setHotel(state?.primary ?? null));
+  }, [confirmed]);
 
   const copy = confirmed ? honestConfirmedCopy() : honestPaymentPendingCopy();
 
@@ -73,10 +81,10 @@ export default function RegistrationPaymentCompleteClient({
         </p>
       ) : null}
 
+      {confirmed ? <div className="mt-8 rounded-2xl border border-white/15 p-5"><h2 className="text-2xl font-bold">{hotel?"Your Hotel Is Reserved ✓":"Next: Plan Your Trip"}</h2><p className="mt-2">{hotel?`${hotel.hotel_name_snapshot} · ${hotel.check_in} – ${hotel.check_out}`:"Now let's plan your trip to St. Louis."}</p><div className="registration-actions">{hotel?<Link href="/my-convocation/travel" className="registration-btn registration-btn-primary">View Hotel</Link>:<Link href="/travel/hotels" className="registration-btn registration-btn-primary">Find an Official Hotel</Link>}<Link href="/travel/flights" className="registration-btn registration-btn-secondary">Search Flights</Link><Link href="/travel/getting-around" className="registration-btn registration-btn-secondary">Reserve Transportation</Link><Link href="/program" className="registration-btn registration-btn-secondary">Build My Convocation</Link></div></div>:null}
       <div className="registration-actions">
-        <Link href="/my-convocation" className="registration-btn registration-btn-primary">
-          Go to My Convocation
-        </Link>
+        <Link href={confirmed?"/travel":"/my-convocation"} className="registration-btn registration-btn-primary">{confirmed?"Plan My Trip":"Go to My Convocation"}</Link>
+        {confirmed?<Link href="/my-convocation" className="registration-btn registration-btn-secondary">I&apos;ll Do This Later</Link>:null}
         {!confirmed ? (
           <Link href="/register/review" className="registration-btn registration-btn-secondary">
             Review registration

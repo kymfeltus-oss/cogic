@@ -1,0 +1,1 @@
+drop table if exists public.travel_hotel_reservation_audit,public.travel_hotel_reservations,public.travel_hotel_booking_journeys cascade;

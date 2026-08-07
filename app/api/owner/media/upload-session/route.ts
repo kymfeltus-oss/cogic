@@ -31,6 +31,8 @@ export async function POST(request: Request) {
     typeof body?.occurrenceId === "string" ? body.occurrenceId.trim() : "";
   const description =
     typeof body?.description === "string" ? body.description.trim() || null : null;
+  const contentType = typeof body?.contentType === "string" ? body.contentType : "REPLAY";
+  const contentTypes = new Set(["REPLAY", "PRE_PRODUCTION", "PROMO", "LEADERSHIP_MESSAGE", "INTERVIEW", "EVENT_PREVIEW", "DEVOTIONAL", "ANNOUNCEMENT_VIDEO", "HISTORICAL", "OTHER"]);
 
   if (!title) {
     return NextResponse.json({ error: "streamTitle is required." }, { status: 400 });
@@ -47,20 +49,21 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  if (!occurrenceId || !UUID.test(occurrenceId)) {
+  if (occurrenceId && !UUID.test(occurrenceId)) {
     return NextResponse.json(
-      { error: "A valid occurrenceId is required." },
+      { error: "occurrenceId must be a valid UUID when supplied." },
       { status: 400 },
     );
   }
+  if (!contentTypes.has(contentType)) return NextResponse.json({ error: "Invalid content type." }, { status: 400 });
 
   const admin = getSupabaseAdmin();
-  const { data: occurrence } = await admin
+  const { data: occurrence } = occurrenceId ? await admin
     .from("event_occurrences")
     .select("id")
     .eq("id", occurrenceId)
-    .maybeSingle();
-  if (!occurrence) {
+    .maybeSingle() : { data: null };
+  if (occurrenceId && !occurrence) {
     return NextResponse.json({ error: "Occurrence not found." }, { status: 404 });
   }
 
@@ -79,6 +82,9 @@ export async function POST(request: Request) {
     storage_bucket: MEDIA_UPLOAD_BUCKET,
     storage_path: storagePath,
     upload_status: "uploading",
+    content_type: contentType,
+    original_filename: typeof body?.originalFilename === "string" ? body.originalFilename.slice(0, 255) : null,
+    created_by: auth.userId,
     updated_by: auth.userId,
   });
 
@@ -89,10 +95,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const { error: linkError } = await admin
+  const { error: linkError } = occurrenceId ? await admin
     .from("event_occurrences")
     .update({ replay_recording_id: recordingId, updated_by: auth.userId })
-    .eq("id", occurrenceId);
+    .eq("id", occurrenceId) : { error: null };
 
   if (linkError) {
     await admin.from("past_broadcast_recordings").delete().eq("id", recordingId);

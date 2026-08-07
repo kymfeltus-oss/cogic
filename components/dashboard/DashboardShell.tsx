@@ -18,6 +18,7 @@ import StayConnectedPrompt from "@/components/notifications/StayConnectedPrompt"
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 import type { ReactNode } from "react";
 import { Headphones, PlaySquare, UsersRound } from "lucide-react";
+import TravelProgressCard from "@/components/dashboard/TravelProgressCard";
 import TicketStoreClient from "@/components/tickets/TicketStoreClient";
 import HousingExperience from "@/components/housing/HousingExperience";
 
@@ -76,6 +77,7 @@ export default function DashboardShell({
                   signedIn={Boolean(profile.userId)}
                 />
                 <GivingCard />
+                <TravelProgressCard />
                 <AnnouncementsCard />
                 <DashboardLinkCard eyebrow="COGIC Tube" title="Watch again" body="On-demand sermons, replays, and more." href="/replays" action="Watch now" secondaryAction="Browse all" icon={PlaySquare} />
                 <DashboardLinkCard eyebrow="Prayer Room" title="Find strength" body="Prayer resources for the Convocation journey." href="/prayer" action="Enter prayer room" secondaryAction="Prayer resources" icon={Headphones} tone="gold" />
