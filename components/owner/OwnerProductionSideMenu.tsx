@@ -9,11 +9,19 @@ import {
   Palette,
   Play,
   Radio,
+  ScanLine,
   Timer,
   Video,
 } from "lucide-react";
 
 const PRODUCTION_NAV_ITEMS = [
+  {
+    id: "registrations",
+    label: "Registration Access",
+    eyebrow: "Products & rules",
+    href: "/owner/registrations/products",
+    icon: ScanLine,
+  },
   {
     id: "cockpit",
     label: "Cockpit",
