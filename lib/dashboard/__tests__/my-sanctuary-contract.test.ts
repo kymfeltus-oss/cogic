@@ -28,8 +28,8 @@ test("My Sanctuary uses the exact banner and official seal assets", async () => 
     source("components/dashboard/DashboardTopBar.tsx"),
   ]);
   assert.match(hero, /\/my-sanctuary\/banner\.png/);
-  assert.match(hero, /width=\{1024\}/);
-  assert.match(hero, /height=\{576\}/);
+  assert.match(hero, /width=\{2172\}/);
+  assert.match(hero, /height=\{724\}/);
   assert.match(topBar, /\/my-sanctuary\/cogic-live-logo-purple\.png/);
   assert.doesNotMatch(topBar, />C<\/span>/);
 });
@@ -67,8 +67,8 @@ test("dashboard hero preserves the complete intrinsic banner without overlays", 
     source("app/my-convocation/dashboard.css"),
   ]);
   assert.match(hero, /\/my-sanctuary\/banner\.png/);
-  assert.match(hero, /width=\{1024\}/);
-  assert.match(hero, /height=\{576\}/);
+  assert.match(hero, /width=\{2172\}/);
+  assert.match(hero, /height=\{724\}/);
   assert.doesNotMatch(hero, /<h1|Empowered to Serve|convocation-hero__copy/);
   assert.match(css, /\.convocation-hero__artwork img[^}]*width:\s*100%[^}]*height:\s*auto/);
   assert.match(css, /object-fit:\s*contain/);

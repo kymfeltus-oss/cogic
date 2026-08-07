@@ -31,8 +31,8 @@ export default function DashboardTopBar({
           <Image
             src="/branding/cogic-seal.png"
             alt=""
-            width={72}
-            height={72}
+            width={112}
+            height={112}
             className="cl-topbar__seal"
             priority
           />
