@@ -1,24 +1,29 @@
-/** Awakening — canonical design tokens (source of truth) */
+/** COGIC LIVE — canonical design tokens aligned to styles/cogic-brand.css */
 
 export const BRAND_COLORS = {
-  black: "#020203",
-  blackDeep: "#040404",
-  panel: "#0C0C10",
-  blue: "#00A8FF",
-  purple: "#8A2EFF",
-  pink: "#FF2FAF",
-  /** @deprecated Use purple — kept for legacy class mappings */
-  indigo: "#8A2EFF",
+  black: "#05060D",
+  blackDeep: "#070B18",
+  panel: "#0B1020",
+  blue: "#168FEA",
+  purple: "#7227B3",
+  pink: "#C62A9B",
+  fuchsia: "#C62A9B",
+  indigo: "#7227B3",
+  cyan: "#20C4F4",
   white: "#FFFFFF",
   muted: "rgba(255,255,255,0.68)",
   border: "rgba(255,255,255,0.08)",
 } as const;
 
 export const BRAND_GRADIENTS = {
-  brand: "linear-gradient(90deg, #00A8FF 0%, #8A2EFF 50%, #FF2FAF 100%)",
+  brand:
+    "linear-gradient(110deg, #54157F 0%, #7227B3 28%, #8B39D0 48%, #C62A9B 72%, #168FEA 100%)",
   brandSoft:
-    "linear-gradient(90deg, rgba(0,168,255,0.25) 0%, rgba(255,47,175,0.25) 100%)",
-  ring: "linear-gradient(90deg, #00A8FF 0%, #8A2EFF 50%, #FF2FAF 100%)",
+    "linear-gradient(110deg, rgba(84,21,127,0.22) 0%, rgba(198,42,155,0.14) 72%, rgba(22,143,234,0.10) 100%)",
+  active:
+    "linear-gradient(110deg, #54157F 0%, #7227B3 35%, #9A34C6 62%, #C62A9B 100%)",
+  ring:
+    "linear-gradient(110deg, #54157F 0%, #8B39D0 48%, #C62A9B 72%, #168FEA 100%)",
 } as const;
 
 export const BRAND_TYPOGRAPHY = {
@@ -55,16 +60,16 @@ export const BRAND_FONTS = {
 } as const;
 
 export const BRAND_SHADOWS = {
-  glowBlue: "0 0 15px #00A8FF, 0 0 30px #00A8FF, 0 0 60px #00A8FF",
-  glowPurple: "0 0 15px #8A2EFF, 0 0 30px #8A2EFF, 0 0 60px #8A2EFF",
-  glowPink: "0 0 15px #FF2FAF, 0 0 30px #FF2FAF, 0 0 60px #FF2FAF",
-  neonBlue: "0 0 15px #00A8FF, 0 0 30px #00A8FF, 0 0 60px #00A8FF",
-  neonPink: "0 0 15px #FF2FAF, 0 0 30px #FF2FAF, 0 0 60px #FF2FAF",
-  neonPurple: "0 0 15px #8A2EFF, 0 0 30px #8A2EFF, 0 0 60px #8A2EFF",
+  glowBlue: "0 0 22px rgba(22,143,234,0.22)",
+  glowPurple: "0 0 28px rgba(114,39,179,0.32)",
+  glowPink: "0 0 28px rgba(198,42,155,0.28)",
+  neonBlue: "0 0 22px rgba(22,143,234,0.22)",
+  neonPink: "0 0 28px rgba(198,42,155,0.28)",
+  neonPurple: "0 0 28px rgba(114,39,179,0.32)",
   neonDual:
-    "0 0 15px #FF2FAF, 0 0 30px #FF2FAF, 0 0 15px #00A8FF, 0 0 30px #00A8FF",
+    "0 0 18px rgba(198,42,155,0.22), 0 0 22px rgba(22,143,234,0.16)",
   pillCta:
-    "0 0 15px rgba(255,47,175,0.45), 0 0 30px rgba(0,168,255,0.35)",
+    "0 14px 34px rgba(84,21,127,0.22), 0 0 26px rgba(198,42,155,0.16)",
   panel: "0 0 34px rgba(0,0,0,0.45)",
 } as const;
 

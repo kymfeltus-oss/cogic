@@ -20,6 +20,7 @@ export default function GivingBrandHeader() {
         <span className="cogic-giving-title__giving">{giving}</span>
       </h1>
       <p className="cogic-giving-tagline">{COGIC_GIVING_TAGLINE}</p>
+      <p className="cogic-giving-hero-copy">Your generosity fuels ministries, supports communities, and expands the mission of the Church of God in Christ across the world.</p>
     </header>
   );
 }

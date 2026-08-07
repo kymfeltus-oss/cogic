@@ -63,7 +63,7 @@ export default async function ReplaysPage({ searchParams }: ReplaysPageProps) {
   return (
     <main
       id="main-content"
-      className="responsive-page pb-[calc(6rem+env(safe-area-inset-bottom,0px))] bg-brand-black text-white"
+      className="responsive-page relative z-[1] pb-[calc(6rem+env(safe-area-inset-bottom,0px))] bg-transparent text-white"
     >
       <div className="responsive-container flex min-h-[min(42rem,75dvh)] flex-col justify-center py-8">
         {loadError ? (
@@ -83,8 +83,8 @@ export default async function ReplaysPage({ searchParams }: ReplaysPageProps) {
             className="mx-auto w-full max-w-2xl rounded-3xl border border-white/10 bg-white/[0.04] p-[clamp(1.25rem,5vw,3rem)] text-center shadow-2xl"
             aria-labelledby="replays-empty-heading"
           >
-            <Video className="mx-auto size-12 text-brand-blue" aria-hidden="true" />
-            <p className="mt-5 font-ui text-sm font-semibold uppercase tracking-[0.14em] text-brand-blue">
+            <Video className="mx-auto size-12 text-[#c62a9b]" aria-hidden="true" />
+            <p className="mt-5 font-ui text-sm font-semibold uppercase tracking-[0.14em] text-[#c62a9b]">
               Replays
             </p>
             <h1
@@ -99,7 +99,7 @@ export default async function ReplaysPage({ searchParams }: ReplaysPageProps) {
             </p>
             <Link
               href="/live"
-              className="touch-target mx-auto mt-8 inline-flex items-center justify-center gap-2 rounded-full border border-brand-blue/50 bg-brand-blue/10 px-6 py-3 font-ui text-sm font-bold text-brand-blue"
+              className="touch-target brand-ombre-bg mx-auto mt-8 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-ui text-sm font-bold text-white"
             >
               <Radio className="size-5" aria-hidden="true" />
               Watch Live
@@ -108,7 +108,7 @@ export default async function ReplaysPage({ searchParams }: ReplaysPageProps) {
         ) : (
           <section aria-labelledby="replays-heading" className="mx-auto w-full max-w-3xl">
             <header className="mb-8 text-center">
-              <p className="font-ui text-sm font-semibold uppercase tracking-[0.14em] text-brand-blue">
+              <p className="font-ui text-sm font-semibold uppercase tracking-[0.14em] text-[#c62a9b]">
                 Replays
               </p>
               <h1 id="replays-heading" className="mt-3 font-headline text-4xl">

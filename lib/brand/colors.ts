@@ -1,28 +1,39 @@
 /** Canonical COGIC LIVE visual tokens. Components should prefer semantic CSS aliases. */
 export const cogicBrand = {
   ombre: {
-    start: "#204366",
-    blue: "#2B5989",
-    slate: "#3A4C83",
-    violet: "#4B3174",
-    plum: "#6B2F6E",
-    end: "#742B62",
-    gradient: "linear-gradient(110deg, #204366 0%, #2B5989 20%, #3A4C83 40%, #4B3174 60%, #6B2F6E 80%, #742B62 100%)",
+    deep: "#32104F",
+    start: "#54157F",
+    violet: "#7227B3",
+    bright: "#8B39D0",
+    magenta: "#C62A9B",
+    blue: "#168FEA",
+    cyan: "#20C4F4",
+    fuchsia: "#C62A9B",
+    pink: "#C62A9B",
+    indigo: "#7227B3",
+    plum: "#C62A9B",
+    end: "#168FEA",
+    gradient:
+      "linear-gradient(110deg, #54157F 0%, #7227B3 28%, #8B39D0 48%, #C62A9B 72%, #168FEA 100%)",
+    active:
+      "linear-gradient(110deg, #54157F 0%, #7227B3 35%, #9A34C6 62%, #C62A9B 100%)",
   },
   surfaces: {
-    ink: "#07040F",
-    navy: "#0B1220",
-    panel: "rgba(14, 10, 28, 0.92)",
-    panelRaised: "rgba(19, 14, 38, 0.96)",
-    overlay: "rgba(7, 4, 15, 0.82)",
+    ink: "#05060D",
+    navy: "#070B18",
+    surfaceNavy: "#0B1020",
+    deepPurple: "#32104F",
+    panel: "rgba(12, 10, 28, 0.92)",
+    panelRaised: "rgba(18, 12, 36, 0.94)",
+    glass: "rgba(10, 8, 24, 0.72)",
+    overlay: "rgba(5, 7, 17, 0.86)",
   },
   purple: {
-    /** Episcopal / institutional primary — darker than neon tech violet */
-    primary: "#4B3174",
-    deep: "#204366",
-    bright: "#6B2F6E",
-    soft: "rgba(75, 49, 116, 0.18)",
-    glow: "rgba(75, 49, 116, 0.28)",
+    primary: "#7227B3",
+    deep: "#54157F",
+    bright: "#8B39D0",
+    soft: "rgba(114, 39, 179, 0.16)",
+    glow: "rgba(198, 42, 155, 0.24)",
   },
   gold: {
     primary: "#C9A227",
@@ -40,7 +51,7 @@ export const cogicBrand = {
   border: {
     default: "rgba(255, 255, 255, 0.10)",
     strong: "rgba(255, 255, 255, 0.16)",
-    purple: "rgba(75, 49, 116, 0.52)",
+    purple: "rgba(139, 57, 208, 0.42)",
     gold: "rgba(201, 162, 39, 0.28)",
   },
   status: {
@@ -48,7 +59,7 @@ export const cogicBrand = {
     success: "#22C55E",
     warning: "#F59E0B",
     error: "#EF4444",
-    info: "#3B82F6",
+    info: "#168FEA",
     offline: "rgba(255, 255, 255, 0.46)",
   },
 } as const;

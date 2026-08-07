@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Megaphone } from "lucide-react";
+import IconBadge from "@/components/brand/IconBadge";
 
 type UnreadPayload = {
   unreadCount?: number;
@@ -43,32 +44,25 @@ export default function AnnouncementsCard() {
       ? latestTitle
       : unreadCount === 0
         ? "No new updates"
-        : "Latest updates";
+        : "Latest updates from COGIC LIVE.";
 
   return (
     <article className="cl-feature-card cl-feature-card--default">
       <p className="cl-feature-card__eyebrow">Announcements</p>
-      <div className="cl-feature-card__icon">
-        <Megaphone aria-hidden="true" />
-      </div>
-      <h3>Announcements</h3>
+      <IconBadge icon={Megaphone} className="cl-feature-card__icon-badge" />
+      <h3>Stay Informed</h3>
       <p className="cl-feature-card__body">
         {body}
         {typeof unreadCount === "number" && unreadCount > 0 ? (
           <>
-            <br />
-            <span className="text-white/90">
-              {unreadCount} unread
-            </span>
+            {" "}
+            <span className="cl-feature-card__unread">{unreadCount} unread</span>
           </>
         ) : null}
       </p>
       <Link href="/updates" className="cl-btn cl-btn--primary cl-btn--block">
         View updates
         <ArrowRight aria-hidden="true" className="size-4" />
-      </Link>
-      <Link href="/updates" className="cl-btn cl-btn--ghost cl-btn--block">
-        Open /updates
       </Link>
     </article>
   );

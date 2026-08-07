@@ -45,6 +45,22 @@ test("My Sanctuary is protected and isolated from the legacy global dock", async
   assert.match(rootShell, /pathname === "\/my-sanctuary"/);
 });
 
+test("attendee feature grid uses content-driven 3-column cards without duplicate CTAs", async () => {
+  const [shell, linkCard, css, registration] = await Promise.all([
+    source("components/dashboard/DashboardShell.tsx"),
+    source("components/dashboard/DashboardLinkCard.tsx"),
+    source("app/my-convocation/dashboard.css"),
+    source("components/dashboard/MyConvocationCard.tsx"),
+  ]);
+  assert.match(shell, /cl-action-grid--features/);
+  assert.doesNotMatch(linkCard, /secondaryAction|cl-btn--ghost/);
+  assert.match(css, /cl-action-grid--features[\s\S]*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /align-items:\s*start/);
+  assert.match(css, /\.cl-feature-card[\s\S]*min-height:\s*0/);
+  assert.match(registration, /cl-reg-summary/);
+  assert.match(registration, /Policy agreement pending/);
+});
+
 test("dashboard hero preserves the complete intrinsic banner without overlays", async () => {
   const [hero, css] = await Promise.all([
     source("components/dashboard/ConvocationHero.tsx"),

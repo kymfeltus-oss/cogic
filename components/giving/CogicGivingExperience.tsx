@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { BarChart3, ChevronLeft, Crown, FileCheck2, HeartHandshake, LockKeyhole, ShieldCheck } from "lucide-react";
 import GivingAmountInput from "@/components/giving/GivingAmountInput";
 import GivingBrandHeader from "@/components/giving/GivingBrandHeader";
 import GivingFundSelector from "@/components/giving/GivingFundSelector";
@@ -213,36 +213,56 @@ export default function CogicGivingExperience() {
 
   return (
     <div className="cogic-giving-shell">
+      <header className="cogic-giving-reference-nav" aria-label="COGIC LIVE navigation">
+        <Link href="/my-convocation" className="cogic-giving-reference-nav__brand">COGIC <b>LIVE</b></Link>
+        <nav>
+          <Link href="/my-convocation">Home</Link><Link href="/live">Live</Link><Link href="/my-convocation">My Convocation</Link><Link href="/travel">Travel</Link><Link className="is-active" href="/giving">Give</Link><Link href="/prayer">Prayer Room</Link>
+        </nav>
+      </header>
       <Link href={ATTENDEE_DASHBOARD_PATH} className="cogic-giving-back">
         <ChevronLeft className="size-4" aria-hidden="true" />
         Back
       </Link>
       <form className="cogic-giving-card" onSubmit={onSubmit} noValidate>
         <GivingBrandHeader />
-        <GivingOrganizationCard />
-        <GivingAmountInput
-          cents={amountCents}
-          draft={amountDraft}
-          onDraftChange={handleDraftChange}
-        />
-        <GivingQuickAmounts selectedCents={activePreset} onSelect={handleQuickSelect} />
-        <GivingFundSelector selected={fundKey} onSelect={setFundKey} />
-        <GivingNoteField value={note} onChange={setNote} />
-        <GivingPaymentMethods
-          selected={paymentMethod}
-          onSelect={(method) => {
-            setPaymentMethod(method);
-            setError(null);
-          }}
-        />
-        {error ? (
-          <p className="cogic-giving-error" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <GivingSubmitButton disabled={!canSubmit} loading={loading} />
-        <GivingSecurityFooter />
+        <section className="cogic-giving-reference-grid">
+          <div className="cogic-giving-reference-grid__give">
+            <GivingOrganizationCard />
+            <GivingAmountInput cents={amountCents} draft={amountDraft} onDraftChange={handleDraftChange} />
+            <GivingQuickAmounts selectedCents={activePreset} onSelect={handleQuickSelect} />
+            <GivingNoteField value={note} onChange={setNote} />
+            <GivingPaymentMethods selected={paymentMethod} onSelect={(method) => { setPaymentMethod(method); setError(null); }} />
+            {error ? <p className="cogic-giving-error" role="alert">{error}</p> : null}
+            <GivingSubmitButton disabled={!canSubmit} loading={loading} />
+            <GivingSecurityFooter />
+          </div>
+          <div className="cogic-giving-reference-grid__funds">
+            <p className="cogic-giving-reference-heading">Ways to Give</p>
+            <GivingFundSelector selected={fundKey} onSelect={setFundKey} />
+          </div>
+          <div className="cogic-giving-reference-grid__summary">
+            <aside className="cogic-giving-summary" aria-label="Giving summary">
+          <p className="cogic-giving-summary__eyebrow"><BarChart3 aria-hidden="true" /> Your Giving Summary</p>
+          <strong>{amountCents > 0 ? formatUsdFromCents(amountCents) : "—"}</strong>
+          <span>{amountCents > 0 ? "Current gift amount" : "Sign in to view your giving history"}</span>
+          <div className="cogic-giving-summary__stats"><span><b>—</b> Donations</span><span><b>—</b> Funds</span><span><b>—</b> Receipts</span></div>
+          <Link href="/my-convocation" className="cogic-giving-summary__link">View Giving History</Link>
+            </aside>
+            <aside className="cogic-giving-impact" aria-label="Kingdom impact">
+          <p><HeartHandshake aria-hidden="true" /> Kingdom Impact</p>
+          <div className="cogic-giving-impact__globe" aria-hidden="true" />
+          <strong>Every gift advances the mission.</strong>
+          <span>Sign in to view COGIC giving impact updates.</span>
+            </aside>
+          </div>
+        </section>
       </form>
+      <section className="cogic-giving-benefits" aria-label="Giving benefits">
+        <div><ShieldCheck aria-hidden="true" /><p><strong>100% Secure</strong><span>Bank-level encryption</span></p></div>
+        <div><FileCheck2 aria-hidden="true" /><p><strong>Tax Deductible</strong><span>Receipts provided for gifts</span></p></div>
+        <div><LockKeyhole aria-hidden="true" /><p><strong>Flexible Giving</strong><span>Give how and when you want</span></p></div>
+        <div><Crown aria-hidden="true" /><p><strong>Kingdom Focused</strong><span>Every gift advances the mission</span></p></div>
+      </section>
     </div>
   );
 }

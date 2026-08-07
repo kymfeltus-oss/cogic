@@ -110,11 +110,8 @@ body::-webkit-scrollbar {
 
 :root {
   /* 9:16 mobile content track â€” shared by artboard pages + bottom dock */
-  --color-brand-black-base: #020203;
-  --app-glossy-background:
-    radial-gradient(ellipse 115% 75% at 50% -18%, rgb(255 255 255 / 0.038) 0%, transparent 54%),
-    radial-gradient(ellipse 88% 58% at 50% 108%, rgb(0 168 255 / 0.024) 0%, transparent 52%),
-    linear-gradient(180deg, #050507 0%, #020203 46%, #010102 100%);
+  --color-brand-black-base: #05060d;
+  --app-glossy-background: var(--cogic-page-atmosphere);
   --mobile-artboard-viewport-h: calc(
     100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
   );
@@ -130,14 +127,10 @@ body::-webkit-scrollbar {
   --page-safe-bottom: max(clamp(1rem, 3vh, 2rem), env(safe-area-inset-bottom, 0px));
   --content-readable: 72rem;
   --gradient-brand: var(--brand-ombre);
-  --gradient-brand-soft: linear-gradient(
-    90deg,
-    rgba(0, 168, 255, 0.25) 0%,
-    rgba(92, 45, 145, 0.28) 100%
-  );
-  --shadow-glow-blue: 0 0 15px #00a8ff, 0 0 30px #00a8ff, 0 0 60px #00a8ff;
+  --gradient-brand-soft: var(--brand-ombre-soft);
+  --shadow-glow-blue: var(--brand-glow-blue);
   --shadow-glow-purple: var(--brand-ombre-glow);
-  --shadow-glow-pink: 0 0 15px #ff2faf, 0 0 30px #ff2faf, 0 0 60px #ff2faf;
+  --shadow-glow-pink: var(--brand-glow-fuchsia);
   --brand-tracking-lockup: 0.22em;
   --brand-tracking-byline: 0.12em;
   --brand-tracking-tagline: 0.04em;
@@ -149,16 +142,16 @@ body::-webkit-scrollbar {
 }
 
 @theme {
-  --color-brand-black: #020203;
-  --color-brand-panel: #0c0c10;
-  --color-brand-blue: #00a8ff;
-  --color-brand-pink: #ff2faf;
-  --color-brand-purple: #4b3174;
-  --color-brand-indigo: #3a4c83;
+  --color-brand-black: #05060d;
+  --color-brand-panel: #0b1020;
+  --color-brand-blue: #3b82f6;
+  --color-brand-pink: #d946ef;
+  --color-brand-purple: #7c3aed;
+  --color-brand-indigo: #6366f1;
   --color-brand-white: #ffffff;
   --color-brand-muted: rgba(255, 255, 255, 0.68);
   --color-brand-border: rgba(255, 255, 255, 0.08);
-  --color-brand-charcoal: #0c0c10;
+  --color-brand-charcoal: #070b18;
 }
 
 @layer utilities {
@@ -702,15 +695,16 @@ body::-webkit-scrollbar {
 }
 
 .experience-glass-panel {
-  background: rgba(17, 17, 17, 0.92);
-  border: 1px solid var(--exp-border);
+  background: var(--cogic-card-surface, rgba(15, 18, 36, 0.96));
+  border: 1px solid var(--cogic-border-default, rgba(255, 255, 255, 0.1));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--cogic-shadow-card);
 }
 
 .experience-tab {
-  border: 1px solid var(--exp-border);
-  background: rgba(17, 17, 17, 0.88);
+  border: 1px solid var(--cogic-border-default, rgba(255, 255, 255, 0.1));
+  background: rgb(11 16 32 / 88%);
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease,
@@ -719,27 +713,26 @@ body::-webkit-scrollbar {
 }
 
 .experience-tab:hover {
-  border-color: rgba(30, 64, 175, 0.45);
+  border-color: rgb(99 102 241 / 45%);
+  background: var(--brand-ombre-soft);
   color: #ffffff;
 }
 
 .experience-tab:active {
-  border-color: rgba(176, 38, 122, 0.45);
+  border-color: rgb(217 70 239 / 45%);
 }
 
 .experience-tab-active {
-  border-color: rgba(30, 64, 175, 0.75);
-  background: rgba(30, 64, 175, 0.18);
-  color: #93c5fd;
-  box-shadow:
-    0 0 22px rgba(30, 64, 175, 0.45),
-    inset 0 0 0 1px rgba(30, 64, 175, 0.2);
+  border-color: transparent;
+  background: var(--brand-ombre-active, var(--brand-ombre));
+  color: #fff;
+  box-shadow: var(--brand-ombre-glow);
 }
 
 .experience-send-btn {
-  background: var(--exp-blue);
+  background: var(--brand-ombre-active, var(--brand-ombre));
   color: #ffffff;
-  box-shadow: 0 0 18px rgba(30, 64, 175, 0.5);
+  box-shadow: var(--brand-ombre-glow);
 }
 
 .experience-send-btn:disabled {
@@ -5084,8 +5077,8 @@ body::-webkit-scrollbar {
   box-shadow:
     0 -1px 0 rgb(255 255 255 / 0.08) inset,
     0 -18px 38px rgb(0 0 0 / 0.5),
-    0 -10px 34px rgb(43 89 137 / 0.2),
-    0 -8px 32px rgb(116 43 98 / 0.16);
+    0 -12px 36px rgb(84 21 127 / 0.28),
+    0 -8px 32px rgb(198 42 155 / 0.22);
   backdrop-filter: blur(20px) saturate(1.35);
   -webkit-backdrop-filter: blur(20px) saturate(1.35);
   pointer-events: auto;
@@ -5096,7 +5089,7 @@ body::-webkit-scrollbar {
   inset: -1px 0 0;
   z-index: -1;
   background:
-    linear-gradient(90deg, transparent 0%, rgb(43 89 137 / 0.42) 18%, rgb(75 49 116 / 0.34) 50%, rgb(116 43 98 / 0.42) 82%, transparent 100%),
+    linear-gradient(90deg, transparent 0%, rgb(114 39 179 / 0.4) 18%, rgb(198 42 155 / 0.42) 52%, rgb(22 143 234 / 0.28) 82%, transparent 100%),
     linear-gradient(180deg, rgb(255 255 255 / 0.14), transparent 52%);
   content: "";
   opacity: 0.85;
@@ -5550,19 +5543,16 @@ body::-webkit-scrollbar {
 /* Attendee login â€” native form (no PNG artboard) */
 /* COGIC LIVE attendee authentication — aligned with the dashboard system. */
 .cogic-auth-shell {
-  --color-brand-blue: #d58cff;
-  --color-brand-pink: #e7a1ff;
-  --color-brand-purple: #4b3174;
-  --color-brand-border: rgba(181, 128, 220, .38);
+  --color-brand-blue: #3b82f6;
+  --color-brand-pink: #d946ef;
+  --color-brand-purple: #7c3aed;
+  --color-brand-border: rgb(168 85 247 / .38);
   --color-brand-muted: rgba(255, 255, 255, .62);
-  --color-brand-panel: #10081d;
-  --color-brand-black: #05020d;
+  --color-brand-panel: #0b1020;
+  --color-brand-black: #05060d;
   min-height: 100dvh;
   color: #fff;
-  background:
-    radial-gradient(circle at 18% 8%, rgba(116, 55, 170, .3), transparent 34rem),
-    radial-gradient(circle at 86% 88%, rgba(35, 91, 145, .2), transparent 32rem),
-    linear-gradient(145deg, #05020d 0%, #0b0415 48%, #061326 100%);
+  background: var(--cogic-page-atmosphere);
 }
 
 .cogic-auth-page {
@@ -5627,7 +5617,7 @@ body::-webkit-scrollbar {
 
 .cogic-auth-input::placeholder { color: rgba(255, 255, 255, .3); }
 .cogic-auth-input:focus { border-color: rgba(213, 140, 255, .75); box-shadow: 0 0 0 3px rgba(181, 91, 237, .12); }
-.cogic-auth-input option { color: #fff; background: #10081d; }
+.cogic-auth-input option { color: #fff; background: #0b1020; }
 
 .cogic-auth-social {
   display: flex;
@@ -8993,9 +8983,9 @@ body::-webkit-scrollbar {
   width: 100%;
   justify-content: center;
   padding: max(1rem, env(safe-area-inset-top)) 1rem max(1.5rem, env(safe-area-inset-bottom));
-  background:
-    radial-gradient(ellipse 90% 55% at 50% -10%, rgb(255 255 255 / 0.04), transparent 55%),
-    linear-gradient(180deg, #0a0b10 0%, #050507 55%, #020203 100%);
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 .registration-shell {
@@ -9005,16 +8995,39 @@ body::-webkit-scrollbar {
   flex-direction: column;
   gap: 1.25rem;
   color: #f5f7fb;
+  position: relative;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid rgb(201 162 39 / 28%);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 0%, rgb(198 42 155 / 14%), transparent 55%),
+    linear-gradient(165deg, rgb(10 12 28 / 92%), rgb(4 6 14 / 96%));
+  box-shadow:
+    0 24px 60px rgb(0 0 0 / 42%),
+    0 0 48px rgb(114 39 179 / 16%),
+    inset 0 1px rgb(255 255 255 / 06%);
+  backdrop-filter: blur(18px) saturate(130%);
+}
+
+.registration-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(242 181 31 / 55%), rgb(198 42 155 / 50%), transparent);
+  pointer-events: none;
 }
 
 .registration-kicker {
   margin: 0;
   font-family: var(--font-ui);
   font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #9fb3c8;
+  color: #f2b51f;
 }
 
 .registration-title {
@@ -9065,9 +9078,9 @@ body::-webkit-scrollbar {
 .registration-input {
   min-height: 3rem;
   width: 100%;
-  border: 1px solid #5b6b80;
-  border-radius: 0.5rem;
-  background: #12151c;
+  border: 1px solid rgb(139 57 208 / 28%);
+  border-radius: 0.85rem;
+  background: rgb(8 10 22 / 82%);
   color: #ffffff;
   font-family: var(--font-body);
   font-size: 1.05rem;
@@ -9076,9 +9089,10 @@ body::-webkit-scrollbar {
 }
 
 .registration-input:focus {
-  outline: 3px solid #4db7ff;
+  outline: 2px solid rgb(198 42 155 / 55%);
   outline-offset: 2px;
-  border-color: #4db7ff;
+  border-color: rgb(242 181 31 / 45%);
+  box-shadow: 0 0 0 3px rgb(114 39 179 / 16%), 0 0 22px rgb(198 42 155 / 14%);
 }
 
 .registration-input:disabled {
@@ -9155,25 +9169,28 @@ body::-webkit-scrollbar {
 }
 
 .registration-btn:focus-visible {
-  outline: 3px solid #4db7ff;
+  outline: 2px solid rgb(198 42 155 / 70%);
   outline-offset: 3px;
 }
 
 .registration-btn:disabled {
-  opacity: 0.65;
+  opacity: 0.55;
   cursor: not-allowed;
+  box-shadow: none;
+  filter: grayscale(0.2);
 }
 
 .registration-btn-primary {
-  background: var(--brand-ombre);
+  background: var(--brand-ombre-active, var(--brand-ombre));
   color: #fff;
   border-color: transparent;
+  box-shadow: var(--brand-ombre-glow);
 }
 
 .registration-btn-secondary {
-  background: transparent;
+  background: rgb(11 16 32 / 78%);
   color: #f5f7fb;
-  border-color: #7d8da3;
+  border-color: rgb(99 102 241 / 34%);
 }
 
 .awakening-program-footer a {
