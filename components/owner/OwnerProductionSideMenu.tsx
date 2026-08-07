@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 const PRODUCTION_NAV_ITEMS = [
+  { id: "check-in", label: "Check-In", eyebrow: "Door operations", href: "/owner/check-in", icon: ScanLine },
   { id: "housing", label: "Housing", eyebrow: "Hotels & requests", href: "/owner/housing", icon: Archive },
   { id: "tickets", label: "Tickets & Add-ons", eyebrow: "Commerce", href: "/owner/tickets", icon: ScanLine },
   {

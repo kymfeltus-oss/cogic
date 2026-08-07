@@ -17,6 +17,8 @@ const CREDENTIAL_INGRESS_WINDOW_SECONDS = 60;
 /** Checkout creation: protect repeated attempts per authenticated identity. */
 const CHECKOUT_LIMIT = 8;
 const CHECKOUT_WINDOW_SECONDS = 600;
+const STAFF_SCAN_LIMIT = 240;
+const STAFF_SCAN_WINDOW_SECONDS = 60;
 
 export { isDistributedRateLimitConfigured };
 
@@ -68,6 +70,13 @@ export async function enforceGivingCheckoutRateLimit(
     limit: CHECKOUT_LIMIT,
     windowSeconds: CHECKOUT_WINDOW_SECONDS,
   });
+}
+
+/** High-throughput authenticated door limit; keyed by staff identity and IP. */
+export async function enforceStaffScanRateLimit(request: Request, userId: string): Promise<RateLimitDecision> {
+  const ipHash = hashRateLimitIdentifier(clientIpFromRequest(request));
+  const userHash = hashRateLimitIdentifier(userId);
+  return store.hit({ key: bucketKey(["staff-scan", userHash, ipHash]), limit: STAFF_SCAN_LIMIT, windowSeconds: STAFF_SCAN_WINDOW_SECONDS });
 }
 
 export function rateLimitResponseHeaders(decision: RateLimitDecision): HeadersInit {
