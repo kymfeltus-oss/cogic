@@ -95,7 +95,7 @@ describe("registration UI / security contracts", () => {
     );
     assert.match(page, /buildAttendeeGateUrl\("\/register"\)/);
     assert.match(page, /isGuest/);
-    assert.match(page, /getRegistrationFeeLabelOrNull/);
+    assert.match(page, /loadRegistrationExperience/);
     assert.match(review, /buildAttendeeGateUrl\("\/register\/review"\)/);
     assert.match(review, /loadRegistrationForCurrentUser|createOrResumeRegistrationDraft/);
   });

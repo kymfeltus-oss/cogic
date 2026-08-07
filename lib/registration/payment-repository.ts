@@ -1,7 +1,6 @@
 ﻿import "server-only";
 
 import { mapDatabaseError, RegistrationError } from "@/lib/registration/errors";
-import { getRegistrationPricingConfig } from "@/lib/registration/pricing";
 import {
   DEFAULT_PROGRAM_KEY,
   mapRegistrationPaymentRow,
@@ -112,7 +111,9 @@ export async function beginRegistrationCheckout(
   }
 
   const registration = await getCheckoutEligibleRegistration(userId);
-  const pricing = getRegistrationPricingConfig();
+  if (registration.amountCents === null || registration.amountCents <= 0) {
+    throw new RegistrationError("validation", "This registration does not require payment.");
+  }
   const admin = getSupabaseAdmin();
 
   const { data: paymentRow, error: paymentError } = await admin
@@ -120,8 +121,8 @@ export async function beginRegistrationCheckout(
     .insert({
       registration_id: registration.id,
       status: "pending",
-      amount_cents: pricing.amountCents,
-      currency: pricing.currency,
+      amount_cents: registration.amountCents,
+      currency: registration.currency,
       stripe_session_id: stripeSessionId,
       checkout_type: REGISTRATION_CHECKOUT_TYPE,
     })
@@ -145,8 +146,8 @@ export async function beginRegistrationCheckout(
     .from("registrations")
     .update({
       status: nextStatus,
-      amount_cents: pricing.amountCents,
-      currency: pricing.currency,
+      amount_cents: registration.amountCents,
+      currency: registration.currency,
       updated_by: userId,
     })
     .eq("id", registration.id)
@@ -172,8 +173,8 @@ export async function beginRegistrationCheckout(
     metadata: {
       stripe_session_id: stripeSessionId,
       registration_payment_id: payment.id,
-      amount_cents: pricing.amountCents,
-      currency: pricing.currency,
+      amount_cents: registration.amountCents,
+      currency: registration.currency,
     },
   });
 

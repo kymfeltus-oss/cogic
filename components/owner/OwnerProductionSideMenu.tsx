@@ -19,7 +19,7 @@ const PRODUCTION_NAV_ITEMS = [
     id: "registrations",
     label: "Registration Access",
     eyebrow: "Products & rules",
-    href: "/owner/registrations/products",
+    href: "/owner/registrations",
     icon: ScanLine,
   },
   {

@@ -5,6 +5,7 @@ import type Stripe from "stripe";
 
 import { attemptRegistrationCredentialIssuance } from "@/lib/registration/post-fulfillment";
 import { DEFAULT_PROGRAM_KEY, REGISTRATION_CHECKOUT_TYPE } from "@/lib/registration/types";
+import { confirmPaidGroup } from "@/lib/registration/slice2-repository";
 
 export type RegistrationWebhookFulfillmentResult =
   | { ok: true; idempotent: boolean; registrationId: string; credentialIssued: boolean }
@@ -86,6 +87,7 @@ export async function fulfillRegistrationCheckoutFromWebhook(input: {
     registrationId,
     actorUserId: input.session.client_reference_id ?? null,
   });
+  await confirmPaidGroup(registrationId, input.session.client_reference_id ?? null);
 
   return {
     ok: true,

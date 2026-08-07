@@ -11,6 +11,17 @@ const root = process.cwd();
 
 const FEATURES = [
   {
+    name: "Registration Slice 2",
+    adminRoute: "app/owner/registrations/page.tsx",
+    attendeeRoute: "app/register/page.tsx",
+    apis: [
+      "app/api/owner/registrations/route.ts",
+      "app/api/registration/experience/route.ts",
+      "app/api/registration/checkout/route.ts",
+    ],
+    permissionMarkers: ["requireOwnerUser", "getUserFromSession"],
+  },
+  {
     name: "Announcements / Updates",
     adminRoute: "app/owner/announcements/page.tsx",
     attendeeRoute: "app/updates/page.tsx",

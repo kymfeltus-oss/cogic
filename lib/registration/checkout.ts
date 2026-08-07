@@ -10,7 +10,6 @@ import {
   resolveAuthenticatedBuyer,
 } from "@/lib/checkout/server";
 import { beginRegistrationCheckout, getCheckoutEligibleRegistration } from "@/lib/registration/payment-repository";
-import { getRegistrationPricingConfig } from "@/lib/registration/pricing";
 import { RegistrationError } from "@/lib/registration/errors";
 import {
   DEFAULT_PROGRAM_KEY,
@@ -49,7 +48,9 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
     }
 
     const registration = await getCheckoutEligibleRegistration(buyer.userId);
-    const pricing = getRegistrationPricingConfig();
+    if (registration.amountCents === null || registration.amountCents <= 0) {
+      return { ok: false as const, status: 400, error: "This registration does not require paid checkout." };
+    }
     const stripeSecretKey = getStripeSecretKey();
 
     if (!stripeSecretKey) {
@@ -73,8 +74,8 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
         {
           quantity: 1,
           price_data: {
-            currency: pricing.currency,
-            unit_amount: pricing.amountCents,
+            currency: registration.currency,
+            unit_amount: registration.amountCents,
             product_data: {
               name: "118th Holy Convocation Registration",
               description: "COGIC LIVE Convocation registration fee",
@@ -88,7 +89,7 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
         registration_id: registration.id,
         user_id: buyer.userId,
         email: registration.email ?? buyer.email,
-        amount_cents: String(pricing.amountCents),
+        amount_cents: String(registration.amountCents),
       },
       success_url: `${appUrl}/register/payment/complete?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/register/review?checkout=canceled`,
