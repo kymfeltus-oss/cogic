@@ -69,8 +69,8 @@ test("dashboard uses a mobile-first streaming shell with safe fixed navigation",
   assert.match(shell, /DashboardHero/);
   assert.match(shell, /DashboardLiveStage/);
   assert.doesNotMatch(shell, /DashboardSidebar/);
-  assert.match(hero, /width=\{2172\}/);
-  assert.match(hero, /height=\{724\}/);
+  assert.match(hero, /width=\{1024\}/);
+  assert.match(hero, /height=\{576\}/);
   assert.doesNotMatch(hero, /\bfill\b/);
   for (const label of ["Home", "Watch Live", "Program", "My Sanctuary", "Give"]) {
     assert.match(mobileNav, new RegExp(label));
