@@ -8,6 +8,7 @@ export const SCAN_REASON_LABELS:Record<string,string>={VALID_REGISTRATION:"Valid
 export function extractCredentialReference(value:string){
   const raw=value.trim();
   if(/^CS26-[A-Z0-9]{8}$/i.test(raw))return {hash:"",reference:raw.toUpperCase()};
+  if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(raw))return {hash:"",reference:raw.toLowerCase()};
   let token=raw;try{const url=new URL(raw);token=url.pathname.split("/").filter(Boolean).at(-1)||"";}catch{}
   return isValidCredentialToken(token)?{hash:credentialTokenHashHex(token),reference:""}:null;
 }
@@ -26,7 +27,9 @@ export async function loadCheckInOperations(){const db=getSupabaseAdmin(),now=ne
   db.from("access_entitlements").select("id,name,entitlement_key,event_type,access_zone").eq("program_key",DEFAULT_PROGRAM_KEY).eq("active",true).in("entitlement_type",["event_access","seating"])
 ]);
   const rows=scans.data??[];const stats={total:rows.length,granted:rows.filter((x:any)=>x.decision.startsWith("ALLOWED")).length,denied:rows.filter((x:any)=>x.decision==="DENIED").length,alreadyUsed:rows.filter((x:any)=>x.reason_code==="TICKET_ALREADY_USED").length,checkedIn:rows.filter((x:any)=>x.entry_recorded).length};
-  return {occurrences:occurrences.data??[],zones:zones.data??[],rules:rules.data??[],scans:rows,entitlements:entitlements.data??[],stats};
+  const countBy=(label:(row:any)=>string)=>Object.entries(rows.reduce((all:Record<string,number>,row:any)=>{const key=label(row)||"Unknown";all[key]=(all[key]||0)+1;return all},{})).map(([label,count])=>({label,count})).sort((a,b)=>b.count-a.count);
+  const breakdowns={byEvent:countBy((x:any)=>x.event_occurrences?.title_override||x.event_occurrences?.events?.title),byProduct:countBy((x:any)=>x.registrations?.registration_products?.name||x.ticket_instances?.ticket_products?.name),byCredential:countBy((x:any)=>x.credential_type)};
+  return {occurrences:occurrences.data??[],zones:zones.data??[],rules:rules.data??[],scans:rows,entitlements:entitlements.data??[],stats,breakdowns};
 }
 
 export async function searchOperationalCredentials(query:string){const q=query.trim().slice(0,100);if(q.length<2)return[];const db=getSupabaseAdmin();const [{data:regs},{data:tickets}]=await Promise.all([

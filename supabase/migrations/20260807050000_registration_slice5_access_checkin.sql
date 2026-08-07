@@ -81,7 +81,7 @@ BEGIN
       END IF;
     END IF;
   ELSE
-    SELECT c.* INTO tickcred FROM ticket_credentials c WHERE h IS NOT NULL AND c.token_hash=h LIMIT 1 FOR UPDATE;
+    SELECT c.* INTO tickcred FROM ticket_credentials c WHERE (h IS NOT NULL AND c.token_hash=h) OR (p_reference ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' AND c.ticket_id::text=lower(p_reference)) LIMIT 1 FOR UPDATE;
     IF FOUND THEN
       ctype:='ticket';cid:=tickcred.id;tid:=tickcred.ticket_id;
       SELECT t.*,tp.event_occurrence_id,tp.entitlement_id,tp.name product_name INTO tick FROM ticket_instances t JOIN ticket_products tp ON tp.id=t.ticket_product_id WHERE t.id=tid FOR UPDATE;uid:=COALESCE(tick.assigned_user_id,tick.purchaser_user_id);eid:=tick.entitlement_id;prior:=tick.used_at;
