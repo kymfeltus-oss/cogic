@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
+import AttendeeDesktopNav from "@/components/navigation/AttendeeDesktopNav";
 import LiveMonetizationPanel from "@/components/live/hub/LiveMonetizationPanel";
 import LiveExperienceClient from "@/components/experience/live/LiveExperienceClient";
 import LiveRoomChatPanel from "@/components/experience/live/LiveRoomChatPanel";
@@ -100,16 +101,7 @@ export default function LiveHubClient({ data }: LiveHubClientProps) {
           </span>
         </Link>
 
-        <nav className="live-hub__desktop-nav" aria-label="Live Hub navigation">
-          <Link href="/my-convocation">Home</Link>
-          <Link href="/live" className="is-active">Live</Link>
-          <Link href="/replays">Replays</Link>
-          <Link href="/replays">On Demand</Link>
-          <Link href="/my-sanctuary">My Library</Link>
-          <Link href="/giving">Giving</Link>
-          <Link href="/program">Events</Link>
-          <Link href="/contact-us">Community</Link>
-        </nav>
+        <AttendeeDesktopNav pathname={pathname} ariaLabel="Live Hub navigation" />
 
         <div className="live-hub__account">
           <Link href="/replays" aria-label="Search published media"><Search aria-hidden="true" /></Link>

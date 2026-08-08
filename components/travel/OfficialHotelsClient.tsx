@@ -1,2 +1,127 @@
-"use client";import {useMemo,useState} from "react";import Link from "next/link";import type{TravelHotel}from "@/lib/travel/types";import{hotelAvailabilityRank}from "@/lib/travel/hotel-availability";const money=(n:number)=>`$${(n/100).toFixed(0)}`;
-export default function OfficialHotelsClient({hotels}:{hotels:TravelHotel[]}){const[checkIn,setCheckIn]=useState("2026-11-03"),[checkOut,setCheckOut]=useState("2026-11-09"),[searched,setSearched]=useState(false);const rows=useMemo(()=>hotels.map(h=>({...h,rank:searched?hotelAvailabilityRank(h.travel_hotel_room_types??[],checkIn,checkOut,h.minimum_nights):0})).sort((a,b)=>a.rank-b.rank),[hotels,checkIn,checkOut,searched]);return <><section className="mt-8 grid gap-4 rounded-3xl border border-white/15 bg-white/[.06] p-6 sm:grid-cols-4"><label className="text-lg">Destination<input readOnly value="St. Louis, Missouri" className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label><label className="text-lg">Check-in<input type="date" value={checkIn} min="2026-10-27" max="2026-11-14" onChange={e=>setCheckIn(e.target.value)} className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label><label className="text-lg">Check-out<input type="date" value={checkOut} min="2026-10-28" max="2026-11-15" onChange={e=>setCheckOut(e.target.value)} className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label><button onClick={()=>setSearched(true)} className="min-h-14 self-end rounded-xl bg-[#d8ab2e] px-5 font-bold text-black">Search Official Hotels</button></section><section className="mt-8 grid gap-5 md:grid-cols-2">{rows.map(h=><article key={h.id} className="rounded-3xl border border-white/15 bg-white/[.06] p-6"><p className="font-black tracking-[.12em] text-[#efc23e]">{h.cogic_designation==="BISHOPS"?"BISHOPS HOTEL":"OFFICIAL COGIC HOUSING"}</p><h2 className="mt-3 text-3xl font-bold">{h.name}</h2><div className="mt-4 flex flex-wrap gap-2">{h.cogic_designation==="GENERAL"?<span className="rounded-full bg-white/10 px-3 py-1">GENERAL</span>:null}{h.minimum_nights?<span className="rounded-full bg-[#d54cff]/20 px-3 py-1">{h.minimum_nights} NIGHT MINIMUM</span>:null}</div><p className="mt-5 text-2xl font-bold">FROM {h.negotiated_rate_cents!=null?money(h.negotiated_rate_cents):"—"} / NIGHT</p><p className="mt-3 leading-7 text-white/70">{h.travel_hotel_room_types?.map(r=>r.name).join(" · ")}</p>{searched?<p className={`mt-4 rounded-xl p-3 ${h.rank===0?"bg-green-400/15 text-green-200":h.rank===1?"bg-amber-300/15 text-amber-100":"bg-white/10 text-white/70"}`}>{h.rank===0?"A room type can satisfy these dates.":h.rank===1?"Partial COGIC availability is shown for these dates.":"No COGIC rooms currently shown for these dates."}</p>:null}<Link href={`/travel/hotels/${h.slug||h.id}?checkIn=${checkIn}&checkOut=${checkOut}`} className="mt-6 inline-flex min-h-12 items-center rounded-xl bg-[#5c24b5] px-5 font-bold">View Rooms & Availability</Link></article>)}</section></>}
+"use client";
+
+import { BedDouble } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { hotelAvailabilityRank } from "@/lib/travel/hotel-availability";
+import { resolveHotelImage } from "@/lib/travel/hotel-images";
+import type { TravelHotel } from "@/lib/travel/types";
+
+const money = (n: number) => `$${(n / 100).toFixed(0)}`;
+
+export default function OfficialHotelsClient({ hotels }: { hotels: TravelHotel[] }) {
+  const [checkIn, setCheckIn] = useState("2026-11-03");
+  const [checkOut, setCheckOut] = useState("2026-11-09");
+  const [searched, setSearched] = useState(false);
+  const rows = useMemo(
+    () =>
+      hotels
+        .map((hotel) => ({
+          ...hotel,
+          rank: searched
+            ? hotelAvailabilityRank(hotel.travel_hotel_room_types ?? [], checkIn, checkOut, hotel.minimum_nights)
+            : 0,
+        }))
+        .sort((a, b) => a.rank - b.rank),
+    [hotels, checkIn, checkOut, searched],
+  );
+
+  return (
+    <>
+      <section className="ct-card ct-card--primary ct-hotel-search-form" aria-label="Official hotel search">
+        <label>
+          Destination
+          <input readOnly value="St. Louis, Missouri" />
+        </label>
+        <label>
+          Check-in
+          <input type="date" value={checkIn} onChange={(event) => setCheckIn(event.target.value)} />
+        </label>
+        <label>
+          Check-out
+          <input
+            type="date"
+            value={checkOut}
+            min={checkIn || undefined}
+            onChange={(event) => setCheckOut(event.target.value)}
+          />
+        </label>
+        <button type="button" className="ct-search-submit" onClick={() => setSearched(true)}>
+          Search Official Hotels
+        </button>
+      </section>
+
+      <section className="ct-hotel-results" aria-live="polite">
+        {rows.map((hotel) => {
+          const image = resolveHotelImage(hotel);
+          const designation = hotel.cogic_designation === "BISHOPS" ? "Bishops Hotel" : "Official COGIC Housing";
+          const availabilityClass =
+            hotel.rank === 0
+              ? "ct-hotel-result-card__availability--available"
+              : hotel.rank === 1
+                ? "ct-hotel-result-card__availability--partial"
+                : "ct-hotel-result-card__availability--unavailable";
+
+          return (
+            <article key={hotel.id} className="ct-card ct-card--feature ct-hotel-result-card">
+              <div className="ct-hotel-result-card__photo">
+                {image ? (
+                  <Image src={image} fill sizes="(max-width: 768px) 100vw, 50vw" alt={hotel.name} className="object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center px-6 text-center text-sm text-white/45">
+                    Official hotel image coming soon
+                  </div>
+                )}
+                <span className="ct-hotel-result-card__official">{designation}</span>
+              </div>
+
+              <div className="ct-hotel-result-card__body">
+                <div className="ct-hotel-result-card__heading">
+                  <span className="ct-card-icon ct-card-icon--gold" aria-hidden="true">
+                    <BedDouble />
+                  </span>
+                  <div>
+                    <p className="ct-hotel-result-card__eyebrow">{designation.toUpperCase()}</p>
+                    <h2>{hotel.name}</h2>
+                  </div>
+                </div>
+
+                <div className="ct-hotel-result-card__tags">
+                  {hotel.cogic_designation === "GENERAL" ? <span>GENERAL</span> : null}
+                  {hotel.minimum_nights ? <span>{hotel.minimum_nights} NIGHT MINIMUM</span> : null}
+                </div>
+
+                <p className="ct-rate-chip">
+                  Official COGIC rate
+                  <strong>FROM {hotel.negotiated_rate_cents != null ? money(hotel.negotiated_rate_cents) : "\u2014"} / NIGHT</strong>
+                </p>
+
+                <p className="ct-hotel-result-card__rooms">
+                  {hotel.travel_hotel_room_types?.map((room) => room.name).join(" \u00b7 ")}
+                </p>
+
+                {searched ? (
+                  <p className={`ct-hotel-result-card__availability ${availabilityClass}`}>
+                    {hotel.rank === 0
+                      ? "A room type can satisfy these dates."
+                      : hotel.rank === 1
+                        ? "Partial COGIC availability is shown for these dates."
+                        : "No COGIC rooms currently shown for these dates."}
+                  </p>
+                ) : null}
+
+                <Link
+                  href={`/travel/hotels/${hotel.slug || hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}`}
+                  className="ct-hotel-result-card__cta"
+                >
+                  View Rooms &amp; Availability
+                </Link>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+    </>
+  );
+}

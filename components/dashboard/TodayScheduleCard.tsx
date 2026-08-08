@@ -25,7 +25,7 @@ export default function TodayScheduleCard({
           {schedule.map((item) => (
             <article
               key={item.occurrenceKey}
-              className={`cl-rail__card${item.isLiveNow ? " is-live" : ""}`}
+              className={`cl-card cl-card--tier-3 cl-rail__card${item.isLiveNow ? " is-live" : ""}`}
               role="listitem"
             >
               <div className="cl-rail__time">
@@ -39,7 +39,7 @@ export default function TodayScheduleCard({
           ))}
         </div>
       ) : (
-        <div className="cl-empty-panel">
+        <div className="cl-card cl-card--tier-3 cl-empty-panel">
           <CalendarDays aria-hidden="true" className="size-6" />
           <strong>No events are scheduled today.</strong>
           <p>

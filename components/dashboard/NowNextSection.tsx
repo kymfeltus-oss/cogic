@@ -42,7 +42,7 @@ export default function NowNextSection({
       }
     >
       <div className="cl-now-next">
-        <article className={`cl-now-next__card${live.isLive ? " is-live" : ""}`}>
+        <article className={`cl-card cl-card--tier-3 cl-now-next__card${live.isLive ? " is-live" : ""}`}>
           <p className="cl-now-next__label">Now</p>
           <h3 className="cl-now-next__title">{nowTitle}</h3>
           <p className="cl-now-next__meta">{nowMeta}</p>
@@ -52,7 +52,7 @@ export default function NowNextSection({
           </Link>
         </article>
 
-        <article className="cl-now-next__card">
+        <article className="cl-card cl-card--tier-3 cl-now-next__card">
           <p className="cl-now-next__label">Next</p>
           <h3 className="cl-now-next__title">{nextTitle ?? "No next event listed"}</h3>
           <p className="cl-now-next__meta">{nextMeta}</p>

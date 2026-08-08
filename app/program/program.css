@@ -1,6 +1,6 @@
 ﻿.convocation-program-shell {
   min-height: 100dvh;
-  background: #050507;
+  background: transparent;
   color: #f5f7fb;
 }
 
@@ -17,9 +17,10 @@
 .convocation-program-kicker {
   margin: 0 0 0.35rem;
   font-size: 0.875rem;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #9aa3b2;
+  color: #f2b51f;
 }
 
 .convocation-program-title {
@@ -62,12 +63,18 @@
 .convocation-program-filter-select {
   min-height: 2.75rem;
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--cogic-border-default, rgba(255, 255, 255, 0.12));
   border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgb(11 16 32 / 78%);
   color: #f5f7fb;
   padding: 0.625rem 0.875rem;
   font-size: 1rem;
+}
+.convocation-program-search-input:focus,
+.convocation-program-filter-select:focus {
+  outline: 2px solid rgb(217 70 239 / 55%);
+  outline-offset: 2px;
+  border-color: rgb(59 130 246 / 55%);
 }
 
 .convocation-program-search-input {
@@ -96,8 +103,10 @@
 }
 
 .convocation-program-btn-primary {
-  background: #1f6feb;
-  border-color: #1f6feb;
+  background: var(--brand-ombre-active, var(--brand-ombre));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--brand-ombre-glow);
 }
 
 .convocation-program-btn-secondary {
@@ -109,7 +118,7 @@
 }
 
 .convocation-program-btn:focus-visible {
-  outline: 2px solid #7cb7ff;
+  outline: 2px solid rgb(59 130 246 / 75%);
   outline-offset: 2px;
 }
 
@@ -134,9 +143,10 @@
 }
 
 .convocation-program-day-link[aria-current="true"] {
-  background: rgba(31, 111, 235, 0.18);
-  border-color: rgba(127, 183, 255, 0.55);
-  color: #f5f7fb;
+  background: var(--brand-ombre-active, var(--brand-ombre));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--brand-ombre-glow);
 }
 
 .convocation-program-result-count {
@@ -163,10 +173,23 @@
 }
 
 .convocation-program-card {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+  border: 1px solid var(--cogic-border-default, rgba(255, 255, 255, 0.12));
   border-radius: 1rem;
   padding: 1rem 1.125rem;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--cogic-card-surface, rgba(15, 18, 36, 0.96));
+  box-shadow: var(--cogic-shadow-card);
+}
+.convocation-program-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: var(--brand-ombre-edge);
+  opacity: .65;
+  pointer-events: none;
 }
 
 .convocation-program-card-header {

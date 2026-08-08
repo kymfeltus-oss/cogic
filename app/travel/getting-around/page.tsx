@@ -1,1 +1,49 @@
-import {TravelShell} from "@/components/travel/TravelShell";import {publicTravelInfo} from "@/lib/travel/repository";export const dynamic="force-dynamic";export default async function Page(){const x=await publicTravelInfo();return <TravelShell back><h1 className="mt-8 text-5xl font-black">Getting Around St. Louis</h1><p className="mt-3 text-xl text-white/70">Airport, shuttle, transit, parking, and COGIC transportation guidance.</p>{[{title:"Airport Information",rows:x.airports},{title:"Ground Transportation",rows:x.transport},{title:"Travel Announcements",rows:x.announcements}].map(s=><section key={s.title} className="mt-10"><h2 className="text-3xl font-bold">{s.title}</h2><div className="mt-4 grid gap-4">{s.rows.map((r:any)=><article key={r.id} className="rounded-2xl border border-white/15 bg-white/[.05] p-6"><h3 className="text-2xl font-bold">{r.name||r.title}</h3><p className="mt-2 whitespace-pre-wrap text-lg leading-8 text-white/75">{r.guidance||r.description||r.body}</p>{r.url?<a href={r.url} className="mt-4 inline-block underline">Learn more</a>:null}</article>)}{!s.rows.length?<p className="text-white/60">No published information yet.</p>:null}</div></section>)}</TravelShell>}
+import { TravelShell } from "@/components/travel/TravelShell";
+import { publicTravelInfo } from "@/lib/travel/repository";
+
+export const dynamic = "force-dynamic";
+
+type TravelInfoRow = {
+  id: string;
+  name?: string | null;
+  title?: string | null;
+  guidance?: string | null;
+  description?: string | null;
+  body?: string | null;
+  url?: string | null;
+};
+
+export default async function Page() {
+  const travelInfo = await publicTravelInfo();
+  const sections: { title: string; rows: TravelInfoRow[] }[] = [
+    { title: "Airport Information", rows: travelInfo.airports },
+    { title: "Ground Transportation", rows: travelInfo.transport },
+    { title: "Travel Announcements", rows: travelInfo.announcements },
+  ];
+
+  return (
+    <TravelShell back>
+      <div className="ct-route-heading">
+        <p className="ct-travel-eyebrow">COGIC TRAVEL</p>
+        <h1>Getting Around St. Louis</h1>
+        <p>Airport, shuttle, transit, parking, and COGIC transportation guidance.</p>
+      </div>
+
+      {sections.map((section) => (
+        <section key={section.title} className="ct-info-section">
+          <h2>{section.title}</h2>
+          <div className="ct-info-list">
+            {section.rows.map((row) => (
+              <article key={row.id} className="ct-card ct-card--feature ct-info-card">
+                <h3>{row.name || row.title}</h3>
+                <p>{row.guidance || row.description || row.body}</p>
+                {row.url ? <a href={row.url}>Learn more</a> : null}
+              </article>
+            ))}
+            {!section.rows.length ? <p className="ct-empty-info">No published information yet.</p> : null}
+          </div>
+        </section>
+      ))}
+    </TravelShell>
+  );
+}

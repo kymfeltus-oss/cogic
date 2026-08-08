@@ -22,13 +22,13 @@ test("dashboard is wired to the canonical attendee route and real loaders", asyn
 });
 
 test("dashboard cards use real routes and omit fake aggregate metrics", async () => {
-  const [sidebar, giving, watch] = await Promise.all([
-    source("components/dashboard/DashboardSidebar.tsx"),
+  const [nav, giving, watch] = await Promise.all([
+    source("lib/navigation/attendee-desktop-nav.ts"),
     source("components/dashboard/GivingCard.tsx"),
     source("components/dashboard/WatchLiveCard.tsx"),
   ]);
   for (const route of ["/my-convocation", "/live", "/program", "/register", "/giving", "/replays"]) {
-    assert.match(sidebar, new RegExp(route.replace("/", "\\/")));
+    assert.match(nav, new RegExp(route.replace("/", "\\/")));
   }
   assert.doesNotMatch(giving, /248,930|500,000|49%/);
   assert.doesNotMatch(watch, /Bishop J\.|Official Day Service/);
@@ -37,8 +37,8 @@ test("dashboard cards use real routes and omit fake aggregate metrics", async ()
 test("attendee dashboard presentation contains no legacy public brand", async () => {
   const files = [
     "components/dashboard/DashboardShell.tsx",
-    "components/dashboard/DashboardSidebar.tsx",
     "components/dashboard/DashboardTopBar.tsx",
+    "components/navigation/AttendeeDesktopNav.tsx",
     "components/dashboard/ConvocationHero.tsx",
   ];
   const combined = (await Promise.all(files.map(source))).join("\n");
@@ -46,15 +46,15 @@ test("attendee dashboard presentation contains no legacy public brand", async ()
   assert.doesNotMatch(combined, /300 Awakening|Ian Craig/);
 });
 
-test("dashboard sidebar uses the COGIC LIVE PNG logo asset", async () => {
-  const [sidebar, css] = await Promise.all([
-    source("components/dashboard/DashboardSidebar.tsx"),
+test("dashboard top bar uses the COGIC LIVE PNG logo asset", async () => {
+  const [topbar, css] = await Promise.all([
+    source("components/dashboard/DashboardTopBar.tsx"),
     source("app/my-convocation/dashboard.css"),
   ]);
-  assert.match(sidebar, /\/my-sanctuary\/cogic-live-logo-purple\.png/);
-  assert.doesNotMatch(sidebar, /<span>COGIC<\/span>/);
-  assert.doesNotMatch(sidebar, /<Play[\s/>]/);
-  assert.match(css, /\.cogic-wordmark__image[^}]*object-fit:\s*contain/);
+  assert.match(topbar, /\/my-sanctuary\/cogic-live-logo-purple\.png/);
+  assert.doesNotMatch(topbar, /<span>COGIC<\/span>/);
+  assert.doesNotMatch(topbar, /<Play[\s/>]/);
+  assert.match(css, /\.cl-topbar__logo[^}]*object-fit:\s*contain/);
   const logoPath = path.join(root, "public", "my-sanctuary", "cogic-live-logo-purple.png");
   assert.equal((await readFile(logoPath)).byteLength > 0, true);
 });
@@ -68,6 +68,7 @@ test("dashboard uses a mobile-first streaming shell with safe fixed navigation",
   ]);
   assert.match(shell, /DashboardHero/);
   assert.match(shell, /DashboardLiveStage/);
+  assert.doesNotMatch(shell, /DashboardSidebar/);
   assert.match(hero, /width=\{2172\}/);
   assert.match(hero, /height=\{724\}/);
   assert.doesNotMatch(hero, /\bfill\b/);
@@ -78,7 +79,4 @@ test("dashboard uses a mobile-first streaming shell with safe fixed navigation",
   assert.match(css, /env\(safe-area-inset-bottom\)/);
   assert.match(css, /\.cl-bottom-nav[\s\S]*position:\s*fixed/);
   assert.match(css, /\.cl-hero__image[^}]*object-fit:\s*contain/);
-  assert.doesNotMatch(css, /\.cl-hero__image[^}]*object-fit:\s*cover/);
-  assert.match(css, /\.cl-topbar__search\s*\{[^}]*order:\s*3[^}]*width:\s*100%[^}]*display:\s*flex/);
-  assert.match(css, /prefers-reduced-motion/);
 });

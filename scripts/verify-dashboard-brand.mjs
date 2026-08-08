@@ -35,13 +35,19 @@ try {
     await page.setViewportSize({ width, height });
     const response = await page.goto(`${baseUrl}/my-convocation`, { waitUntil: "domcontentloaded", timeout: 20_000 });
     await page.waitForSelector(".cl-dash", { timeout: 10_000 });
+    await page.getByRole("button", { name: "Open attendee profile" }).click();
+    const profileDialog = page.locator('[role="dialog"][aria-modal="true"]');
+    await profileDialog.waitFor({ state: "visible", timeout: 10_000 });
+    const profileControlFunctional = await profileDialog.isVisible();
+    const closeProfile = profileDialog.getByRole("button", { name: "Close", exact: true });
+    await closeProfile.waitFor({ state: "visible", timeout: 10_000 });
+    await closeProfile.click();
     const searchInput = page.locator('.cl-topbar__search input[type="search"]');
     await searchInput.fill("live");
-    const searchResultsFunctional = await page.locator('.cl-topbar__search-results a[href="/live"]').isVisible();
+    const liveSearchResult = page.locator('.cl-topbar__search-results a[href="/live"]');
+    await liveSearchResult.waitFor({ state: "visible", timeout: 10_000 });
+    const searchResultsFunctional = await liveSearchResult.isVisible();
     await searchInput.fill("");
-    await page.getByRole("button", { name: "Open attendee profile" }).click();
-    const profileControlFunctional = await page.locator('[role="dialog"][aria-modal="true"]').isVisible();
-    await page.getByRole("button", { name: "Close", exact: true }).click();
     const result = await page.evaluate(async () => {
       const dashboard = document.querySelector(".cl-dash");
       const nav = document.querySelector(".cl-bottom-nav");
@@ -49,7 +55,8 @@ try {
       const watchLive = document.querySelector('.cl-bottom-nav a[href="/live"]');
       const mobile = window.innerWidth <= 720;
       const navStyle = nav ? getComputedStyle(nav) : null;
-      const tabletRailEvent = document.querySelector(".cl-sidebar__event");
+      const desktopTopNav = document.querySelector(".cl-topnav");
+      const sideRail = document.querySelector(".cl-sidebar");
       const touchTargets = [...document.querySelectorAll(".cl-bottom-nav a")].map((node) => node.getBoundingClientRect());
       if (mobile) {
         window.scrollTo(0, document.documentElement.scrollHeight);
@@ -57,6 +64,9 @@ try {
       }
       const finalContent = document.querySelector(".cl-feature-grid")?.lastElementChild?.getBoundingClientRect();
       const navRect = nav?.getBoundingClientRect();
+      const topNavVisible = Boolean(
+        desktopTopNav && getComputedStyle(desktopTopNav).display !== "none",
+      );
       return {
         dashboard: Boolean(dashboard),
         horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth + 1,
@@ -66,7 +76,8 @@ try {
         touchTargets: !mobile || touchTargets.every((rect) => rect.width >= 44 && rect.height >= 44),
         contentHiddenBehindNav: Boolean(mobile && finalContent && navRect && finalContent.bottom > navRect.top),
         semanticHeading: Boolean(document.querySelector("main h1, main h2, .cl-dash__main h1, .cl-dash__main h2")),
-        tabletRailClean: window.innerWidth <= 720 || window.innerWidth > 1180 || !tabletRailEvent || getComputedStyle(tabletRailEvent).display === "none",
+        desktopTopNav: mobile ? !topNavVisible : topNavVisible,
+        noSideRail: !sideRail || getComputedStyle(sideRail).display === "none",
       };
     });
     result.searchResultsFunctional = searchResultsFunctional;
@@ -80,7 +91,8 @@ try {
       && result.touchTargets
       && !result.contentHiddenBehindNav
       && result.semanticHeading
-      && result.tabletRailClean
+      && result.desktopTopNav
+      && result.noSideRail
       && result.searchResultsFunctional
       && result.profileControlFunctional;
     results.push({ name, width, height, status: response?.status() ?? 0, passed, ...result });

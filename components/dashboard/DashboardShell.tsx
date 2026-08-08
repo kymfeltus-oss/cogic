@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProfileEditorModal from "@/components/profile/ProfileEditorModal";
-import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
 import DashboardHero from "@/components/dashboard/DashboardHero";
 import DashboardLiveStage from "@/components/dashboard/DashboardLiveStage";
@@ -48,8 +47,6 @@ export default function DashboardShell({
 
   return (
     <div className="cl-dash">
-      <DashboardSidebar homeHref="/my-convocation" pathname={pathname} />
-
       <div className="cl-dash__stage">
         <DashboardTopBar
           profile={profile}
@@ -71,7 +68,7 @@ export default function DashboardShell({
             <StayConnectedPrompt signedIn={Boolean(profile.userId)} />
 
             <DashboardSection eyebrow="Explore COGIC LIVE" title="Your experience">
-              <div className="cl-action-grid cl-action-grid--six">
+              <div className="cl-action-grid cl-action-grid--features">
                 <MyConvocationCard
                   registration={data.registration}
                   signedIn={Boolean(profile.userId)}
@@ -79,13 +76,25 @@ export default function DashboardShell({
                 <GivingCard />
                 <TravelProgressCard />
                 <AnnouncementsCard />
-                <DashboardLinkCard eyebrow="COGIC Tube" title="Watch again" body="On-demand sermons, replays, and more." href="/replays" action="Watch now" secondaryAction="Browse all" icon={PlaySquare} />
-                <DashboardLinkCard eyebrow="Prayer Room" title="Find strength" body="Prayer resources for the Convocation journey." href="/prayer" action="Enter prayer room" secondaryAction="Prayer resources" icon={Headphones} tone="gold" />
-                <DashboardLinkCard eyebrow="COGIC Connect" title="Connect with COGIC" body="Reach the team and find your next step." href="/contact-us" action="Get connected" secondaryAction="Contact COGIC" icon={UsersRound} />
+                <DashboardLinkCard eyebrow="COGIC Tube" title="Watch again" body="On-demand sermons, replays, and more." href="/replays" action="Watch now" icon={PlaySquare} />
+                <DashboardLinkCard eyebrow="Prayer Room" title="Find strength" body="Prayer resources for the Convocation journey." href="/prayer" action="Enter Prayer Room" icon={Headphones} tone="gold" />
+                <DashboardLinkCard eyebrow="COGIC Connect" title="Connect with COGIC" body="Reach the team and find your next step." href="/contact-us" action="Open Connect" icon={UsersRound} />
               </div>
             </DashboardSection>
-            {profile.userId?<DashboardSection eyebrow="Event admission" title="My Tickets"><TicketStoreClient compact/></DashboardSection>:null}
-            {profile.userId?<DashboardSection eyebrow="Accommodation" title="My Housing"><HousingExperience compact/></DashboardSection>:null}
+            {profile.userId ? (
+              <DashboardSection eyebrow="Event admission" title="My Tickets">
+                <div className="cl-card cl-card--tier-2 cl-card--compact">
+                  <TicketStoreClient compact />
+                </div>
+              </DashboardSection>
+            ) : null}
+            {profile.userId ? (
+              <DashboardSection eyebrow="Accommodation" title="My Housing">
+                <div className="cl-card cl-card--tier-2 cl-card--compact">
+                  <HousingExperience compact />
+                </div>
+              </DashboardSection>
+            ) : null}
 
           </div>
         </main>

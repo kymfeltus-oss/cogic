@@ -10,15 +10,15 @@ async function source(relativePath: string) {
 }
 
 test("Watch Live attendee nav routes to /live", async () => {
-  const [mobileNav, sidebar, bottomNav, watchCard, liveNav] = await Promise.all([
+  const [mobileNav, desktopNav, bottomNav, watchCard, liveNav] = await Promise.all([
     source("components/dashboard/DashboardMobileNav.tsx"),
-    source("components/dashboard/DashboardSidebar.tsx"),
+    source("lib/navigation/attendee-desktop-nav.ts"),
     source("lib/navigation/bottom-nav-config.ts"),
     source("components/dashboard/WatchLiveCard.tsx"),
     source("lib/experience/useAttendeeLiveNavTarget.ts"),
   ]);
   assert.match(mobileNav, /Watch Live[\s\S]*href:\s*"\/live"/);
-  assert.match(sidebar, /Watch Live[\s\S]*href:\s*"\/live"/);
+  assert.match(desktopNav, /label:\s*"Live"[\s\S]*href:\s*"\/live"/);
   assert.match(bottomNav, /Watch Live[\s\S]*href:\s*"\/live"/);
   assert.match(watchCard, /href="\/live"/);
   assert.match(liveNav, /EXPERIENCE_LIVE_PATH/);

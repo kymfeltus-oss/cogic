@@ -30,6 +30,13 @@ export default function GivingQuickAmounts({
           </button>
         );
       })}
+      <button
+        type="button"
+        className="cogic-giving-quick__btn cogic-giving-quick__btn--custom touch-target"
+        onClick={() => document.getElementById("cogic-giving-amount-input")?.focus()}
+      >
+        Other
+      </button>
     </div>
   );
 }

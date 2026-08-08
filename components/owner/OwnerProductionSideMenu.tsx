@@ -70,6 +70,13 @@ const PRODUCTION_NAV_ITEMS = [
     icon: Video,
   },
   {
+    id: "replays",
+    label: "Media / Replays",
+    eyebrow: "Published recordings",
+    href: "/owner/replays",
+    icon: Play,
+  },
+  {
     id: "archives",
     label: "Archives",
     eyebrow: "Year collections",
@@ -100,10 +107,10 @@ export default function OwnerProductionSideMenu({ active }: OwnerProductionSideM
   return (
     <nav
       aria-label="Production side navigation"
-      className="shrink-0 rounded-[6px] border border-white/10 bg-[#050814]/94 p-2 shadow-[0_0_28px_rgba(0,168,255,0.08)] xl:sticky xl:top-2 xl:h-[calc(100dvh-1rem)] xl:w-48"
+      className="brand-card brand-card--data shrink-0 rounded-[6px] border border-white/10 p-2 xl:sticky xl:top-2 xl:h-[calc(100dvh-1rem)] xl:w-48"
     >
       <div className="hidden border-b border-white/10 px-2 pb-3 xl:block">
-        <p className="font-ui text-[0.54rem] font-black uppercase tracking-[0.16em] text-[#00a8ff]">
+        <p className="font-ui text-[0.54rem] font-black uppercase tracking-[0.16em] text-[#c62a9b]">
           Production
         </p>
         <p className="mt-1 font-headline text-lg uppercase leading-none text-white">
@@ -122,15 +129,15 @@ export default function OwnerProductionSideMenu({ active }: OwnerProductionSideM
               aria-current={isActive ? "page" : undefined}
               className={`group flex min-h-12 min-w-[9.75rem] items-center gap-2 rounded-md border px-2.5 py-2 transition xl:min-w-0 ${
                 isActive
-                  ? "border-[#00a8ff]/55 bg-[#00a8ff]/12 text-white shadow-[0_0_18px_rgba(0,168,255,0.18)]"
-                  : "border-white/8 bg-black/24 text-white/70 hover:border-[#00a8ff]/35 hover:bg-[#00a8ff]/8 hover:text-white"
+                  ? "border-[#c62a9b]/55 bg-[linear-gradient(110deg,rgba(84,21,127,0.28),rgba(198,42,155,0.22))] text-white shadow-[0_0_18px_rgba(198,42,155,0.18)]"
+                  : "border-white/8 bg-black/24 text-white/70 hover:border-[#8b39d0]/35 hover:bg-[rgba(114,39,179,0.12)] hover:text-white"
               }`}
             >
               <span
                 className={`grid h-8 w-8 shrink-0 place-items-center rounded border ${
                   isActive
-                    ? "border-[#00a8ff]/55 bg-[#00a8ff]/15 text-[#00a8ff]"
-                    : "border-white/10 bg-white/[0.03] text-white/55 group-hover:text-[#00a8ff]"
+                    ? "border-[#c62a9b]/55 bg-[rgba(114,39,179,0.22)] text-[#e9d5ff]"
+                    : "border-white/10 bg-white/[0.03] text-white/55 group-hover:text-[#e9d5ff]"
                 }`}
               >
                 <Icon className="h-4 w-4" />

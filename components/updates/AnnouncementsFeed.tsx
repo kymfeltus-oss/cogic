@@ -53,7 +53,13 @@ export default function AnnouncementsFeed() {
   }, []);
 
   useEffect(() => {
-    void load();
+    // Start after the effect has committed. This keeps the data request out of
+    // React's synchronous effect phase while still loading immediately.
+    const requestId = window.setTimeout(() => {
+      void load();
+    }, 0);
+
+    return () => window.clearTimeout(requestId);
   }, [load]);
 
   async function markRead(id: string) {
@@ -91,7 +97,7 @@ export default function AnnouncementsFeed() {
 
   if (items === null) {
     return (
-      <p className="rounded-2xl border border-white/10 bg-[#111111]/80 px-5 py-8 text-center text-sm text-zinc-400" role="status">
+      <p className="brand-card brand-card--info px-5 py-8 text-center text-sm text-zinc-400" role="status">
         Loading updates…
       </p>
     );
@@ -99,7 +105,7 @@ export default function AnnouncementsFeed() {
 
   if (error) {
     return (
-      <p className="rounded-2xl border border-red-400/30 bg-red-950/30 px-5 py-8 text-center text-sm text-red-100" role="alert">
+      <p className="brand-card brand-card--info border-red-400/30 bg-red-950/30 px-5 py-8 text-center text-sm text-red-100" role="alert">
         {error}
       </p>
     );
@@ -108,7 +114,7 @@ export default function AnnouncementsFeed() {
   if (items.length === 0) {
     return (
       <section
-        className="rounded-2xl border border-white/10 bg-[#111111]/80 px-5 py-10 text-center"
+        className="brand-card brand-card--info px-5 py-10 text-center"
         aria-labelledby="updates-empty-heading"
       >
         <BellOff className="mx-auto h-10 w-10 text-zinc-500" aria-hidden="true" />
@@ -140,7 +146,7 @@ export default function AnnouncementsFeed() {
             type="button"
             disabled={marking}
             onClick={() => void markAllRead()}
-            className="min-h-11 rounded-md border border-white/20 px-4 text-xs font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50"
+            className="brand-card__cta min-h-11 px-4 text-xs font-bold uppercase tracking-[0.12em] text-white disabled:opacity-50"
           >
             Mark all as read
           </button>
@@ -151,7 +157,7 @@ export default function AnnouncementsFeed() {
         {items.map((item) => (
           <li key={item.id}>
             <article
-              className={`rounded-2xl border px-4 py-4 sm:px-5 ${priorityClass(item.priority)}`}
+              className={`brand-card brand-card--feature px-4 py-4 sm:px-5 ${priorityClass(item.priority)}`}
               aria-labelledby={`announcement-${item.id}-title`}
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
@@ -209,7 +215,7 @@ export default function AnnouncementsFeed() {
                 {item.ctaHref && item.ctaLabel ? (
                   <Link
                     href={item.ctaHref}
-                    className="brand-ombre-bg inline-flex min-h-11 items-center justify-center rounded-md px-4 text-xs font-bold uppercase tracking-[0.12em] text-white"
+                    className="brand-card__cta inline-flex min-h-11 items-center justify-center px-4 text-xs font-bold uppercase tracking-[0.12em] text-white"
                   >
                     {item.ctaLabel}
                   </Link>
@@ -218,7 +224,7 @@ export default function AnnouncementsFeed() {
                   <button
                     type="button"
                     onClick={() => void markRead(item.id)}
-                    className="inline-flex min-h-11 items-center justify-center rounded-md border border-white/25 px-4 text-xs font-bold uppercase tracking-[0.12em] text-white"
+                    className="glass-panel inline-flex min-h-11 items-center justify-center rounded-md border border-white/25 px-4 text-xs font-bold uppercase tracking-[0.12em] text-white"
                   >
                     Mark as read
                   </button>

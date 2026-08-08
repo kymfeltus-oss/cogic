@@ -12,6 +12,25 @@ const FUND_ICONS: Record<GivingFundKey, LucideIcon> = {
   general_fund: Church,
 };
 
+const FUND_COPY: Record<GivingFundKey, { title: string; description: string }> = {
+  tithes: {
+    title: "Tithes & Offerings",
+    description: "Support the everyday ministries and operations of the church.",
+  },
+  offering: {
+    title: "Offering",
+    description: "Strengthen the work of the church and its ministries.",
+  },
+  missions: {
+    title: "Missions & Outreach",
+    description: "Spread the Gospel and serve communities around the world.",
+  },
+  general_fund: {
+    title: "General Fund",
+    description: "Direct support where ministry needs are greatest.",
+  },
+};
+
 type GivingFundSelectorProps = {
   selected: GivingFundKey;
   onSelect: (key: GivingFundKey) => void;
@@ -32,6 +51,7 @@ export default function GivingFundSelector({
         {funds.map((fund) => {
           const Icon = FUND_ICONS[fund.key];
           const pressed = selected === fund.key;
+          const copy = FUND_COPY[fund.key];
           return (
             <button
               key={fund.key}
@@ -41,7 +61,8 @@ export default function GivingFundSelector({
               onClick={() => onSelect(fund.key)}
             >
               <Icon className="size-5" aria-hidden="true" />
-              <span>{fund.label}</span>
+              <span className="cogic-giving-fund__title">{copy.title}</span>
+              <small>{copy.description}</small>
             </button>
           );
         })}

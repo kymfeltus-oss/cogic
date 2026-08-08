@@ -6,6 +6,7 @@ import {
   COGIC_STREAM_SITE_DESCRIPTION,
 } from "@/lib/brand/public-display";
 import "./globals.css";
+import "./my-convocation/dashboard.css";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",

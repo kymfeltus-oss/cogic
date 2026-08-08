@@ -1,0 +1,12 @@
+Use case: identity-preserve
+Asset type: foreground group cutout for a 3:1 COGIC Convocation website banner.
+
+Input image 1 is the identity reference and edit target. Transform the people shown in Image 1 into one cohesive, photorealistic, full-standing formal group portrait. Extend every pictured bishop naturally downward so the group is visible from head to below the knee or feet, standing on a shared baseline. Preserve every person's recognizable face, expression, glasses, facial hair, skin tone, hairstyle, age, and individual black clerical suit with white collar and purple or magenta vestment. Preserve the exact group shown in Image 1: no additional people and no missing people. Keep the central foreground bishop slightly forward and prominent.
+
+Scene/backdrop: a perfectly flat, solid #00ff00 chroma-key green background for later removal. No scenery, no props, no horizon, no floor plane, no texture, no reflections, no shadows, and no gradients.
+
+Style and composition: wide 2:1 group portrait, realistic human proportions and standing posture, all heads and feet fully within frame, generous padding around the group, polished photographic edge detail. Use soft neutral studio light with only a subtle cool-blue and magenta rim light so the group can blend into a night neon banner later.
+
+Constraints: change only the people needed to complete their bodies. Remove the embedded source lettering and large white graphic entirely. This image will be composited in front of the St. Louis Arch and behind foreground purple/blue light swirls. Do not generate banner text, logos, a city, an arch, decorative swirls, a background, or a watermark.
+
+Avoid: altered or duplicated faces, extra or omitted people, incorrect hands or limbs, malformed bodies, changed clothing, cropped heads or feet, green clothing, any text, any logo, any watermark, any cast shadow, or any floor.

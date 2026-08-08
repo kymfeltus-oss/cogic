@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, LoaderCircle } from "lucide-react";
+import { LoaderCircle, LockKeyhole } from "lucide-react";
 
 type GivingSubmitButtonProps = {
   disabled: boolean;
@@ -25,8 +25,8 @@ export default function GivingSubmitButton({
         </>
       ) : (
         <>
-          Give Now
-          <ArrowRight className="cogic-giving-submit__arrow size-5" aria-hidden="true" />
+          Continue to Give
+          <LockKeyhole className="cogic-giving-submit__arrow size-4" aria-hidden="true" />
         </>
       )}
     </button>

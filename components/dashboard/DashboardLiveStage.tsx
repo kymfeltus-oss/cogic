@@ -12,7 +12,7 @@ export default function DashboardLiveStage({
   live: AttendeeDashboardData["live"];
 }) {
   return (
-    <article className={`cl-live-stage${live.isLive ? " is-live" : ""}`}>
+    <article className={`cl-card cl-card--tier-1 cl-card--live cl-live-stage${live.isLive ? " is-live" : ""}`}>
       <div className="cl-live-stage__header">
         <span className={`cl-pill ${live.isLive ? "cl-pill--live" : "cl-pill--ready"}`}>
           {live.isLive ? <i className="cl-pill__pulse" aria-hidden="true" /> : null}

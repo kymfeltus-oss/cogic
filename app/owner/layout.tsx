@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./owner.css";
 
 export const metadata: Metadata = {
   title: "Owner | COGIC LIVE",
@@ -6,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function OwnerLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <div className="owner-brand-shell relative z-[1] min-h-dvh text-white">{children}</div>;
 }

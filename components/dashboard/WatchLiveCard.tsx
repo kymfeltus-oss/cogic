@@ -5,7 +5,7 @@ import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashbo
 /** Compact live shortcut for the action grid (hero owns the cinematic treatment). */
 export default function WatchLiveCard({ live }: { live: AttendeeDashboardData["live"] }) {
   return (
-    <article className={`cl-action-card${live.isLive ? " cl-action-card--live" : ""}`}>
+    <article className={`cl-card cl-card--tier-1 cl-action-card${live.isLive ? " cl-action-card--live" : ""}`}>
       <div className="cl-action-card__icon">
         {live.isLive ? <Play aria-hidden="true" /> : <Radio aria-hidden="true" />}
       </div>

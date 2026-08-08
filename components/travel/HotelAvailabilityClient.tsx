@@ -1,18 +1,155 @@
 "use client";
+
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import type { TravelHotel } from "@/lib/travel/types";
 import { roomForStay, stayDates } from "@/lib/travel/hotel-availability";
-const money=(n:number)=>`$${(n/100).toFixed(0)}`;
-const calendarDates=Array.from({length:14},(_,i)=>`2026-11-${String(i+1).padStart(2,"0")}`);
-export default function HotelAvailabilityClient({hotel,initialCheckIn,initialCheckOut}:{hotel:TravelHotel;initialCheckIn:string;initialCheckOut:string}){
- const[checkIn,setCheckIn]=useState(initialCheckIn),[checkOut,setCheckOut]=useState(initialCheckOut),[busy,setBusy]=useState(false),[error,setError]=useState("");
- const rooms=hotel.travel_hotel_room_types??[],dates=useMemo(()=>stayDates(checkIn,checkOut),[checkIn,checkOut]);
- async function startBooking(){setBusy(true);setError("");const r=await fetch("/api/travel/hotel-booking/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({hotelId:hotel.id,checkIn,checkOut})});const j=await r.json();if(!r.ok){if(j.loginUrl){window.location.href=j.loginUrl;return}setError(j.error||"Unable to continue.");setBusy(false);return}window.location.href=j.redirectTo}
- return <section className="mt-10"><h2 className="text-3xl font-bold">COGIC Published Availability</h2><p className="mt-2 text-white/65">Availability reflects the latest COGIC housing information loaded into COGIC Travel and may change. It is not real-time inventory.</p>
- <div className="mt-6 grid gap-4 rounded-2xl border border-white/15 bg-white/[.05] p-5 sm:grid-cols-3"><label className="text-lg">Check-in<input type="date" value={checkIn} min="2026-10-27" max="2026-11-14" onChange={e=>setCheckIn(e.target.value)} className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label><label className="text-lg">Check-out<input type="date" value={checkOut} min="2026-10-28" max="2026-11-15" onChange={e=>setCheckOut(e.target.value)} className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label><div className="self-end rounded-xl bg-white/10 p-4">{dates.length?`${dates.length} nights`:"Choose a valid stay"}</div></div>
- {hotel.minimum_nights&&dates.length>0&&dates.length<hotel.minimum_nights?<p role="alert" className="mt-4 rounded-xl bg-amber-300/15 p-4">This listing requires a minimum stay of {hotel.minimum_nights} nights.</p>:null}
- <div className="mt-7 grid gap-4">{rooms.map(room=>{const stay=roomForStay(room,checkIn,checkOut,hotel.minimum_nights);return <article key={room.id} className="rounded-2xl border border-white/15 bg-white/[.05] p-5"><div className="flex flex-wrap justify-between gap-4"><div><h3 className="text-2xl font-bold">{room.name}</h3><p className="text-xl text-[#efc23e]">{money(room.nightly_rate_cents)} / night when available</p></div>{stay?<div className="text-right"><strong className="text-2xl">{money(stay.subtotalCents)}</strong><p>Estimated subtotal · {stay.nights} nights</p></div>:<p className="rounded-xl bg-white/10 p-3">No COGIC rooms currently shown for these dates.</p>}</div>{stay?<p className="mt-4 text-sm text-white/60">Before taxes and hotel fees. This is not a reservation.</p>:<div className="mt-4 flex gap-4"><Link href="/travel/hotels" className="underline">View Other Official Hotels</Link><a href="mailto:housing@cogic.org" className="underline">Contact COGIC Housing</a></div>}</article>})}</div>
- <div className="mt-8 overflow-x-auto rounded-2xl border border-white/15"><table className="min-w-[760px] w-full"><caption className="p-4 text-left text-2xl font-bold">November 2026 availability calendar</caption><thead><tr><th className="p-3 text-left">Room type</th>{calendarDates.map(d=><th key={d}>{Number(d.slice(-2))}</th>)}</tr></thead><tbody>{rooms.map(room=><tr key={room.id} className="border-t border-white/10"><th className="p-3 text-left">{room.name}</th>{calendarDates.map(d=>{const n=room.travel_hotel_nightly_availability.find(x=>x.stay_date===d);return <td className={`p-3 text-center ${n?.availability_status==="AVAILABLE"?"text-[#efc23e]":"text-white/35"}`} key={d}>{n?.availability_status==="AVAILABLE"?money(n.nightly_rate_cents):"—"}</td>})}</tr>)}</tbody></table></div>
- <p className="mt-3 text-sm text-white/60"><b className="text-[#efc23e]">$RATE</b> = Available at COGIC published rate · <b>—</b> = Unavailable</p>{error?<p role="alert" className="mt-5 text-red-300">{error}</p>:null}<button disabled={busy} onClick={()=>void startBooking()} className="mt-8 min-h-14 rounded-xl bg-[#d8ab2e] px-7 text-lg font-bold text-black">{busy?"Continuing…":"Continue to COGIC Housing"}</button><p className="mt-3 text-sm text-white/60">Clicking or redirecting does not confirm a reservation.</p></section>
+import type { TravelHotel } from "@/lib/travel/types";
+
+const money = (value: number) => `$${(value / 100).toFixed(0)}`;
+
+export default function HotelAvailabilityClient({
+  hotel,
+  initialCheckIn,
+  initialCheckOut,
+}: {
+  hotel: TravelHotel;
+  initialCheckIn: string;
+  initialCheckOut: string;
+}) {
+  const [checkIn, setCheckIn] = useState(initialCheckIn);
+  const [checkOut, setCheckOut] = useState(initialCheckOut);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const rooms = hotel.travel_hotel_room_types ?? [];
+  const dates = useMemo(() => stayDates(checkIn, checkOut), [checkIn, checkOut]);
+  const calendarDates = useMemo(() => {
+    const start = new Date(`${checkIn}T12:00:00Z`);
+    if (!Number.isFinite(start.valueOf())) return [];
+    return Array.from({ length: 14 }, (_, index) => new Date(start.valueOf() + index * 86400000).toISOString().slice(0, 10));
+  }, [checkIn]);
+
+  async function startBooking() {
+    setBusy(true);
+    setError("");
+    const response = await fetch("/api/travel/hotel-booking/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hotelId: hotel.id, checkIn, checkOut }),
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      if (payload.loginUrl) {
+        window.location.href = payload.loginUrl;
+        return;
+      }
+      setError(payload.error || "Unable to continue.");
+      setBusy(false);
+      return;
+    }
+    window.location.href = payload.redirectTo;
+  }
+
+  return (
+    <section className="ct-availability">
+      <h2>COGIC Published Availability</h2>
+      <p>
+        Availability reflects the latest COGIC housing information loaded into COGIC Travel and may change. It is not
+        real-time inventory.
+      </p>
+
+      <div className="ct-card ct-card--feature ct-availability__stay-form">
+        <label>
+          Check-in
+          <input type="date" value={checkIn} onChange={(event) => setCheckIn(event.target.value)} />
+        </label>
+        <label>
+          Check-out
+          <input
+            type="date"
+            value={checkOut}
+            min={checkIn || undefined}
+            onChange={(event) => setCheckOut(event.target.value)}
+          />
+        </label>
+        <div className="ct-availability__stay-summary">{dates.length ? `${dates.length} nights` : "Choose a valid stay"}</div>
+      </div>
+
+      {hotel.minimum_nights && dates.length > 0 && dates.length < hotel.minimum_nights ? (
+        <p role="alert" className="ct-availability__warning">
+          This listing requires a minimum stay of {hotel.minimum_nights} nights.
+        </p>
+      ) : null}
+
+      <div className="ct-room-list">
+        {rooms.map((room) => {
+          const stay = roomForStay(room, checkIn, checkOut, hotel.minimum_nights);
+          return (
+            <article key={room.id} className="ct-card ct-card--feature ct-room-card">
+              <div className="ct-room-card__top">
+                <div>
+                  <h3>{room.name}</h3>
+                  <p className="ct-room-card__rate">{money(room.nightly_rate_cents)} / night when available</p>
+                </div>
+                {stay ? (
+                  <div className="ct-room-card__subtotal">
+                    <strong>{money(stay.subtotalCents)}</strong>
+                    <p>Estimated subtotal · {stay.nights} nights</p>
+                  </div>
+                ) : (
+                  <p className="ct-room-card__unavailable">No COGIC rooms currently shown for these dates.</p>
+                )}
+              </div>
+              {stay ? (
+                <p className="ct-room-card__note">Before taxes and hotel fees. This is not a reservation.</p>
+              ) : (
+                <div className="ct-room-card__links">
+                  <Link href="/travel/hotels">View Other Official Hotels</Link>
+                  <a href="mailto:housing@cogic.org">Contact COGIC Housing</a>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="ct-availability__table-wrap">
+        <table className="ct-availability__table">
+          <caption>November 2026 availability calendar</caption>
+          <thead>
+            <tr>
+              <th>Room type</th>
+              {calendarDates.map((date) => (
+                <th key={date}>{Number(date.slice(-2))}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rooms.map((room) => (
+              <tr key={room.id}>
+                <th>{room.name}</th>
+                {calendarDates.map((date) => {
+                  const nightlyAvailability = room.travel_hotel_nightly_availability.find((night) => night.stay_date === date);
+                  const isAvailable = nightlyAvailability?.availability_status === "AVAILABLE";
+                  return (
+                    <td className={isAvailable ? "is-available" : "is-unavailable"} key={date}>
+                      {isAvailable ? money(nightlyAvailability.nightly_rate_cents) : "—"}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="ct-availability__legend">
+        <b>$RATE</b> = Available at COGIC published rate · <b>—</b> = Unavailable
+      </p>
+      {error ? <p role="alert" className="ct-availability__error">{error}</p> : null}
+      <button type="button" disabled={busy} onClick={() => void startBooking()} className="ct-button ct-availability__button">
+        {busy ? "Continuing…" : "Continue to COGIC Housing"}
+      </button>
+      <p className="ct-availability__disclaimer">Clicking or redirecting does not confirm a reservation.</p>
+    </section>
+  );
 }

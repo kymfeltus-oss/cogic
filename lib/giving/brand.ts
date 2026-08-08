@@ -5,4 +5,4 @@ export const COGIC_GIVING_ORG = {
   location: "Memphis, Tennessee",
 } as const;
 
-export const COGIC_GIVING_TAGLINE = "Reaching Souls. Changing Lives.";
+export const COGIC_GIVING_TAGLINE = "Advancing the Kingdom. Changing Lives.";
