@@ -827,8 +827,8 @@
     object-position: center;
   }
   .cl-live-stage {
-    width: min(88%, 22rem);
-    margin-inline: auto;
+    width: 100%;
+    margin-inline: 0;
     padding: .55rem;
   }
   .cl-live-stage__viewport { aspect-ratio: 2 / 1; }

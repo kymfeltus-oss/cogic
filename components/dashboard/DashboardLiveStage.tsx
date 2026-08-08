@@ -2,6 +2,11 @@ import Link from "next/link";
 import { Play, Radio } from "lucide-react";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 import { resolveAttendeeMediaState } from "@/lib/live/attendee-media-state";
+import {
+  COGIC_SERVICE_PREVIEW_EMBED_URL,
+  COGIC_SERVICE_PREVIEW_TITLE,
+  COGIC_SERVICE_PREVIEW_WATCH_URL,
+} from "@/lib/live/service-preview";
 
 /** Live wins over a published, assigned replay; no playable media is offline. */
 export default function DashboardLiveStage({
@@ -10,22 +15,23 @@ export default function DashboardLiveStage({
   live: AttendeeDashboardData["live"];
 }) {
   const isNowLive = live.isLive;
-  const mediaState = resolveAttendeeMediaState(isNowLive, live.featuredReplay);
-  const replay = mediaState.kind === "replay" ? live.featuredReplay : null;
-  const hasReplay = mediaState.kind === "replay";
+  const mediaState = resolveAttendeeMediaState(isNowLive, live.featuredReplay, true);
+  const replay = !isNowLive ? live.featuredReplay : null;
+  const hasReplay = Boolean(replay?.playbackUrl);
+  const isPlaying = mediaState.kind === "replay";
 
   return (
-    <article className={`cl-live-stage${isNowLive ? " is-live" : hasReplay ? " is-playing" : " is-offline"}`}>
+    <article className={`cl-live-stage${isNowLive ? " is-live" : isPlaying ? " is-playing" : " is-offline"}`}>
       <div className="cl-live-stage__header">
         <span
-          className={`cl-pill ${isNowLive ? "cl-pill--now-live" : hasReplay ? "cl-pill--playing" : "cl-pill--offline"}`}
+          className={`cl-pill ${isNowLive ? "cl-pill--now-live" : isPlaying ? "cl-pill--playing" : "cl-pill--offline"}`}
           aria-live="polite"
         >
           {isNowLive ? <i className="cl-pill__pulse" aria-hidden="true" /> : null}
           {mediaState.badge}
         </span>
         <span className="cl-live-stage__title">
-          {isNowLive ? live.title ?? "COGIC LIVE broadcast" : replay?.title ?? "Currently offline"}
+          {isNowLive ? live.title ?? "COGIC LIVE broadcast" : replay?.title ?? "Service preview"}
         </span>
       </div>
 
@@ -34,9 +40,7 @@ export default function DashboardLiveStage({
         aria-label={
           isNowLive
             ? "COGIC LIVE is broadcasting — open Watch Live for the stream"
-            : hasReplay
-              ? `${replay?.title ?? "COGIC LIVE replay"} is available to watch`
-              : "COGIC LIVE is currently offline"
+            : `${replay?.title ?? COGIC_SERVICE_PREVIEW_TITLE} is available to watch`
         }
       >
         {isNowLive ? (
@@ -57,16 +61,20 @@ export default function DashboardLiveStage({
             preload="metadata"
           />
         ) : (
-          <div className="cl-live-stage__empty">
-            <strong>Currently Offline</strong>
-            <span>Programming will appear here as soon as it is available.</span>
-          </div>
+          <iframe
+            src={COGIC_SERVICE_PREVIEW_EMBED_URL}
+            title={COGIC_SERVICE_PREVIEW_TITLE}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
         )}
       </div>
 
-      {isNowLive || (hasReplay && replay) ? (
+      {mediaState.cta ? (
         <Link
-          href={isNowLive ? "/live" : `/replays/${encodeURIComponent(replay.id)}`}
+          href={isNowLive ? "/live" : replay ? `/replays/${encodeURIComponent(replay.id)}` : COGIC_SERVICE_PREVIEW_WATCH_URL}
           className={`cl-btn cl-btn--block ${isNowLive ? "cl-btn--live-action" : "cl-btn--primary"}`}
         >
           {mediaState.cta}

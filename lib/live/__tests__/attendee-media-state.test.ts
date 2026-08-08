@@ -17,6 +17,13 @@ describe("attendee media state", () => {
     });
   });
 
+  it("treats the curated service preview as playable fallback media", () => {
+    assert.deepEqual(resolveAttendeeMediaState(false, null, true), {
+      kind: "replay", badge: "PLAYING NOW", cta: "WATCH NOW",
+    });
+    assert.equal(resolveAttendeeMediaState(true, null, true).kind, "live");
+  });
+
   it("shows OFFLINE without a CTA when no media is playable", () => {
     assert.deepEqual(resolveAttendeeMediaState(false, null), {
       kind: "offline", badge: "OFFLINE", cta: null,

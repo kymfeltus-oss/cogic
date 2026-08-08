@@ -7,8 +7,11 @@ export type AttendeeMediaState =
 export function resolveAttendeeMediaState(
   activeLiveStream: boolean,
   replay: { playbackUrl: string } | null | undefined,
+  hasPlayablePreview = false,
 ): AttendeeMediaState {
   if (activeLiveStream) return { kind: "live", badge: "LIVE NOW", cta: "WATCH LIVE" };
-  if (replay?.playbackUrl.trim()) return { kind: "replay", badge: "PLAYING NOW", cta: "WATCH NOW" };
+  if (replay?.playbackUrl.trim() || hasPlayablePreview) {
+    return { kind: "replay", badge: "PLAYING NOW", cta: "WATCH NOW" };
+  }
   return { kind: "offline", badge: "OFFLINE", cta: null };
 }
