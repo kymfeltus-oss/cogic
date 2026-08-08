@@ -184,6 +184,7 @@
 .cl-topbar__brand-link { display: inline-flex; align-items: center; gap: .7rem; min-width: 0; }
 .cl-topbar__logo { display: block; width: clamp(7.25rem, 11vw, 10rem); height: auto; object-fit: contain; }
 /* Mobile-only institutional phrase; desktop keeps product logo chrome. */
+.cl-topbar__phrase-wrap,
 .cl-topbar__phrase { display: none; }
 .cl-topbar__organization { display: flex; align-items: center; gap: .7rem; margin-right: 1.35rem; color: rgba(255,255,255,.63); font-size: .68rem; font-weight: 680; letter-spacing: .12em; text-transform: uppercase; }
 /*
@@ -1735,7 +1736,7 @@
     grid-template-columns: minmax(0, 1fr) auto;
     column-gap: .45rem;
     row-gap: .35rem;
-    padding: max(.3rem, env(safe-area-inset-top)) .875rem .4rem;
+    padding: max(.45rem, calc(env(safe-area-inset-top) + .2rem)) .875rem .45rem;
     border-bottom: 1px solid rgb(255 255 255 / 7%);
     background-color: #05080d !important;
     background-image: none !important;
@@ -1746,17 +1747,28 @@
   .cl-dash .cl-topbar__seal { display: none !important; }
   .cl-dash .cl-topbar__account-copy,
   .cl-dash .cl-topbar__chevron { display: none !important; }
-  /* Centered institutional phrase in the top empty band */
-  .cl-dash .cl-topbar__phrase {
-    display: block;
+  /* Full-width centered phrase band — lowered from the top edge */
+  .cl-dash .cl-topbar__phrase-wrap {
+    display: flex;
     order: 0;
     grid-column: 1 / -1;
-    justify-self: center;
-    width: min(18.5rem, 88vw);
-    height: 3.65rem;
-    margin: 0;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    margin: .15rem 0 .35rem;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .cl-dash .cl-topbar__phrase {
+    display: block;
+    width: min(15.75rem, 72vw);
+    height: 3.9rem;
+    max-width: 100%;
+    margin: 0 auto;
     object-fit: cover;
-    object-position: center 50%;
+    /* Optical center of the metallic mark sits slightly below true center */
+    object-position: 50% 44%;
   }
   .cl-dash .cl-topbar__brand { order: 1; min-width: 0; align-self: center; }
   .cl-dash .cl-topbar__logo {

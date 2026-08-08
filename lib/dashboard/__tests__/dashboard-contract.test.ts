@@ -57,7 +57,8 @@ test("dashboard top bar uses the COGIC LIVE PNG logo asset", async () => {
   assert.doesNotMatch(topbar, /<span>COGIC<\/span>/);
   assert.doesNotMatch(topbar, /<Play[\s/>]/);
   assert.match(css, /\.cl-topbar__logo[^}]*object-fit:\s*contain/);
-  assert.match(css, /\.cl-topbar__phrase\s*\{\s*display:\s*none/);
+  assert.match(css, /\.cl-topbar__phrase-wrap,\s*\.cl-topbar__phrase\s*\{\s*display:\s*none/);
+  assert.match(css, /\.cl-dash \.cl-topbar__phrase-wrap[\s\S]*justify-content:\s*center/);
   assert.match(css, /\.cl-dash \.cl-topbar__phrase[\s\S]*object-fit:\s*cover/);
   const logoPath = path.join(root, "public", "my-sanctuary", "cogic-live-logo-purple.png");
   const phrasePath = path.join(root, "public", "my-sanctuary", "cogic-phrase.png");
