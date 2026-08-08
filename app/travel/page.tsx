@@ -19,6 +19,16 @@ export default async function TravelPage() {
       <div className="ct-frame">
         <header className="ct-nav">
           <Link href="/my-convocation" className="ct-brand" aria-label="COGIC STREAM LIVE home">
+            <Image
+              src="/branding/cogic-seal.png"
+              alt=""
+              width={256}
+              height={256}
+              priority
+              className="ct-nav-seal"
+              sizes="(max-width: 900px) 52px, 208px"
+              style={{ width: "clamp(9.5rem, 13vw, 13rem)", height: "clamp(9.5rem, 13vw, 13rem)", maxWidth: "none", objectFit: "cover", objectPosition: "center" }}
+            />
             <span className="ct-travel-logo-lockup" aria-label="COGIC Travel">
               <span className="ct-travel-suitcase" aria-hidden="true" />
               <span>
@@ -59,7 +69,13 @@ export default async function TravelPage() {
             </h1>
             <p>Your Convocation journey starts here.</p>
             <div className="ct-event">
-              <Image src="/branding/cogic-seal.png" width={58} height={39} alt="COGIC seal" />
+              <Image
+                src="/branding/cogic-seal.png"
+                width={192}
+                height={192}
+                alt="COGIC seal"
+                className="ct-event-seal"
+              />
               <div>
                 <strong>118th Holy Convocation</strong>
                 <span>

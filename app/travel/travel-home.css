@@ -8,7 +8,56 @@
 @media(max-width:900px){.ct-travel-logo-lockup{display:none}.ct-travel-header-lockup{background-size:520px 347px!important}}
 .ct-cogic-wordmark{width:128px;display:flex;flex-direction:column;color:#fff;font-family:Arial,sans-serif;line-height:.9;letter-spacing:.16em}.ct-cogic-wordmark strong{font:30px/.8 Georgia,serif;letter-spacing:0}.ct-cogic-wordmark span{margin-top:6px;font-size:12px}.ct-cogic-wordmark span b{border-radius:2px;background:#7430ae;padding:1px 3px;color:#fff}.ct-cogic-wordmark small{margin-top:5px;font-size:10px;letter-spacing:.22em}.ct-body{padding-top:3px!important}.ct-section-head{height:43px!important;margin-bottom:0!important;overflow:hidden}.ct-hotel-card{height:235px!important;max-height:235px!important;position:relative}.ct-hotel-copy{height:150px!important;padding:8px 10px 43px!important;overflow:hidden}.ct-hotel-copy>a,.ct-rate-pending{position:absolute!important;left:10px;right:10px;bottom:9px;margin:0!important}.ct-trip-preview{min-height:149px!important}.ct-progress{margin-top:16px!important;margin-right:362px!important;position:relative;z-index:3;gap:9px!important;padding-left:18px!important;padding-right:18px!important}.ct-progress>i{width:35px!important}.ct-progress>div>span{width:48px!important;height:48px!important}.ct-progress b{font-size:12px!important}.ct-progress small{font-size:9px!important}
 @media(max-width:900px){.ct-cogic-wordmark{width:120px}.ct-progress{margin-top:10px!important;margin-right:0!important}.ct-hotel-card{height:auto!important;max-height:none!important}.ct-hotel-copy{height:auto!important;min-height:165px}.ct-section-head{height:auto!important}.ct-body{padding-top:20px!important}}
-.ct-hero h1{height:70px!important}.ct-event>img{transform:scale(1.7)}.ct-section-head{height:48px!important}
+.ct-hero h1{height:70px!important}.ct-section-head{height:48px!important}
+/* Desktop: enlarge COGIC seal in Travel header (matches dashboard scale). */
+@media (min-width: 901px) {
+  .ct-nav {
+    height: auto !important;
+    min-height: 13rem;
+    padding-block: 1.15rem;
+    overflow: visible;
+  }
+  .ct-brand {
+    gap: 1.15rem;
+    align-items: center;
+  }
+  /* 3:2 seal PNG — square crop so the circle fills the header. */
+  .ct-brand img.ct-nav-seal {
+    width: clamp(9.5rem, 13vw, 13rem) !important;
+    height: clamp(9.5rem, 13vw, 13rem) !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    flex-shrink: 0;
+    transform: none !important;
+  }
+  .ct-event img.ct-event-seal {
+    width: clamp(7.5rem, 10vw, 10rem) !important;
+    height: clamp(7.5rem, 10vw, 10rem) !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    transform: none !important;
+  }
+}
+@media (max-width: 900px) {
+  .ct-brand img.ct-nav-seal {
+    width: 3.25rem !important;
+    height: 3.25rem !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    flex-shrink: 0;
+  }
+  .ct-event img.ct-event-seal {
+    width: 3.75rem !important;
+    height: 3.75rem !important;
+    max-width: none !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    transform: none !important;
+  }
+}
 .ct-hero h1.ct-travel-header-lockup{height:82px!important;background-size:530px 353px!important;background-position:left center!important}
 @media(max-width:900px){.ct-hero h1.ct-travel-header-lockup{height:74px!important;background-size:500px 333px!important}}
 .ct-primary-travel-logo{position:relative;display:block;width:155px;height:58px;overflow:hidden}.ct-primary-travel-logo img{position:absolute!important;width:240px!important;height:160px!important;max-width:none!important;left:-31px;top:-47px;filter:drop-shadow(0 0 1px #fff) drop-shadow(0 0 5px #e1ae3b55)}

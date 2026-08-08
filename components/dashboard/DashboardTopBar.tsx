@@ -31,10 +31,11 @@ export default function DashboardTopBar({
           <Image
             src="/branding/cogic-seal.png"
             alt=""
-            width={112}
-            height={112}
+            width={256}
+            height={256}
             className="cl-topbar__seal"
             priority
+            style={{ width: "clamp(9.5rem, 13vw, 13rem)", height: "clamp(9.5rem, 13vw, 13rem)", maxWidth: "none", objectFit: "cover", objectPosition: "center" }}
           />
           <Image
             src="/my-sanctuary/cogic-live-logo-purple.png"
