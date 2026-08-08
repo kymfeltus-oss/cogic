@@ -234,7 +234,7 @@
   width: 100%;
   max-width: 100%;
   height: auto;
-  aspect-ratio: var(--cl-hero-aspect);
+  aspect-ratio: auto;
   object-fit: contain;
   object-position: center;
   position: relative;
