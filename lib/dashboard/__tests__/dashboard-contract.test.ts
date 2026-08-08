@@ -53,11 +53,16 @@ test("dashboard top bar uses the COGIC LIVE PNG logo asset", async () => {
     source("app/my-convocation/dashboard.css"),
   ]);
   assert.match(topbar, /\/my-sanctuary\/cogic-live-logo-purple\.png/);
+  assert.match(topbar, /\/my-sanctuary\/cogic-phrase\.png/);
   assert.doesNotMatch(topbar, /<span>COGIC<\/span>/);
   assert.doesNotMatch(topbar, /<Play[\s/>]/);
   assert.match(css, /\.cl-topbar__logo[^}]*object-fit:\s*contain/);
+  assert.match(css, /\.cl-topbar__phrase\s*\{\s*display:\s*none/);
+  assert.match(css, /\.cl-dash \.cl-topbar__phrase[\s\S]*object-fit:\s*cover/);
   const logoPath = path.join(root, "public", "my-sanctuary", "cogic-live-logo-purple.png");
+  const phrasePath = path.join(root, "public", "my-sanctuary", "cogic-phrase.png");
   assert.equal((await readFile(logoPath)).byteLength > 0, true);
+  assert.equal((await readFile(phrasePath)).byteLength > 0, true);
 });
 
 test("dashboard mounts mobile XOR desktop compositions without CSS concealment", async () => {

@@ -26,6 +26,16 @@ export default function DashboardTopBar({
 
   return (
     <header className="cl-topbar cl-topbar--hub">
+      <Image
+        src="/my-sanctuary/cogic-phrase.png"
+        alt="The Church of God in Christ"
+        width={1535}
+        height={1024}
+        priority
+        sizes="(max-width: 720px) 82vw, 1px"
+        className="cl-topbar__phrase"
+      />
+
       <div className="cl-topbar__brand">
         <Link href={profileReturnPath} className="cl-topbar__brand-link" aria-label="COGIC LIVE home">
           <Image
