@@ -671,6 +671,18 @@
 
 @media (min-width: 1181px) { .cl-dash { display: block; } }
 @media (min-width: 1181px) {
+  .cl-topbar,
+  .cl-topbar--hub,
+  .cl-topbar--shared {
+    border-bottom-color: transparent;
+    background-color: #050313;
+    background-image: url('/my-sanctuary/menu-bar-background.png');
+    background-repeat: no-repeat;
+    background-position: center 47%;
+    background-size: 100% auto;
+    box-shadow: 0 16px 42px rgb(0 0 0 / 30%);
+    backdrop-filter: none;
+  }
   .cl-topbar__brand { flex: 1; }
   .cl-topbar__organization { display: none; }
   .cl-topbar__identity { display: grid; }
@@ -801,10 +813,10 @@
     border-radius: inherit;
     width: 100%;
     max-width: 100%;
-    height: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    object-position: 48% center;
+    height: auto;
+    aspect-ratio: 1983 / 793;
+    object-fit: contain;
+    object-position: center;
   }
   .cl-live-stage {
     width: min(88%, 22rem);
