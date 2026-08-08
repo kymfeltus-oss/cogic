@@ -1,27 +1,9 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  BadgeCheck,
-  CalendarDays,
-  Church,
-  HandHeart,
-  Megaphone,
-  Plane,
-  UsersRound,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import DashboardHero from "@/components/dashboard/DashboardHero";
 import DashboardLiveStage from "@/components/dashboard/DashboardLiveStage";
+import { DASHBOARD_UTILITIES } from "@/lib/dashboard/dashboard-utilities";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
-
-const utilities = [
-  { title: "COGIC Travel", copy: "Book flights, hotels & more", href: "/travel", icon: Plane },
-  { title: "Program", copy: "View full schedule & events", href: "/program", icon: CalendarDays },
-  { title: "COGIC Giving", copy: "Give securely anytime", href: "/giving", icon: HandHeart },
-  { title: "Registration", copy: "Register & manage your experience", href: "/register", icon: BadgeCheck },
-  { title: "My Sanctuary", copy: "Your activities & favorites", href: "/my-sanctuary", icon: Church },
-  { title: "Stay Informed", copy: "News, alerts & important updates", href: "/updates", icon: Megaphone },
-  { title: "COGIC Social", copy: "Connect, engage & grow together", href: "/experience/live", icon: UsersRound },
-] as const;
 
 const highlightPlaceholders = [
   {
@@ -54,7 +36,7 @@ export default function MobileDashboardHome({ data }: { data: AttendeeDashboardD
       <DashboardLiveStage live={data.live} />
 
       <nav className="cl-mobile-utilities" aria-label="COGIC LIVE features">
-        {utilities.map((item) => {
+        {DASHBOARD_UTILITIES.map((item) => {
           const Icon = item.icon;
           return (
             <Link key={item.title} href={item.href} className="cl-mobile-utility">

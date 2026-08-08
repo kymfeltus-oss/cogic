@@ -21,8 +21,8 @@ test("My Sanctuary reuses the real attendee dashboard loader and cards", async (
   assert.match(shell, /MobileDashboardHome/);
   assert.match(desktop, /DashboardLiveStage/);
   assert.match(desktop, /TodayScheduleCard/);
-  assert.match(desktop, /GivingCard/);
-  assert.match(desktop, /MyConvocationCard/);
+  assert.match(desktop, /DASHBOARD_UTILITIES/);
+  assert.match(desktop, /cl-desktop-utilities/);
 });
 
 test("My Sanctuary uses the exact banner and official seal assets", async () => {
@@ -48,18 +48,20 @@ test("My Sanctuary is protected and isolated from the legacy global dock", async
   assert.match(rootShell, /pathname === "\/my-sanctuary"/);
 });
 
-test("attendee feature grid uses content-driven 3-column cards without duplicate CTAs", async () => {
-  const [desktop, linkCard, css, registration] = await Promise.all([
+test("attendee desktop utilities use restrained icon+label presentation", async () => {
+  const [desktop, utilities, css, registration] = await Promise.all([
     source("components/dashboard/DesktopDashboardHome.tsx"),
-    source("components/dashboard/DashboardLinkCard.tsx"),
+    source("lib/dashboard/dashboard-utilities.ts"),
     source("app/my-convocation/dashboard.css"),
     source("components/dashboard/MyConvocationCard.tsx"),
   ]);
-  assert.match(desktop, /cl-action-grid--features/);
-  assert.doesNotMatch(linkCard, /secondaryAction|cl-btn--ghost/);
-  assert.match(css, /cl-action-grid--features[\s\S]*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
-  assert.match(css, /align-items:\s*start/);
-  assert.match(css, /\.cl-feature-card[\s\S]*min-height:\s*0/);
+  assert.match(desktop, /cl-desktop-utilities/);
+  assert.doesNotMatch(desktop, /cl-action-grid--features|MyConvocationCard|GivingCard|AnnouncementsCard/);
+  assert.match(utilities, /COGIC Travel/);
+  assert.match(utilities, /Stay Informed/);
+  assert.match(utilities, /COGIC Social/);
+  assert.match(css, /\.cl-desktop-utilities[\s\S]*grid-template-columns/);
+  assert.match(css, /\.cl-desktop-utility[\s\S]*#e9ad32/);
   assert.match(registration, /cl-reg-summary/);
   assert.match(registration, /Policy agreement pending/);
 });

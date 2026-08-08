@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 import AnnouncementBell from "@/components/dashboard/AnnouncementBell";
 import DashboardSearch from "@/components/dashboard/DashboardSearch";
 import AttendeeDesktopNav from "@/components/navigation/AttendeeDesktopNav";
@@ -19,7 +19,7 @@ export default function DashboardTopBar({
   onProfile: () => void;
 }) {
   const pathname = usePathname() || profileReturnPath;
-  const welcomeName =
+  const profileLabel =
     profile.title && profile.lastName
       ? `${profile.title} ${profile.lastName}`
       : profile.firstName || "Guest";
@@ -28,15 +28,6 @@ export default function DashboardTopBar({
     <header className="cl-topbar cl-topbar--hub">
       <div className="cl-topbar__brand">
         <Link href={profileReturnPath} className="cl-topbar__brand-link" aria-label="COGIC LIVE home">
-          <Image
-            src="/branding/cogic-seal.png"
-            alt=""
-            width={256}
-            height={256}
-            className="cl-topbar__seal"
-            priority
-            style={{ width: "clamp(2.75rem, 4.2vw, 3.5rem)", height: "clamp(2.75rem, 4.2vw, 3.5rem)", maxWidth: "none", objectFit: "cover", objectPosition: "center" }}
-          />
           <Image
             src="/my-sanctuary/cogic-live-logo-purple.png"
             alt="COGIC LIVE"
@@ -54,7 +45,6 @@ export default function DashboardTopBar({
       <div className="cl-topbar__tools" aria-label="Dashboard tools">
         <DashboardSearch />
         <AnnouncementBell />
-        <span className="cl-topbar__divider" aria-hidden="true" />
 
         {profile.userId ? (
           <div className="cl-topbar__account">
@@ -62,7 +52,7 @@ export default function DashboardTopBar({
               type="button"
               className="cl-topbar__profile"
               onClick={onProfile}
-              aria-label={`Open profile for ${welcomeName}`}
+              aria-label={`Open profile for ${profileLabel}`}
             >
               {profile.avatarUrl ? (
                 <Image src={profile.avatarUrl} alt="" width={40} height={40} unoptimized />
@@ -72,11 +62,6 @@ export default function DashboardTopBar({
                 </span>
               )}
             </button>
-            <button type="button" className="cl-topbar__account-copy" onClick={onProfile}>
-              <strong>{welcomeName}</strong>
-              <span>Attendee</span>
-            </button>
-            <ChevronDown className="cl-topbar__chevron" aria-hidden="true" />
           </div>
         ) : (
           <a

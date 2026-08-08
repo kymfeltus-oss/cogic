@@ -1,17 +1,14 @@
 import type { ReactNode } from "react";
-import { Headphones, PlaySquare, UsersRound } from "lucide-react";
-import AnnouncementsCard from "@/components/dashboard/AnnouncementsCard";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import DashboardHero from "@/components/dashboard/DashboardHero";
-import DashboardLinkCard from "@/components/dashboard/DashboardLinkCard";
 import DashboardLiveStage from "@/components/dashboard/DashboardLiveStage";
 import DashboardSection from "@/components/dashboard/DashboardSection";
-import GivingCard from "@/components/dashboard/GivingCard";
-import MyConvocationCard from "@/components/dashboard/MyConvocationCard";
 import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
-import TravelProgressCard from "@/components/dashboard/TravelProgressCard";
 import StayConnectedPrompt from "@/components/notifications/StayConnectedPrompt";
 import TicketStoreClient from "@/components/tickets/TicketStoreClient";
 import HousingExperience from "@/components/housing/HousingExperience";
+import { DASHBOARD_UTILITIES } from "@/lib/dashboard/dashboard-utilities";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 
 /** Approved desktop dashboard composition — mounted only on desktop viewports. */
@@ -25,50 +22,31 @@ export default function DesktopDashboardHome({
   signedIn: boolean;
 }) {
   return (
-    <main id="main-content" className="cl-dash__main">
+    <main id="main-content" className="cl-dash__main cl-desktop-home">
       <div className="cl-dash__canvas">
         {hero ?? <DashboardHero />}
 
-        <div className="cl-primary-row">
-          <DashboardLiveStage live={data.live} />
-          <TodayScheduleCard schedule={data.schedule} scheduleAvailable={data.scheduleAvailable} />
-        </div>
+        <DashboardLiveStage live={data.live} />
 
         <StayConnectedPrompt signedIn={signedIn} />
 
-        <DashboardSection eyebrow="Explore COGIC LIVE" title="Your experience">
-          <div className="cl-action-grid cl-action-grid--features">
-            <MyConvocationCard registration={data.registration} signedIn={signedIn} />
-            <GivingCard />
-            <TravelProgressCard />
-            <AnnouncementsCard />
-            <DashboardLinkCard
-              eyebrow="COGIC Tube"
-              title="Watch again"
-              body="On-demand sermons, replays, and more."
-              href="/replays"
-              action="Watch now"
-              icon={PlaySquare}
-            />
-            <DashboardLinkCard
-              eyebrow="Prayer Room"
-              title="Find strength"
-              body="Prayer resources for the Convocation journey."
-              href="/prayer"
-              action="Enter Prayer Room"
-              icon={Headphones}
-              tone="gold"
-            />
-            <DashboardLinkCard
-              eyebrow="COGIC Connect"
-              title="Connect with COGIC"
-              body="Reach the team and find your next step."
-              href="/contact-us"
-              action="Open Connect"
-              icon={UsersRound}
-            />
-          </div>
-        </DashboardSection>
+        <nav className="cl-desktop-utilities" aria-label="COGIC LIVE features">
+          {DASHBOARD_UTILITIES.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.title} href={item.href} className="cl-desktop-utility">
+                <Icon aria-hidden="true" />
+                <strong>{item.title}</strong>
+                <span>{item.copy}</span>
+                <i aria-hidden="true"><ArrowRight /></i>
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="cl-desktop-secondary">
+          <TodayScheduleCard schedule={data.schedule} scheduleAvailable={data.scheduleAvailable} />
+        </div>
 
         {signedIn ? (
           <DashboardSection eyebrow="Event admission" title="My Tickets">

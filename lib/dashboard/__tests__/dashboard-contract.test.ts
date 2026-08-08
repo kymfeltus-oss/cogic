@@ -61,7 +61,7 @@ test("dashboard top bar uses the COGIC LIVE PNG logo asset", async () => {
 });
 
 test("dashboard mounts mobile XOR desktop compositions without CSS concealment", async () => {
-  const [shell, desktop, mobile, hero, mobileNav, css, hook] = await Promise.all([
+  const [shell, desktop, mobile, hero, mobileNav, css, hook, topBar] = await Promise.all([
     source("components/dashboard/DashboardShell.tsx"),
     source("components/dashboard/DesktopDashboardHome.tsx"),
     source("components/dashboard/MobileDashboardHome.tsx"),
@@ -69,6 +69,7 @@ test("dashboard mounts mobile XOR desktop compositions without CSS concealment",
     source("components/dashboard/DashboardMobileNav.tsx"),
     source("app/my-convocation/dashboard.css"),
     source("lib/dashboard/use-desktop-dashboard.ts"),
+    source("components/dashboard/DashboardTopBar.tsx"),
   ]);
   assert.match(shell, /useDesktopDashboard/);
   assert.match(shell, /DesktopDashboardHome/);
@@ -84,6 +85,9 @@ test("dashboard mounts mobile XOR desktop compositions without CSS concealment",
   assert.match(hero, /width=\{1983\}/);
   assert.match(hero, /height=\{793\}/);
   assert.doesNotMatch(hero, /\bfill\b/);
+  assert.match(desktop, /cl-desktop-utilities/);
+  assert.doesNotMatch(desktop, /cl-action-grid--features/);
+  assert.doesNotMatch(topBar, /cogic-seal\.png|cl-topbar__account-copy|ChevronDown/);
   for (const label of ["Home", "Watch Live", "Program", "My Sanctuary", "Give"]) {
     assert.match(mobileNav, new RegExp(label));
   }
@@ -91,4 +95,5 @@ test("dashboard mounts mobile XOR desktop compositions without CSS concealment",
   assert.match(css, /env\(safe-area-inset-bottom\)/);
   assert.match(css, /\.cl-bottom-nav[\s\S]*position:\s*fixed/);
   assert.match(css, /\.cl-hero__image[^}]*object-fit:\s*contain/);
+  assert.match(css, /--cl-hero-aspect:\s*1983\s*\/\s*793/);
 });
