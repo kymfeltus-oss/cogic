@@ -9,7 +9,7 @@ test("mobile banner and live player use the same outer dimensions", async () => 
     "utf8",
   );
 
-  assert.match(css, /--cl-mobile-feature-aspect:\s*1629\s*\/\s*965/);
+  assert.match(css, /--cl-mobile-feature-aspect:\s*2160\s*\/\s*1280/);
   assert.match(
     css,
     /\.cl-dash \.cl-mobile-home \.cl-hero,\s*\.cl-dash \.cl-mobile-home \.cl-live-stage\s*\{[^}]*width:\s*100%[^}]*height:\s*auto[^}]*aspect-ratio:\s*var\(--cl-mobile-feature-aspect\)/s,

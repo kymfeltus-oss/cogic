@@ -16,7 +16,7 @@
   width: 100%;
   height: auto;
   max-height: var(--dash-banner-max-h, none);
-  aspect-ratio: 1629 / 965;
+  aspect-ratio: 2160 / 1280;
   object-fit: contain;
   object-position: center;
 }

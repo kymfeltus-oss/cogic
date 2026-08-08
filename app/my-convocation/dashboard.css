@@ -274,9 +274,9 @@
 .cl-topbar__avatar { font-family: var(--font-montserrat), sans-serif; font-size: .72rem; font-weight: 700; letter-spacing: .04em; }
 .cl-topbar__avatar svg { width: 1.15rem; }
 
-/* Banner: container follows the approved 1629×965 artwork; never crop its content. */
+/* Banner: container follows the approved 2160×1280 artwork; never crop its content. */
 .cl-hero {
-  --cl-hero-aspect: 1629 / 965;
+  --cl-hero-aspect: 2160 / 1280;
   position: relative;
   overflow: hidden;
   display: block;
@@ -484,7 +484,7 @@
   .cl-mobile-home .cl-hero__image {
     width: 100%;
     height: auto;
-    aspect-ratio: 1629 / 965;
+    aspect-ratio: 2160 / 1280;
     object-fit: contain;
     object-position: center;
     border-radius: inherit;
@@ -1127,7 +1127,7 @@
   width: 100%;
   max-width: 100%;
   height: auto;
-  aspect-ratio: 1629 / 965;
+  aspect-ratio: 2160 / 1280;
   max-height: var(--dash-banner-max-h);
   object-fit: contain;
   object-position: center;
@@ -1250,7 +1250,7 @@
     width: 100%;
     max-width: 100%;
     height: auto;
-    aspect-ratio: 1629 / 965;
+    aspect-ratio: 2160 / 1280;
     object-fit: contain;
     object-position: center;
   }
@@ -1862,7 +1862,7 @@
 /* Mobile banner and stream card intentionally share one outer box size. */
 @media (max-width: 720px) {
   .cl-dash .cl-mobile-home {
-    --cl-mobile-feature-aspect: 1629 / 965;
+    --cl-mobile-feature-aspect: 2160 / 1280;
   }
 
   .cl-dash .cl-mobile-home .cl-hero,

@@ -88,8 +88,8 @@ test("dashboard mounts mobile XOR desktop compositions without CSS concealment",
   assert.match(desktop, /DashboardLiveStage/);
   assert.match(mobile, /DashboardLiveStage/);
   assert.match(hero, /\/my-sanctuary\/banner\.png/);
-  assert.match(hero, /width=\{1629\}/);
-  assert.match(hero, /height=\{965\}/);
+  assert.match(hero, /width=\{2160\}/);
+  assert.match(hero, /height=\{1280\}/);
   assert.doesNotMatch(hero, /\bfill\b/);
   assert.match(desktop, /cl-desktop-utilities/);
   assert.doesNotMatch(desktop, /cl-action-grid--features/);
@@ -101,5 +101,5 @@ test("dashboard mounts mobile XOR desktop compositions without CSS concealment",
   assert.match(css, /env\(safe-area-inset-bottom\)/);
   assert.match(css, /\.cl-bottom-nav[\s\S]*position:\s*fixed/);
   assert.match(css, /\.cl-hero__image[^}]*object-fit:\s*contain/);
-  assert.match(css, /--cl-hero-aspect:\s*1629\s*\/\s*965/);
+  assert.match(css, /--cl-hero-aspect:\s*2160\s*\/\s*1280/);
 });

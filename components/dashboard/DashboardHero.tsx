@@ -7,8 +7,8 @@ export default function DashboardHero() {
       <Image
         src="/my-sanctuary/banner.png"
         alt="118th Holy Convocation in St. Louis, Missouri, November 3–10, 2026"
-        width={1629}
-        height={965}
+        width={2160}
+        height={1280}
         priority
         quality={90}
         sizes="(max-width: 720px) calc(100vw - 1.75rem), (max-width: 1180px) calc(100vw - 2rem), min(96vw, 1600px)"
