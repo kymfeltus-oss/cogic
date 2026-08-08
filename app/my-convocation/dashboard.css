@@ -801,11 +801,17 @@
     border-radius: inherit;
     width: 100%;
     max-width: 100%;
-    height: auto;
-    aspect-ratio: 1983 / 793;
-    object-fit: contain;
-    object-position: center;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: 48% center;
   }
+  .cl-live-stage {
+    width: min(88%, 22rem);
+    margin-inline: auto;
+    padding: .55rem;
+  }
+  .cl-live-stage__viewport { aspect-ratio: 2 / 1; }
   .cl-hero__content { order: 1; padding: 1.25rem 1.15rem 1.35rem; }
   .cl-hero__greeting { font-size: 1rem; }
   .cl-hero__welcome { font-size: .75rem; }
