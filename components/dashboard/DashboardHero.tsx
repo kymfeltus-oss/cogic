@@ -7,8 +7,8 @@ export default function DashboardHero() {
       <Image
         src="/my-sanctuary/convocation-banner-bishops-v2.png"
         alt="118th Holy Convocation in St. Louis, Missouri, November 3–10, 2026"
-        width={1827}
-        height={861}
+        width={1983}
+        height={793}
         priority
         quality={90}
         sizes="(max-width: 720px) calc(100vw - 1.6rem), (max-width: 1180px) calc(100vw - 2.5rem), min(94vw, 1536px)"

@@ -69,8 +69,9 @@ test("dashboard uses a mobile-first streaming shell with safe fixed navigation",
   assert.match(shell, /DashboardHero/);
   assert.match(shell, /DashboardLiveStage/);
   assert.doesNotMatch(shell, /DashboardSidebar/);
-  assert.match(hero, /width=\{2172\}/);
-  assert.match(hero, /height=\{724\}/);
+  assert.match(hero, /convocation-banner-bishops-v2\.png/);
+  assert.match(hero, /width=\{1983\}/);
+  assert.match(hero, /height=\{793\}/);
   assert.doesNotMatch(hero, /\bfill\b/);
   for (const label of ["Home", "Watch Live", "Program", "My Sanctuary", "Give"]) {
     assert.match(mobileNav, new RegExp(label));

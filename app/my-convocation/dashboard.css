@@ -798,10 +798,13 @@
   .cl-primary-row { grid-template-columns: minmax(0, 1fr); margin-top: .75rem; }
   .cl-hero__media { order: 0; padding: 0; }
   .cl-hero__image {
-    border-radius: .9rem;
+    border-radius: inherit;
     width: 100%;
+    max-width: 100%;
     height: auto;
+    aspect-ratio: 1983 / 793;
     object-fit: contain;
+    object-position: center;
   }
   .cl-hero__content { order: 1; padding: 1.25rem 1.15rem 1.35rem; }
   .cl-hero__greeting { font-size: 1rem; }
