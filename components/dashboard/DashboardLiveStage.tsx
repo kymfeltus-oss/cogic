@@ -35,6 +35,11 @@ export default function DashboardLiveStage({
         </span>
       </div>
 
+      <div className="cl-live-stage__program">
+        <h2>Live Service</h2>
+        <p>Holy Convocation 118</p>
+      </div>
+
       <div
         className="cl-live-stage__viewport"
         aria-label={
@@ -77,7 +82,7 @@ export default function DashboardLiveStage({
           href={isNowLive ? "/live" : replay ? `/replays/${encodeURIComponent(replay.id)}` : COGIC_SERVICE_PREVIEW_WATCH_URL}
           className={`cl-btn cl-btn--block ${isNowLive ? "cl-btn--live-action" : "cl-btn--primary"}`}
         >
-          {mediaState.cta}
+          {isNowLive ? "WATCH LIVE NOW" : mediaState.cta}
           {isNowLive ? <Radio aria-hidden="true" className="size-4" /> : <Play aria-hidden="true" className="size-4" />}
         </Link>
       ) : null}

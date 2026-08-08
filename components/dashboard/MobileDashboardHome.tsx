@@ -23,6 +23,30 @@ const utilities = [
   { title: "COGIC Social", copy: "Connect, engage & grow together", href: "/experience/live", icon: UsersRound },
 ] as const;
 
+const highlightPlaceholders = [
+  {
+    id: "main-service",
+    title: "Main Service",
+    meta: "Official COGIC LIVE programming",
+    href: "/live",
+    imageUrl: "/my-sanctuary/convocation-banner-bishops-v2.png",
+  },
+  {
+    id: "revival-fire",
+    title: "Revival Fire",
+    meta: "Convocation messages and replays",
+    href: "/replays",
+    imageUrl: "/my-sanctuary/menu-bar-background.png",
+  },
+  {
+    id: "musical",
+    title: "The Musical",
+    meta: "COGIC worship and music",
+    href: "/music",
+    imageUrl: "/music/hallelujah-anyhow-cover.png",
+  },
+] as const;
+
 export default function MobileDashboardHome({ data }: { data: AttendeeDashboardData }) {
   return (
     <main id="mobile-main-content" className="cl-mobile-home">
@@ -48,9 +72,21 @@ export default function MobileDashboardHome({ data }: { data: AttendeeDashboardD
           <h2 id="cl-mobile-highlights-heading">Highlights</h2>
           <Link href="/replays">View all <ArrowRight aria-hidden="true" /></Link>
         </header>
-        {data.recentReplays.length ? (
-          <div className="cl-mobile-highlights__rail">
-            {data.recentReplays.map((replay) => (
+        <div className="cl-mobile-highlights__rail">
+          {highlightPlaceholders.map((item) => (
+            <Link key={item.id} href={item.href} className="cl-mobile-highlight">
+              {/* Local, curated placeholder art for real downstream destinations. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={item.imageUrl} alt="" loading="lazy" />
+              <span className="cl-mobile-highlight__shade" />
+              <span className="cl-mobile-highlight__copy">
+                <strong>{item.title}</strong>
+                <small>{item.meta}</small>
+              </span>
+              <i aria-hidden="true"><ArrowRight /></i>
+            </Link>
+          ))}
+          {data.recentReplays.map((replay) => (
               <Link key={replay.id} href={`/replays/${encodeURIComponent(replay.id)}`} className="cl-mobile-highlight">
                 {replay.thumbnailUrl ? (
                   // Owner-managed replay art may use a remote storage host.
@@ -64,11 +100,8 @@ export default function MobileDashboardHome({ data }: { data: AttendeeDashboardD
                 </span>
                 <i aria-hidden="true"><ArrowRight /></i>
               </Link>
-            ))}
-          </div>
-        ) : (
-          <p className="cl-mobile-highlights__empty">Published Convocation highlights will appear here.</p>
-        )}
+          ))}
+        </div>
       </section>
     </main>
   );
