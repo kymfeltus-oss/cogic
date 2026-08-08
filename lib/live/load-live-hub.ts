@@ -37,6 +37,7 @@ export type LiveHubData = {
   currentService: PublishedOccurrence | null;
   upNext: ScheduleOccurrenceDTO[];
   recentReplays: PublishedReplay[];
+  featuredReplay: PublishedReplay | null;
   continueWatching: PublishedReplay[];
   favorites: PublishedReplay[];
   watchHistory: LiveHubHistoryItem[];
@@ -180,6 +181,7 @@ export async function loadLiveHub(): Promise<LiveHubData> {
       mapPublishedOccurrenceToScheduleItem(item, lookup, item.status === "live"),
     ),
     recentReplays: replays.slice(0, 8),
+    featuredReplay: replays[0] ?? null,
     continueWatching,
     favorites,
     watchHistory,

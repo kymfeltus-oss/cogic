@@ -89,7 +89,10 @@ test("truthful OFFLINE/LIVE copy and no demo attendee media on Live Hub", async 
     source("lib/live/load-live-hub.ts"),
     source("components/experience/live/LiveExperienceClient.tsx"),
   ]);
-  assert.match(hub, /COGIC LIVE is not broadcasting right now/);
+  assert.match(hub, /Programming will appear here as soon as it is available/);
+  assert.match(hub, /featuredReplay/);
+  assert.match(loader, /featuredReplay: replays\[0\] \?\? null/);
+  assert.doesNotMatch(hub, /Open Live Lobby/);
   assert.match(hub, /No upcoming published broadcasts/);
   assert.match(hub, /No published replays are available yet/);
   assert.match(loader, /resolveAuthoritativeLiveState/);

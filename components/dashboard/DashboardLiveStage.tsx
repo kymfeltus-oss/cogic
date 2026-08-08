@@ -1,36 +1,31 @@
 import Link from "next/link";
 import { Play, Radio } from "lucide-react";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
-import {
-  COGIC_SERVICE_PREVIEW_EMBED_URL,
-  COGIC_SERVICE_PREVIEW_TITLE,
-} from "@/lib/live/service-preview";
+import { resolveAttendeeMediaState } from "@/lib/live/attendee-media-state";
 
-/**
- * Status badge is driven by authoritative live state from the dashboard loader
- * (`resolveAuthoritativeLiveState` via occurrences + stream manifest).
- * - Live broadcast → "NOW LIVE" neon red pulse
- * - Not live → purple Offline badge + YouTube service preview
- */
+/** Live wins over a published, assigned replay; no playable media is offline. */
 export default function DashboardLiveStage({
   live,
 }: {
   live: AttendeeDashboardData["live"];
 }) {
   const isNowLive = live.isLive;
+  const mediaState = resolveAttendeeMediaState(isNowLive, live.featuredReplay);
+  const replay = mediaState.kind === "replay" ? live.featuredReplay : null;
+  const hasReplay = mediaState.kind === "replay";
 
   return (
-    <article className={`cl-live-stage${isNowLive ? " is-live" : ""}`}>
+    <article className={`cl-live-stage${isNowLive ? " is-live" : hasReplay ? " is-playing" : " is-offline"}`}>
       <div className="cl-live-stage__header">
         <span
-          className={`cl-pill ${isNowLive ? "cl-pill--now-live" : "cl-pill--offline"}`}
+          className={`cl-pill ${isNowLive ? "cl-pill--now-live" : hasReplay ? "cl-pill--playing" : "cl-pill--offline"}`}
           aria-live="polite"
         >
           {isNowLive ? <i className="cl-pill__pulse" aria-hidden="true" /> : null}
-          {isNowLive ? "Now Live" : "Offline"}
+          {mediaState.badge}
         </span>
         <span className="cl-live-stage__title">
-          {isNowLive ? live.title ?? "COGIC LIVE broadcast" : "Service preview"}
+          {isNowLive ? live.title ?? "COGIC LIVE broadcast" : replay?.title ?? "Currently offline"}
         </span>
       </div>
 
@@ -39,7 +34,9 @@ export default function DashboardLiveStage({
         aria-label={
           isNowLive
             ? "COGIC LIVE is broadcasting — open Watch Live for the stream"
-            : "COGIC LIVE service preview video"
+            : hasReplay
+              ? `${replay?.title ?? "COGIC LIVE replay"} is available to watch`
+              : "COGIC LIVE is currently offline"
         }
       >
         {isNowLive ? (
@@ -47,28 +44,35 @@ export default function DashboardLiveStage({
             <div className="cl-live-stage__play">
               <Play aria-hidden="true" />
             </div>
-            <strong>Live video opens in Watch Live</strong>
-            <span>The production stream is available in the live experience.</span>
+            <strong>Live broadcast available</strong>
+            <span>Watch the official production stream in the live experience.</span>
           </div>
-        ) : (
-          <iframe
-            src={COGIC_SERVICE_PREVIEW_EMBED_URL}
-            title={COGIC_SERVICE_PREVIEW_TITLE}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerPolicy="strict-origin-when-cross-origin"
-            allowFullScreen
+        ) : hasReplay && replay ? (
+          <video
+            src={replay.playbackUrl}
+            poster={replay.thumbnailUrl ?? undefined}
+            title={replay.title}
+            controls
+            playsInline
+            preload="metadata"
           />
+        ) : (
+          <div className="cl-live-stage__empty">
+            <strong>Currently Offline</strong>
+            <span>Programming will appear here as soon as it is available.</span>
+          </div>
         )}
       </div>
 
-      <Link
-        href="/live"
-        className={`cl-btn cl-btn--block ${isNowLive ? "cl-btn--live-action" : "cl-btn--primary"}`}
-      >
-        {isNowLive ? "Watch Live" : "Open Live Lobby"}
-        <Radio aria-hidden="true" className="size-4" />
-      </Link>
+      {isNowLive || (hasReplay && replay) ? (
+        <Link
+          href={isNowLive ? "/live" : `/replays/${encodeURIComponent(replay.id)}`}
+          className={`cl-btn cl-btn--block ${isNowLive ? "cl-btn--live-action" : "cl-btn--primary"}`}
+        >
+          {mediaState.cta}
+          {isNowLive ? <Radio aria-hidden="true" className="size-4" /> : <Play aria-hidden="true" className="size-4" />}
+        </Link>
+      ) : null}
     </article>
   );
 }

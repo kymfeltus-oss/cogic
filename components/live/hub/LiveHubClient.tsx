@@ -26,10 +26,7 @@ import LiveExperienceClient from "@/components/experience/live/LiveExperienceCli
 import LiveRoomChatPanel from "@/components/experience/live/LiveRoomChatPanel";
 import LiveShareButton from "@/components/live/LiveShareButton";
 import type { LiveHubData } from "@/lib/live/load-live-hub";
-import {
-  COGIC_SERVICE_PREVIEW_EMBED_URL,
-  COGIC_SERVICE_PREVIEW_TITLE,
-} from "@/lib/live/service-preview";
+import { resolveAttendeeMediaState } from "@/lib/live/attendee-media-state";
 
 type LiveHubClientProps = { data: LiveHubData };
 
@@ -83,11 +80,20 @@ export default function LiveHubClient({ data }: LiveHubClientProps) {
     givingAnchorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, []);
 
-  const serviceTitle = data.currentService?.title ?? (data.isLive ? "COGIC LIVE Broadcast" : "COGIC LIVE");
+  const mediaState = resolveAttendeeMediaState(data.isLive, data.featuredReplay);
+  const featuredReplay = mediaState.kind === "replay" ? data.featuredReplay : null;
+  const hasPlayableReplay = mediaState.kind === "replay";
+  const serviceTitle = data.currentService?.title
+    ?? featuredReplay?.title
+    ?? (data.isLive ? "COGIC LIVE Broadcast" : "Currently Offline");
   const serviceCopy = data.currentService
     ? [data.currentService.eventType.replaceAll("_", " "), data.currentService.venueLabel, data.currentService.localDate]
         .filter(Boolean).join(" · ")
-    : data.isLive ? "Live broadcast in progress." : "COGIC LIVE is not broadcasting right now.";
+    : data.isLive
+      ? "Live broadcast in progress."
+      : featuredReplay
+        ? [featuredReplay.localDate, featuredReplay.description].filter(Boolean).join(" · ")
+        : "Programming will appear here as soon as it is available.";
   const attendeeName = data.profile.firstName || "Guest";
 
   return (
@@ -121,8 +127,8 @@ export default function LiveHubClient({ data }: LiveHubClientProps) {
         <div className="live-hub__top-grid">
           <section className="live-hub__stage" aria-labelledby="live-hub-service-heading">
             <div className="live-hub__stage-head">
-              <span className={`live-hub__status${data.isLive ? " live-hub__status--live" : ""}`}>
-                {data.isLive ? "Live now" : "Offline"}
+              <span className={`live-hub__status${data.isLive ? " live-hub__status--live" : hasPlayableReplay ? " live-hub__status--playing" : ""}`} aria-live="polite">
+                {mediaState.badge}
               </span>
               <span className="live-hub__authority">Official COGIC broadcast</span>
             </div>
@@ -130,15 +136,21 @@ export default function LiveHubClient({ data }: LiveHubClientProps) {
             <div id="live-hub-player" ref={playerAnchorRef} className="live-hub__player-shell">
               {data.isLive ? (
                 <LiveExperienceClient initialProfile={data.profile} variant="hub" />
-              ) : (
-                <iframe
-                  src={COGIC_SERVICE_PREVIEW_EMBED_URL}
-                  title={COGIC_SERVICE_PREVIEW_TITLE}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
+              ) : hasPlayableReplay && featuredReplay ? (
+                <video
+                  src={featuredReplay.playbackUrl}
+                  poster={featuredReplay.thumbnailUrl ?? undefined}
+                  title={featuredReplay.title}
+                  controls
+                  playsInline
+                  preload="metadata"
                 />
+              ) : (
+                <div className="live-hub__offline">
+                  <Radio aria-hidden="true" />
+                  <strong>Currently Offline</strong>
+                  <span>Programming will appear here when it is available.</span>
+                </div>
               )}
             </div>
 
@@ -149,9 +161,11 @@ export default function LiveHubClient({ data }: LiveHubClientProps) {
                 <p>{serviceCopy}</p>
               </div>
               <div className="live-hub__actions">
-                <button type="button" className="live-hub__btn live-hub__btn--primary" onClick={scrollToPlayer}>
-                  <Play aria-hidden="true" /> Watch Live
-                </button>
+                {data.isLive || hasPlayableReplay ? (
+                  <button type="button" className="live-hub__btn live-hub__btn--primary" onClick={scrollToPlayer}>
+                    <Play aria-hidden="true" /> {mediaState.cta}
+                  </button>
+                ) : null}
                 <button type="button" className="live-hub__btn live-hub__btn--secondary" onClick={scrollToGiving}>
                   <Sprout aria-hidden="true" /> Sow Now
                 </button>

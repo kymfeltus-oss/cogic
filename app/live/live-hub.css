@@ -82,17 +82,23 @@
 .live-hub__stage-head { min-height: 3.2rem; display: flex; align-items: center; gap: .7rem; padding: .55rem 1rem; background: rgba(7,4,15,.88); }
 .live-hub__status { display: inline-flex; min-height: 2rem; align-items: center; border: 1px solid var(--lh-line); border-radius: .45rem; padding: .35rem .7rem; color: rgba(255,255,255,.7); font-size: .6rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
 .live-hub__status--live { border-color: rgba(225,29,72,.7); color: #fff; background: #e11d48; box-shadow: 0 0 22px rgba(225,29,72,.34); }
+.live-hub__status--playing { border-color: rgba(198,42,155,.78); color: #fff; background: linear-gradient(135deg, #7227b3, #c62a9b); box-shadow: 0 0 22px rgba(198,42,155,.25); }
 .live-hub__authority { color: var(--lh-gold-bright); font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 
 .live-hub__player-shell { position: relative; overflow: hidden; border-block: 1px solid var(--lh-line); background: #000; aspect-ratio: 16 / 9; }
 .live-hub__player-shell > * { height: 100%; }
-.live-hub__player-shell iframe { display: block; width: 100%; border: 0; }
+.live-hub__player-shell iframe,
+.live-hub__player-shell video { display: block; width: 100%; border: 0; object-fit: cover; background: #000; }
+.live-hub__offline { display: grid; place-content: center; justify-items: center; gap: .65rem; padding: 2rem; color: rgba(255,255,255,.62); text-align: center; background: radial-gradient(circle at 50% 40%, rgba(114,39,179,.22), transparent 44%), #05030b; }
+.live-hub__offline svg { width: 2.4rem; height: 2.4rem; color: rgba(255,255,255,.38); }
+.live-hub__offline strong { color: #fff; font-size: clamp(1rem,2vw,1.35rem); }
+.live-hub__offline span { max-width: 25rem; font-size: .78rem; line-height: 1.5; }
 .live-hub__service-bar { padding: 1.1rem; background: linear-gradient(180deg, rgba(10,7,20,.97), rgba(7,4,15,.98)); }
 .live-hub__eyebrow { color: var(--lh-gold-bright); font-size: .58rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
 .live-hub__service-bar h1 { margin-top: .25rem; font-family: var(--font-montserrat), sans-serif; font-size: clamp(1.35rem, 2vw, 2rem); font-weight: 650; line-height: 1.1; }
 .live-hub__service-bar > div:first-child > p:last-child { margin-top: .35rem; color: rgba(255,255,255,.62); font-size: .72rem; }
 .live-hub__actions { display: grid; grid-template-columns: 1.25fr 1fr .75fr; gap: .6rem; margin-top: 1rem; }
-.live-hub__btn { min-height: 2.8rem; display: inline-flex; align-items: center; justify-content: center; gap: .48rem; border: 1px solid var(--lh-line); border-radius: .5rem; padding: .65rem .85rem; font-size: .65rem; font-weight: 800; letter-spacing: .05em; }
+.live-hub__btn { min-height: 3rem; display: inline-flex; align-items: center; justify-content: center; gap: .48rem; border: 1px solid var(--lh-line); border-radius: .55rem; padding: .7rem 1rem; font-size: .7rem; font-weight: 800; letter-spacing: .06em; }
 .live-hub__btn svg { width: 1rem; height: 1rem; }
 .live-hub__btn--primary { border-color: transparent; color: #fff; background: var(--brand-ombre); }
 .live-hub__btn--secondary { border-color: rgba(201,162,39,.6); color: var(--lh-gold-bright); background: rgba(201,162,39,.06); }
