@@ -18,5 +18,13 @@ test("mobile banner and live player use the same outer dimensions", async () => 
     css,
     /\.cl-dash \.cl-mobile-home \.cl-live-stage__viewport\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*width:\s*100%[^}]*height:\s*100%/s,
   );
+  assert.match(
+    css,
+    /\.cl-dash \.cl-mobile-home \.cl-hero__image\s*\{[^}]*max-width:\s*100%[^}]*max-height:\s*100%[^}]*object-fit:\s*contain[^}]*object-position:\s*center/s,
+  );
+  assert.match(
+    css,
+    /\.cl-dash \.cl-mobile-home \.cl-hero\s*\{[^}]*display:\s*grid[^}]*place-items:\s*center[^}]*padding:\s*\.3rem/s,
+  );
   assert.match(css, /\.cl-dash \.cl-mobile-home \.cl-live-stage::after\s*\{/);
 });
