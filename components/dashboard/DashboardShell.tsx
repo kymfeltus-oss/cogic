@@ -1,26 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProfileEditorModal from "@/components/profile/ProfileEditorModal";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
-import DashboardHero from "@/components/dashboard/DashboardHero";
-import DashboardLiveStage from "@/components/dashboard/DashboardLiveStage";
-import AnnouncementsCard from "@/components/dashboard/AnnouncementsCard";
-import DashboardLinkCard from "@/components/dashboard/DashboardLinkCard";
-import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
-import GivingCard from "@/components/dashboard/GivingCard";
-import MyConvocationCard from "@/components/dashboard/MyConvocationCard";
 import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
-import DashboardSection from "@/components/dashboard/DashboardSection";
-import StayConnectedPrompt from "@/components/notifications/StayConnectedPrompt";
-import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
-import type { ReactNode } from "react";
-import { Headphones, PlaySquare, UsersRound } from "lucide-react";
-import TravelProgressCard from "@/components/dashboard/TravelProgressCard";
-import TicketStoreClient from "@/components/tickets/TicketStoreClient";
-import HousingExperience from "@/components/housing/HousingExperience";
+import DesktopDashboardHome from "@/components/dashboard/DesktopDashboardHome";
 import MobileDashboardHome from "@/components/dashboard/MobileDashboardHome";
+import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
+import { useDesktopDashboard } from "@/lib/dashboard/use-desktop-dashboard";
 
 export default function DashboardShell({
   data,
@@ -34,6 +22,7 @@ export default function DashboardShell({
   const router = useRouter();
   const pathname = usePathname() || dashboardPath;
   const searchParams = useSearchParams();
+  const isDesktop = useDesktopDashboard();
   const [profile, setProfile] = useState(data.profile);
   const [profileOpen, setProfileOpen] = useState(() => {
     const view = searchParams.get("view");
@@ -46,6 +35,8 @@ export default function DashboardShell({
     router.replace(dashboardPath, { scroll: false });
   }, [dashboardPath, router, searchParams]);
 
+  const signedIn = Boolean(profile.userId);
+
   return (
     <div className="cl-dash">
       <div className="cl-dash__stage">
@@ -55,45 +46,18 @@ export default function DashboardShell({
           onProfile={() => setProfileOpen(true)}
         />
 
-        <MobileDashboardHome data={data} />
-
-        <main id="main-content" className="cl-dash__main cl-dashboard-desktop">
-          <div className="cl-dash__canvas">
-            {hero ?? (
-              <DashboardHero />
-            )}
-
-            <div className="cl-primary-row">
-              <DashboardLiveStage live={data.live} />
-              <TodayScheduleCard schedule={data.schedule} scheduleAvailable={data.scheduleAvailable} />
-            </div>
-
-            <StayConnectedPrompt signedIn={Boolean(profile.userId)} />
-
-            <DashboardSection eyebrow="Explore COGIC LIVE" title="Your experience">
-              <div className="cl-action-grid cl-action-grid--features">
-                <MyConvocationCard
-                  registration={data.registration}
-                  signedIn={Boolean(profile.userId)}
-                />
-                <GivingCard />
-                <TravelProgressCard />
-                <AnnouncementsCard />
-                <DashboardLinkCard eyebrow="COGIC Tube" title="Watch again" body="On-demand sermons, replays, and more." href="/replays" action="Watch now" icon={PlaySquare} />
-                <DashboardLinkCard eyebrow="Prayer Room" title="Find strength" body="Prayer resources for the Convocation journey." href="/prayer" action="Enter Prayer Room" icon={Headphones} tone="gold" />
-                <DashboardLinkCard eyebrow="COGIC Connect" title="Connect with COGIC" body="Reach the team and find your next step." href="/contact-us" action="Open Connect" icon={UsersRound} />
-              </div>
-            </DashboardSection>
-            {profile.userId?<DashboardSection eyebrow="Event admission" title="My Tickets"><TicketStoreClient compact/></DashboardSection>:null}
-            {profile.userId?<DashboardSection eyebrow="Accommodation" title="My Housing"><HousingExperience compact/></DashboardSection>:null}
-
-          </div>
-        </main>
+        {isDesktop ? (
+          <DesktopDashboardHome data={data} hero={hero} signedIn={signedIn} />
+        ) : (
+          <MobileDashboardHome data={data} />
+        )}
       </div>
 
-      <DashboardMobileNav homeHref="/my-convocation" pathname={pathname} />
+      {!isDesktop ? (
+        <DashboardMobileNav homeHref={dashboardPath} pathname={pathname} />
+      ) : null}
 
-      {profile.userId ? (
+      {signedIn ? (
         <ProfileEditorModal
           isOpen={profileOpen}
           profile={profile}

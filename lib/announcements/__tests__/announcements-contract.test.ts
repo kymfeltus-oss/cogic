@@ -35,11 +35,11 @@ describe("announcements / updates contracts", () => {
   });
 
   it("wires dashboard card and bell to /updates with real unread endpoint", () => {
-    const shell = read("components/dashboard/DashboardShell.tsx");
+    const desktop = read("components/dashboard/DesktopDashboardHome.tsx");
     const card = read("components/dashboard/AnnouncementsCard.tsx");
     const bell = read("components/dashboard/AnnouncementBell.tsx");
     const topBar = read("components/dashboard/DashboardTopBar.tsx");
-    assert.match(shell, /AnnouncementsCard/);
+    assert.match(desktop, /AnnouncementsCard/);
     assert.match(card, /href="\/updates"/);
     assert.match(card, /\/api\/announcements\/unread/);
     assert.match(bell, /\/api\/announcements\/unread/);

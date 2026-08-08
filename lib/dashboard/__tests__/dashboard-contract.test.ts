@@ -22,16 +22,16 @@ test("dashboard is wired to the canonical attendee route and real loaders", asyn
 });
 
 test("dashboard cards use real routes and omit fake aggregate metrics", async () => {
-  const [nav, giving, watch] = await Promise.all([
+  const [nav, giving, liveStage] = await Promise.all([
     source("lib/navigation/attendee-desktop-nav.ts"),
     source("components/dashboard/GivingCard.tsx"),
-    source("components/dashboard/WatchLiveCard.tsx"),
+    source("components/dashboard/DashboardLiveStage.tsx"),
   ]);
   for (const route of ["/my-convocation", "/live", "/program", "/register", "/giving", "/replays"]) {
     assert.match(nav, new RegExp(route.replace("/", "\\/")));
   }
   assert.doesNotMatch(giving, /248,930|500,000|49%/);
-  assert.doesNotMatch(watch, /Bishop J\.|Official Day Service/);
+  assert.match(liveStage, /href=\{isNowLive \? "\/live"/);
 });
 
 test("attendee dashboard presentation contains no legacy public brand", async () => {
@@ -39,7 +39,8 @@ test("attendee dashboard presentation contains no legacy public brand", async ()
     "components/dashboard/DashboardShell.tsx",
     "components/dashboard/DashboardTopBar.tsx",
     "components/navigation/AttendeeDesktopNav.tsx",
-    "components/dashboard/ConvocationHero.tsx",
+    "components/dashboard/DesktopDashboardHome.tsx",
+    "components/dashboard/MobileDashboardHome.tsx",
   ];
   const combined = (await Promise.all(files.map(source))).join("\n");
   assert.match(combined, /COGIC/);
@@ -59,16 +60,26 @@ test("dashboard top bar uses the COGIC LIVE PNG logo asset", async () => {
   assert.equal((await readFile(logoPath)).byteLength > 0, true);
 });
 
-test("dashboard uses a mobile-first streaming shell with safe fixed navigation", async () => {
-  const [shell, hero, mobileNav, css] = await Promise.all([
+test("dashboard mounts mobile XOR desktop compositions without CSS concealment", async () => {
+  const [shell, desktop, mobile, hero, mobileNav, css, hook] = await Promise.all([
     source("components/dashboard/DashboardShell.tsx"),
+    source("components/dashboard/DesktopDashboardHome.tsx"),
+    source("components/dashboard/MobileDashboardHome.tsx"),
     source("components/dashboard/DashboardHero.tsx"),
     source("components/dashboard/DashboardMobileNav.tsx"),
     source("app/my-convocation/dashboard.css"),
+    source("lib/dashboard/use-desktop-dashboard.ts"),
   ]);
-  assert.match(shell, /DashboardHero/);
-  assert.match(shell, /DashboardLiveStage/);
-  assert.doesNotMatch(shell, /DashboardSidebar/);
+  assert.match(shell, /useDesktopDashboard/);
+  assert.match(shell, /DesktopDashboardHome/);
+  assert.match(shell, /MobileDashboardHome/);
+  assert.match(shell, /isDesktop \? \(/);
+  assert.doesNotMatch(shell, /cl-dashboard-desktop/);
+  assert.doesNotMatch(css, /\.cl-dashboard-desktop\s*\{\s*display:\s*none/);
+  assert.doesNotMatch(css, /\.cl-mobile-home\s*\{\s*display:\s*none/);
+  assert.match(hook, /min-width: 721px/);
+  assert.match(desktop, /DashboardLiveStage/);
+  assert.match(mobile, /DashboardLiveStage/);
   assert.match(hero, /convocation-banner-bishops-v2\.png/);
   assert.match(hero, /width=\{1983\}/);
   assert.match(hero, /height=\{793\}/);

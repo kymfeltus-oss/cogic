@@ -10,17 +10,17 @@ async function source(relativePath: string) {
 }
 
 test("Watch Live attendee nav routes to /live", async () => {
-  const [mobileNav, desktopNav, bottomNav, watchCard, liveNav] = await Promise.all([
+  const [mobileNav, desktopNav, bottomNav, liveStage, liveNav] = await Promise.all([
     source("components/dashboard/DashboardMobileNav.tsx"),
     source("lib/navigation/attendee-desktop-nav.ts"),
     source("lib/navigation/bottom-nav-config.ts"),
-    source("components/dashboard/WatchLiveCard.tsx"),
+    source("components/dashboard/DashboardLiveStage.tsx"),
     source("lib/experience/useAttendeeLiveNavTarget.ts"),
   ]);
   assert.match(mobileNav, /Watch Live[\s\S]*href:\s*"\/live"/);
   assert.match(desktopNav, /label:\s*"Live"[\s\S]*href:\s*"\/live"/);
   assert.match(bottomNav, /Watch Live[\s\S]*href:\s*"\/live"/);
-  assert.match(watchCard, /href="\/live"/);
+  assert.match(liveStage, /"\/live"/);
   assert.match(liveNav, /EXPERIENCE_LIVE_PATH/);
   assert.match(await source("lib/experience/live-routes.ts"), /EXPERIENCE_LIVE_PATH = "\/live"/);
 });
@@ -55,16 +55,13 @@ test("/live is the full Live Hub with cinematic player feature", async () => {
 });
 
 test("isolated attendee live page is removed from normal flow", async () => {
-  const [page, streamPage, dataLoader, routes] = await Promise.all([
+  const [page, streamPage, routes] = await Promise.all([
     source("app/live/page.tsx"),
     source("app/live/[streamId]/page.tsx"),
-    source("components/experience/live/LiveDataLoader.tsx"),
     source("lib/routes.ts"),
   ]);
   assert.match(page, /LiveHubClient/);
   assert.match(streamPage, /redirect\("\/live"\)/);
-  assert.match(dataLoader, /loadLiveHub/);
-  assert.match(dataLoader, /LiveHubClient/);
   // /live must not be locked into the fixed mobile artboard tab shell.
   assert.doesNotMatch(
     routes,

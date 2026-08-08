@@ -1,5 +1,5 @@
 /**
- * Local chat message shape retained for FloatingLiveChat presentation.
+ * Local chat message shape retained for honesty/unit tests.
  * Production attendee chat must use /api/live/chat + realtime (useLiveRoomChat).
  * This store no longer seeds or simulates messages.
  */

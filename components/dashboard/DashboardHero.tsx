@@ -11,7 +11,7 @@ export default function DashboardHero() {
         height={793}
         priority
         quality={90}
-        sizes="(max-width: 720px) calc(100vw - 1.6rem), (max-width: 1180px) calc(100vw - 2.5rem), min(94vw, 1536px)"
+        sizes="(max-width: 720px) calc(100vw - 1.75rem), (max-width: 1180px) calc(100vw - 2.5rem), min(94vw, 1536px)"
         className="cl-hero__image"
       />
     </section>

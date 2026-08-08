@@ -22,8 +22,8 @@ import {
   type EventCountdownConfig,
 } from "@/lib/live/countdown-config";
 
-const EVENT_NAME = "IAN CRAIG & 300";
-const PRESENTER_NAME = "IAN CRAIG";
+const EVENT_NAME = "COGIC LIVE";
+const PRESENTER_NAME = "COGIC LIVE";
 const EVENT_START_ISO = "2026-07-03T19:30:00-05:00";
 const EVENT_TIMEZONE: ScheduleTimezone = "America/Chicago";
 const EVENT_LOCATION = "New Orleans, LA";
@@ -93,7 +93,9 @@ export default function OwnerCountdownControlClient() {
       const nextIso = useEventDefault ? EVENT_START_ISO : data.state.targetDateTime;
       setSetup(data.state);
       setEventName(
-        !data.state.showTitle || data.state.showTitle === "The Awakening Experience"
+        !data.state.showTitle ||
+        data.state.showTitle === "The Awakening Experience" ||
+        data.state.showTitle === "IAN CRAIG & 300"
           ? EVENT_NAME
           : data.state.showTitle,
       );
@@ -394,7 +396,7 @@ export default function OwnerCountdownControlClient() {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/holding page/holding-room.png"
-                      alt="300 Awakening holding room"
+                      alt="COGIC LIVE holding room"
                       width={HOLDING_ROOM_ART_NATIVE.width}
                       height={HOLDING_ROOM_ART_NATIVE.height}
                       className="holding-room-page__bg"

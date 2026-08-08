@@ -149,10 +149,10 @@ describe("web push notification contracts", () => {
   });
 
   it("attendee opt-in and settings UI exist; no mock delivery", () => {
-    const shell = read("components/dashboard/DashboardShell.tsx");
+    const desktop = read("components/dashboard/DesktopDashboardHome.tsx");
     const settings = read("components/notifications/NotificationPreferencesPanel.tsx");
     const profile = read("components/profile/ProfileEditorModal.tsx");
-    assert.match(shell, /StayConnectedPrompt/);
+    assert.match(desktop, /StayConnectedPrompt/);
     assert.match(settings, /Live Broadcasts/);
     assert.match(settings, /Announcements & Updates/);
     assert.match(profile, /NotificationPreferencesPanel/);

@@ -10,16 +10,19 @@ async function source(relativePath: string) {
 }
 
 test("My Sanctuary reuses the real attendee dashboard loader and cards", async () => {
-  const [page, shell] = await Promise.all([
+  const [page, shell, desktop] = await Promise.all([
     source("app/my-sanctuary/page.tsx"),
     source("components/dashboard/DashboardShell.tsx"),
+    source("components/dashboard/DesktopDashboardHome.tsx"),
   ]);
   assert.match(page, /loadAttendeeDashboard/);
   assert.match(page, /dashboardPath="\/my-sanctuary"/);
-  assert.match(shell, /DashboardLiveStage/);
-  assert.match(shell, /TodayScheduleCard/);
-  assert.match(shell, /GivingCard/);
-  assert.match(shell, /MyConvocationCard/);
+  assert.match(shell, /DesktopDashboardHome/);
+  assert.match(shell, /MobileDashboardHome/);
+  assert.match(desktop, /DashboardLiveStage/);
+  assert.match(desktop, /TodayScheduleCard/);
+  assert.match(desktop, /GivingCard/);
+  assert.match(desktop, /MyConvocationCard/);
 });
 
 test("My Sanctuary uses the exact banner and official seal assets", async () => {
@@ -46,13 +49,13 @@ test("My Sanctuary is protected and isolated from the legacy global dock", async
 });
 
 test("attendee feature grid uses content-driven 3-column cards without duplicate CTAs", async () => {
-  const [shell, linkCard, css, registration] = await Promise.all([
-    source("components/dashboard/DashboardShell.tsx"),
+  const [desktop, linkCard, css, registration] = await Promise.all([
+    source("components/dashboard/DesktopDashboardHome.tsx"),
     source("components/dashboard/DashboardLinkCard.tsx"),
     source("app/my-convocation/dashboard.css"),
     source("components/dashboard/MyConvocationCard.tsx"),
   ]);
-  assert.match(shell, /cl-action-grid--features/);
+  assert.match(desktop, /cl-action-grid--features/);
   assert.doesNotMatch(linkCard, /secondaryAction|cl-btn--ghost/);
   assert.match(css, /cl-action-grid--features[\s\S]*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(css, /align-items:\s*start/);
@@ -61,9 +64,9 @@ test("attendee feature grid uses content-driven 3-column cards without duplicate
   assert.match(registration, /Policy agreement pending/);
 });
 
-test("dashboard hero preserves the complete intrinsic banner without overlays", async () => {
+test("My Sanctuary hero preserves the complete intrinsic banner without overlays", async () => {
   const [hero, css] = await Promise.all([
-    source("components/dashboard/ConvocationHero.tsx"),
+    source("components/my-sanctuary/MySanctuaryHero.tsx"),
     source("app/my-convocation/dashboard.css"),
   ]);
   assert.match(hero, /\/my-sanctuary\/banner\.png/);

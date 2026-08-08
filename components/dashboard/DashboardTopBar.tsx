@@ -62,7 +62,7 @@ export default function DashboardTopBar({
               type="button"
               className="cl-topbar__profile"
               onClick={onProfile}
-              aria-label="Open attendee profile"
+              aria-label={`Open profile for ${welcomeName}`}
             >
               {profile.avatarUrl ? (
                 <Image src={profile.avatarUrl} alt="" width={40} height={40} unoptimized />
