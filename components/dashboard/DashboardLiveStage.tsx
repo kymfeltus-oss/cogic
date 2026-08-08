@@ -1,13 +1,16 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Play, Radio } from "lucide-react";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
+import {
+  COGIC_SERVICE_PREVIEW_EMBED_URL,
+  COGIC_SERVICE_PREVIEW_TITLE,
+} from "@/lib/live/service-preview";
 
 /**
  * Status badge is driven by authoritative live state from the dashboard loader
  * (`resolveAuthoritativeLiveState` via occurrences + stream manifest).
  * - Live broadcast → "NOW LIVE" neon red pulse
- * - Not live → purple static badge + image placeholder (no preview video)
+ * - Not live → purple Offline badge + YouTube service preview
  */
 export default function DashboardLiveStage({
   live,
@@ -36,7 +39,7 @@ export default function DashboardLiveStage({
         aria-label={
           isNowLive
             ? "COGIC LIVE is broadcasting — open Watch Live for the stream"
-            : "COGIC LIVE is offline — placeholder preview"
+            : "COGIC LIVE service preview video"
         }
       >
         {isNowLive ? (
@@ -48,13 +51,13 @@ export default function DashboardLiveStage({
             <span>The production stream is available in the live experience.</span>
           </div>
         ) : (
-          <Image
-            src="/my-sanctuary/banner.png"
-            alt=""
-            fill
-            sizes="(max-width: 720px) 100vw, 60vw"
-            className="cl-live-stage__placeholder"
-            priority={false}
+          <iframe
+            src={COGIC_SERVICE_PREVIEW_EMBED_URL}
+            title={COGIC_SERVICE_PREVIEW_TITLE}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
           />
         )}
       </div>
