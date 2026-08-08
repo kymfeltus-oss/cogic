@@ -274,9 +274,9 @@
 .cl-topbar__avatar { font-family: var(--font-montserrat), sans-serif; font-size: .72rem; font-weight: 700; letter-spacing: .04em; }
 .cl-topbar__avatar svg { width: 1.15rem; }
 
-/* Banner: container wraps approved artwork aspect (1983×793); never crop bishops/text. */
+/* Banner: container follows the approved 1629×965 artwork; never crop its content. */
 .cl-hero {
-  --cl-hero-aspect: 1983 / 793;
+  --cl-hero-aspect: 1629 / 965;
   position: relative;
   overflow: hidden;
   display: block;
@@ -484,7 +484,7 @@
   .cl-mobile-home .cl-hero__image {
     width: 100%;
     height: auto;
-    aspect-ratio: 1983 / 793;
+    aspect-ratio: 1629 / 965;
     object-fit: contain;
     object-position: center;
     border-radius: inherit;
@@ -1127,7 +1127,7 @@
   width: 100%;
   max-width: 100%;
   height: auto;
-  aspect-ratio: 2172 / 724;
+  aspect-ratio: 1629 / 965;
   max-height: var(--dash-banner-max-h);
   object-fit: contain;
   object-position: center;
@@ -1250,7 +1250,7 @@
     width: 100%;
     max-width: 100%;
     height: auto;
-    aspect-ratio: 1983 / 793;
+    aspect-ratio: 1629 / 965;
     object-fit: contain;
     object-position: center;
   }
@@ -1862,22 +1862,23 @@
 /* Mobile banner and stream card intentionally share one outer box size. */
 @media (max-width: 720px) {
   .cl-dash .cl-mobile-home {
-    --cl-mobile-feature-height: clamp(11.5rem, 55vw, 15rem);
+    --cl-mobile-feature-aspect: 1629 / 965;
   }
 
   .cl-dash .cl-mobile-home .cl-hero,
   .cl-dash .cl-mobile-home .cl-live-stage {
     width: 100%;
     max-width: 100%;
-    height: var(--cl-mobile-feature-height);
+    height: auto;
+    aspect-ratio: var(--cl-mobile-feature-aspect);
     min-height: 0;
     margin-inline: 0;
     box-sizing: border-box;
   }
 
   .cl-dash .cl-mobile-home .cl-hero__image {
-    width: auto;
-    height: auto;
+    width: 100%;
+    height: 100%;
     max-width: 100%;
     max-height: 100%;
     aspect-ratio: auto;
@@ -1889,7 +1890,7 @@
   .cl-dash .cl-mobile-home .cl-hero {
     display: grid;
     place-items: center;
-    padding: .3rem;
+    padding: 0;
     background: #05070d;
   }
 
