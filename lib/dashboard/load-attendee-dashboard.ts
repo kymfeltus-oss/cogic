@@ -42,6 +42,7 @@ export type AttendeeDashboardData = {
     nextTime: string | null;
     featuredReplay: PublishedReplay | null;
   };
+  recentReplays: PublishedReplay[];
   schedule: ScheduleOccurrenceDTO[];
   scheduleAvailable: boolean;
   registration: DashboardRegistrationState;
@@ -136,6 +137,8 @@ export async function loadAttendeeDashboard(): Promise<AttendeeDashboardData> {
         : null,
       featuredReplay,
     },
+    recentReplays:
+      replaysResult.status === "fulfilled" ? replaysResult.value.slice(0, 8) : [],
     schedule: todayOccurrences.map((item) =>
       mapPublishedOccurrenceToScheduleItem(item, lookup, item.status === "live"),
     ),

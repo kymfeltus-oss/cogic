@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Play, Radio } from "lucide-react";
+import { CalendarDays, Play, Radio } from "lucide-react";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 import { resolveAttendeeMediaState } from "@/lib/live/attendee-media-state";
 import {
@@ -81,6 +81,9 @@ export default function DashboardLiveStage({
           {isNowLive ? <Radio aria-hidden="true" className="size-4" /> : <Play aria-hidden="true" className="size-4" />}
         </Link>
       ) : null}
+      <Link href="/program" className="cl-live-stage__schedule">
+        <CalendarDays aria-hidden="true" /> View schedule
+      </Link>
     </article>
   );
 }

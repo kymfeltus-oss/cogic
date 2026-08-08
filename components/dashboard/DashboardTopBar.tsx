@@ -35,7 +35,7 @@ export default function DashboardTopBar({
             height={256}
             className="cl-topbar__seal"
             priority
-            style={{ width: "clamp(9.5rem, 13vw, 13rem)", height: "clamp(9.5rem, 13vw, 13rem)", maxWidth: "none", objectFit: "cover", objectPosition: "center" }}
+            style={{ width: "clamp(2.75rem, 4.2vw, 3.5rem)", height: "clamp(2.75rem, 4.2vw, 3.5rem)", maxWidth: "none", objectFit: "cover", objectPosition: "center" }}
           />
           <Image
             src="/my-sanctuary/cogic-live-logo-purple.png"

@@ -20,6 +20,7 @@ import { Headphones, PlaySquare, UsersRound } from "lucide-react";
 import TravelProgressCard from "@/components/dashboard/TravelProgressCard";
 import TicketStoreClient from "@/components/tickets/TicketStoreClient";
 import HousingExperience from "@/components/housing/HousingExperience";
+import MobileDashboardHome from "@/components/dashboard/MobileDashboardHome";
 
 export default function DashboardShell({
   data,
@@ -54,7 +55,9 @@ export default function DashboardShell({
           onProfile={() => setProfileOpen(true)}
         />
 
-        <main id="main-content" className="cl-dash__main">
+        <MobileDashboardHome data={data} />
+
+        <main id="main-content" className="cl-dash__main cl-dashboard-desktop">
           <div className="cl-dash__canvas">
             {hero ?? (
               <DashboardHero />
