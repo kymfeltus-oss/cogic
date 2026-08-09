@@ -47,7 +47,7 @@
   pointer-events: none;
 }
 
-.cl-dashboard-media img {
+.cl-dashboard-media video {
   display: block;
   width: 100%;
   height: 100%;
@@ -60,7 +60,7 @@
   min-width: 0;
   display: grid;
   gap: .7rem;
-  padding: clamp(20rem, 84vw, 23rem) var(--cl-mobile-pad-x) .75rem;
+  padding: clamp(27rem, 115vw, 31rem) var(--cl-mobile-pad-x) .75rem;
 }
 
 /* The stream card is the first interactive surface below the integrated MP4 artwork. */

@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
-test("mobile background artwork and live player preserve their intended footprints", async () => {
+test("mobile animated background and live player preserve their intended footprints", async () => {
   const css = await readFile(
     path.join(process.cwd(), "app/my-convocation/dashboard.css"),
     "utf8",
@@ -24,9 +24,9 @@ test("mobile background artwork and live player preserve their intended footprin
   );
   assert.match(
     css,
-    /\.cl-dashboard-media img\s*\{[^}]*width:\s*100%[^}]*height:\s*100%[^}]*object-fit:\s*contain[^}]*object-position:\s*top center/s,
+    /\.cl-dashboard-media video\s*\{[^}]*width:\s*100%[^}]*height:\s*100%[^}]*object-fit:\s*contain[^}]*object-position:\s*top center/s,
   );
-  assert.match(css, /\.cl-mobile-home\s*\{[^}]*padding:\s*clamp\(20rem,\s*84vw,\s*23rem\)/s);
+  assert.match(css, /\.cl-mobile-home\s*\{[^}]*padding:\s*clamp\(27rem,\s*115vw,\s*31rem\)/s);
   assert.match(css, /\.cl-dash \.cl-mobile-home \.cl-live-stage::after\s*\{/);
   assert.doesNotMatch(css, /cl-hero|my-sanctuary-hero/);
   assert.doesNotMatch(css, /@media\s*\(min-width|cl-desktop|cl-dashboard-desktop/);

@@ -9,7 +9,7 @@ async function source(relativePath: string) {
   return readFile(path.join(root, relativePath), "utf8");
 }
 
-test("My Sanctuary reuses the real attendee dashboard loader and universal artwork shell", async () => {
+test("My Sanctuary reuses the real attendee dashboard loader and universal animated shell", async () => {
   const [page, shell, home] = await Promise.all([
     source("app/my-sanctuary/page.tsx"),
     source("components/dashboard/DashboardShell.tsx"),
@@ -18,8 +18,9 @@ test("My Sanctuary reuses the real attendee dashboard loader and universal artwo
   assert.match(page, /loadAttendeeDashboard/);
   assert.match(page, /dashboardPath="\/my-sanctuary"/);
   assert.match(shell, /AttendeeDashboardHome/);
-  assert.match(shell, /\/my-sanctuary\/header-backgroung\.png/);
-  assert.doesNotMatch(shell, /<video|\.mp4/);
+  assert.match(shell, /poster="\/my-sanctuary\/header-backgroung\.png"/);
+  assert.match(shell, /\/my-sanctuary\/mobile_dashboard\.mp4/);
+  assert.match(shell, /autoPlay[\s\S]*loop[\s\S]*muted[\s\S]*playsInline/);
   assert.doesNotMatch(shell, /DesktopDashboardHome|MobileDashboardHome|useDesktopDashboard/);
   assert.doesNotMatch(page, /MySanctuaryHero|my-sanctuary\.css/);
   assert.match(home, /DashboardLiveStage/);
@@ -27,15 +28,15 @@ test("My Sanctuary reuses the real attendee dashboard loader and universal artwo
   assert.match(home, /StayConnectedPrompt/);
 });
 
-test("My Sanctuary uses the integrated artwork and controls-only dashboard layer", async () => {
+test("My Sanctuary uses the integrated animated artwork and controls-only dashboard layer", async () => {
   const [page, shell, topBar] = await Promise.all([
     source("app/my-sanctuary/page.tsx"),
     source("components/dashboard/DashboardShell.tsx"),
     source("components/dashboard/DashboardTopBar.tsx"),
   ]);
   assert.doesNotMatch(page, /banner\.png|MySanctuaryHero/);
-  assert.match(shell, /\/my-sanctuary\/header-backgroung\.png/);
-  assert.doesNotMatch(shell, /<video|\.mp4/);
+  assert.match(shell, /poster="\/my-sanctuary\/header-backgroung\.png"/);
+  assert.match(shell, /\/my-sanctuary\/mobile_dashboard\.mp4/);
   assert.match(topBar, /cl-dashboard-controls/);
   assert.doesNotMatch(topBar, /<video|header\.mp4|cogic-live-logo-purple\.png|cogic-phrase\.png|DashboardSearch/);
   assert.doesNotMatch(topBar, />C<\/span>/);
@@ -79,6 +80,6 @@ test("My Sanctuary contains no superseded standalone dashboard banner", async ()
   const combined = `${page}\n${shell}\n${home}\n${css}`;
   assert.doesNotMatch(combined, /DashboardHero|MySanctuaryHero|cl-hero|my-sanctuary-hero/);
   assert.doesNotMatch(combined, /\/my-sanctuary\/banner\.png/);
-  assert.match(css, /\.cl-dashboard-media img[\s\S]*object-fit:\s*contain/);
+  assert.match(css, /\.cl-dashboard-media video[\s\S]*object-fit:\s*contain/);
   assert.doesNotMatch(css, /@media\s*\((?:min|max)-width|cl-desktop|cl-dashboard-desktop/);
 });

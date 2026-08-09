@@ -79,10 +79,10 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   ]);
   assert.match(shell, /AttendeeDashboardHome/);
   assert.match(shell, /DashboardMobileNav/);
-  assert.match(shell, /\/my-sanctuary\/header-backgroung\.png/);
-  assert.match(shell, /width=\{941\}/);
-  assert.match(shell, /height=\{1672\}/);
-  assert.doesNotMatch(shell, /<video|\.mp4|dashboard-welcome-background\.png/);
+  assert.match(shell, /<video[\s\S]*autoPlay[\s\S]*loop[\s\S]*muted[\s\S]*playsInline/);
+  assert.match(shell, /poster="\/my-sanctuary\/header-backgroung\.png"/);
+  assert.match(shell, /\/my-sanctuary\/mobile_dashboard\.mp4/);
+  assert.doesNotMatch(shell, /dashboard-welcome-background\.png/);
   assert.doesNotMatch(shell, /\bhero\b|DashboardHero|MySanctuaryHero/);
   assert.doesNotMatch(shell, /useDesktopDashboard|DesktopDashboardHome|MobileDashboardHome|isDesktop/);
   assert.doesNotMatch(css, /\.cl-dashboard-desktop\s*\{\s*display:\s*none/);
@@ -105,7 +105,7 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   assert.doesNotMatch(css, /\.cl-bottom-nav\s*\{\s*display:\s*none\s*!important/);
   assert.match(css, /--cl-mobile-feature-aspect:\s*2160\s*\/\s*1280/);
   assert.match(css, /\.cl-dashboard-media[\s\S]*aspect-ratio:\s*9\s*\/\s*16/);
-  assert.match(css, /\.cl-dashboard-media img[\s\S]*object-fit:\s*contain/);
-  assert.match(css, /\.cl-mobile-home[\s\S]*padding:\s*clamp\(20rem,\s*84vw,\s*23rem\)/);
+  assert.match(css, /\.cl-dashboard-media video[\s\S]*object-fit:\s*contain/);
+  assert.match(css, /\.cl-mobile-home[\s\S]*padding:\s*clamp\(27rem,\s*115vw,\s*31rem\)/);
   assert.doesNotMatch(css, /cl-hero|my-sanctuary-hero/);
 });
