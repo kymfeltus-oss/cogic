@@ -10,16 +10,16 @@ async function source(relativePath: string) {
 }
 
 test("Watch Live attendee nav routes to /live", async () => {
-  const [mobileNav, desktopNav, bottomNav, liveStage, liveNav] = await Promise.all([
+  const [mobileNav, primaryNav, bottomNav, liveStage, liveNav] = await Promise.all([
     source("components/dashboard/DashboardMobileNav.tsx"),
-    source("lib/navigation/attendee-desktop-nav.ts"),
+    source("lib/navigation/attendee-primary-nav.ts"),
     source("lib/navigation/bottom-nav-config.ts"),
     source("components/dashboard/DashboardLiveStage.tsx"),
     source("lib/experience/useAttendeeLiveNavTarget.ts"),
   ]);
-  assert.match(mobileNav, /Watch Live[\s\S]*href:\s*"\/live"/);
-  assert.match(desktopNav, /label:\s*"Live"[\s\S]*href:\s*"\/live"/);
-  assert.match(bottomNav, /Watch Live[\s\S]*href:\s*"\/live"/);
+  assert.match(mobileNav, /ATTENDEE_PRIMARY_NAV/);
+  assert.match(primaryNav, /label:\s*"Watch Live"[\s\S]*href:\s*"\/live"/);
+  assert.match(bottomNav, /ATTENDEE_PRIMARY_NAV/);
   assert.match(liveStage, /"\/live"/);
   assert.match(liveNav, /EXPERIENCE_LIVE_PATH/);
   assert.match(await source("lib/experience/live-routes.ts"), /EXPERIENCE_LIVE_PATH = "\/live"/);
@@ -35,6 +35,9 @@ test("/live is the full Live Hub with cinematic player feature", async () => {
   assert.match(page, /loadLiveHub/);
   assert.match(page, /LiveHubClient/);
   assert.match(page, /live-hub\.css/);
+  assert.match(hub, /DashboardTopBar/);
+  assert.match(hub, /DashboardMobileNav/);
+  assert.doesNotMatch(hub, /live-hub__topbar|AttendeeDesktopNav/);
   assert.match(hub, /live-hub__player-shell/);
   assert.match(hub, /variant="hub"/);
   assert.match(hub, /Up Next/);
@@ -128,8 +131,13 @@ test("Live Hub Convocation dock exposes only real attendee routes", async () => 
 });
 
 test("mobile navigation marks Watch Live active on /live", async () => {
-  const nav = await source("components/dashboard/DashboardMobileNav.tsx");
-  assert.match(nav, /kind: "prefix"/);
-  assert.match(nav, /href:\s*"\/live"/);
-  assert.match(nav, /pathname\.startsWith\(`\$\{item\.href\}\/`\)/);
+  const [nav, primary] = await Promise.all([
+    source("components/dashboard/DashboardMobileNav.tsx"),
+    source("lib/navigation/attendee-primary-nav.ts"),
+  ]);
+  assert.match(nav, /ATTENDEE_PRIMARY_NAV/);
+  assert.match(nav, /isAttendeePrimaryNavActive/);
+  assert.match(primary, /href:\s*"\/live"/);
+  assert.match(primary, /match:\s*"live"/);
+  assert.match(primary, /isAttendeeLiveSurfacePath/);
 });

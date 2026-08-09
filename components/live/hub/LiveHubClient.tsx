@@ -6,21 +6,18 @@ import { useCallback, useRef } from "react";
 import {
   Archive,
   CalendarDays,
-  ChevronDown,
   Church,
   Library,
   Megaphone,
   Play,
   PlaySquare,
   Radio,
-  Search,
   Sprout,
   TicketCheck,
-  UserRound,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
-import AttendeeDesktopNav from "@/components/navigation/AttendeeDesktopNav";
+import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
 import LiveMonetizationPanel from "@/components/live/hub/LiveMonetizationPanel";
 import LiveExperienceClient from "@/components/experience/live/LiveExperienceClient";
 import LiveRoomChatPanel from "@/components/experience/live/LiveRoomChatPanel";
@@ -94,34 +91,15 @@ export default function LiveHubClient({ data }: LiveHubClientProps) {
       : featuredReplay
         ? [featuredReplay.localDate, featuredReplay.description].filter(Boolean).join(" · ")
         : "Programming will appear here as soon as it is available.";
-  const attendeeName = data.profile.firstName || "Guest";
+  const router = useRouter();
 
   return (
     <div className="live-hub">
-      <header className="live-hub__topbar">
-        <Link href="/my-convocation" className="live-hub__brand" aria-label="COGIC LIVE dashboard">
-          <Image src="/branding/cogic-seal.png" alt="" width={58} height={58} priority />
-          <span>
-            <Image src="/my-sanctuary/cogic-live-logo-purple.png" alt="COGIC LIVE" width={1250} height={270} priority />
-            <small>Cinematic immersive hub</small>
-          </span>
-        </Link>
-
-        <AttendeeDesktopNav pathname={pathname} ariaLabel="Live Hub navigation" />
-
-        <div className="live-hub__account">
-          <Link href="/replays" aria-label="Search published media"><Search aria-hidden="true" /></Link>
-          <Link href="/my-convocation?view=profile" className="live-hub__profile">
-            <span className="live-hub__avatar">
-              {data.profile.avatarUrl ? (
-                <Image src={data.profile.avatarUrl} alt="" width={38} height={38} unoptimized />
-              ) : <UserRound aria-hidden="true" />}
-            </span>
-            <span><strong>{attendeeName}</strong><small>Attendee</small></span>
-            <ChevronDown aria-hidden="true" />
-          </Link>
-        </div>
-      </header>
+      <DashboardTopBar
+        profile={data.profile}
+        profileReturnPath="/my-convocation"
+        onProfile={() => router.push("/my-convocation?view=profile")}
+      />
 
       <main className="live-hub__inner">
         <div className="live-hub__top-grid">
