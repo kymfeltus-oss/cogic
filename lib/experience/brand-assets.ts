@@ -11,7 +11,6 @@ export const EXPERIENCE_BRAND_ASSETS = {
   logo: "/images/logo.png",
   emblem: "/images/logo.png",
   countdownFrame: "/ui/countdown-frame.png",
-  hallelujahCover: "/images/hallelujah-anyhow-cover.png",
 } as const;
 
 export type ExperienceBrandAssetKey = keyof typeof EXPERIENCE_BRAND_ASSETS;

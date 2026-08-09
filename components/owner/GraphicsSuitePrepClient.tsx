@@ -137,8 +137,8 @@ type ApiAssetResponse = {
 type UploadedSlotAssets = Partial<Record<(typeof UPLOAD_SLOTS)[number]["key"], { label: string; url: string }>>;
 
 const DEFAULT_FORM = {
-  primary: "PASTOR IAN CRAIG",
-  secondary: "LEAD PASTOR",
+  primary: "COGIC LIVE",
+  secondary: "HOLY CONVOCATION",
   customDuration: 45,
 };
 
@@ -982,9 +982,9 @@ export default function GraphicsSuitePrepClient() {
                         className="absolute right-4 top-4 max-h-12 max-w-[28%] object-contain drop-shadow-[0_0_14px_rgba(0,168,255,0.45)]"
                       />
                     ) : (
-                      <div className="absolute right-4 top-4 text-right font-headline text-2xl font-black leading-none text-[#5ca8ff]">
-                        300
-                        <span className="block font-ui text-[0.48rem] tracking-[0.16em] text-white">AWAKENING</span>
+                      <div className="absolute right-4 top-4 text-right font-headline text-lg font-black leading-none text-[#5ca8ff]">
+                        COGIC
+                        <span className="block font-ui text-[0.48rem] tracking-[0.16em] text-white">LIVE</span>
                       </div>
                     )}
                     <div

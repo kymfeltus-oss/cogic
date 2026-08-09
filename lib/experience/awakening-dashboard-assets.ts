@@ -41,7 +41,7 @@ export const AWAKENING_DASHBOARD_OVERLAY_LAYOUT = {
   },
   /** Baked AWAKENING logo + glow clear zone ends at this Y (tuned to video plate). */
   logoClearBottomY: 632,
-  /** Minimum space between logo clear zone and Ian Craig story card. */
+  /** Minimum space between logo clear zone and story card slot. */
   logoToStoryMinGap: 32,
   /** Uniform scale for 2×2 button cards — layout width comes from shared stack (100%). */
   cardScale: AWAKENING_DASHBOARD_BUTTON_GRID_SCALE,
@@ -83,12 +83,11 @@ export const AWAKENING_ASSETS = {
   background: "/awakening/dashboard-concert-bg%20mobile.mp4",
   logo: "/branding/awakening-lockup.png",
   welcomeHeader: "/awakening/300_dashboard_assets/welcome_header.png",
-  /** Story poster (2752×1536) — swap to MP4 via `ianCraigStoryVideo` when ready. */
-  ianCraigStoryPoster: "/awakening/300_dashboard_assets/ian%20craig%20story%20clean.png",
-  ianCraigStoryVideo: null as string | null,
+  /** Legacy story poster slot — retired (no artist promo art). */
+  storyPoster: null as string | null,
+  storyVideo: null as string | null,
   routes: {
     enterExperience: EXPERIENCE_LIVE_PATH,
-    /** Cinematic intro — Ian Craig story video (`VideoIntroExperience`). */
     watchStory: "/",
     giving: "/giving",
     liveRoom: EXPERIENCE_LIVE_PATH,
@@ -170,7 +169,6 @@ export const AWAKENING_DASHBOARD_CARDS_MOBILE = [
 
 export const AWAKENING_PRELOAD_ASSETS = [
   { href: AWAKENING_ASSETS.background, as: "video" as const },
-  { href: AWAKENING_ASSETS.ianCraigStoryPoster, as: "image" as const },
   ...Object.values(AWAKENING_DASHBOARD_BUTTON_ASSETS).map((href) => ({
     href,
     as: "image" as const,

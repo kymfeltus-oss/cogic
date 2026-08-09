@@ -364,15 +364,15 @@ export function getGraphicsTypeHelp(type: GraphicsPresetType): {
       return {
         primary: "Main Text",
         secondary: "Subtitle / Role",
-        placeholderPrimary: "PASTOR IAN CRAIG",
-        placeholderSecondary: "LEAD PASTOR",
+        placeholderPrimary: "COGIC LIVE",
+        placeholderSecondary: "HOLY CONVOCATION",
       };
     case "OFFERING":
       return {
         primary: "Offering Callout",
         secondary: "Giving Details",
         placeholderPrimary: "WAYS TO GIVE",
-        placeholderSecondary: 'TEXT "300" TO 77977',
+        placeholderSecondary: "Give through COGIC LIVE",
       };
     case "SCRIPTURE":
       return {
@@ -392,8 +392,8 @@ export function getGraphicsTypeHelp(type: GraphicsPresetType): {
       return {
         primary: "Ticker Lead",
         secondary: "Ticker Sequence",
-        placeholderPrimary: "WELCOME TO 300 AWAKENING",
-        placeholderSecondary: "FOLLOW US @300AWAKENING",
+        placeholderPrimary: "WELCOME TO COGIC LIVE",
+        placeholderSecondary: "118TH HOLY CONVOCATION",
       };
   }
 }

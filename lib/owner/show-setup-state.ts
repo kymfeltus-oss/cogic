@@ -227,8 +227,8 @@ export async function loadShowSetupState(): Promise<ShowSetupState> {
   const primary = resolveExternalIngestCredentials();
   const backup = resolveIvsIngestCredentials();
   const base: ShowSetupState = {
-    showTitle: row?.concert_title ?? "IAN CRAIG & 300",
-    presenterName: row?.headliner_name ?? "IAN CRAIG",
+    showTitle: row?.concert_title ?? "COGIC LIVE",
+    presenterName: row?.headliner_name ?? "COGIC LIVE",
     hostNames: [],
     eventLocation: "New Orleans, LA",
     livestreamAvailability: "Available worldwide",

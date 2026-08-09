@@ -96,7 +96,7 @@ const SEEDED_TEMPLATES: Omit<LiveActivityItem, "id" | "createdAt">[] = [
     kind: "music",
     source: "seeded",
     name: "A listener",
-    message: "opened Hallelujah Anyhow!",
+    message: "opened COGIC LIVE Music",
   },
   {
     kind: "share",

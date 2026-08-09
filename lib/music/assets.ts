@@ -1,13 +1,10 @@
-/** Music page — mobile artboard + interactive action targets. */
+/** Music page — mobile artboard (COGIC LIVE; no third-party artist promo). */
 
 import {
   ATTENDEE_DASHBOARD_PATH,
   MOBILE_ARTBOARD_BACK_HOTSPOT,
 } from "@/lib/navigation/back-to-dashboard";
 import { MOBILE_ARTBOARD_REF } from "@/lib/responsive";
-
-export const APPLE_MUSIC_SINGLE_URL =
-  "https://music.apple.com/us/artist/ian-craig-300/1643247247";
 
 export const MUSIC_ASSETS = {
   mobileBackground: "/my-sanctuary/banner.png",
@@ -39,30 +36,7 @@ export const MUSIC_PAGE_ACTIONS: readonly MusicPageAction[] = [
     width: MOBILE_ARTBOARD_BACK_HOTSPOT.width,
     height: MOBILE_ARTBOARD_BACK_HOTSPOT.height,
   },
-  {
-    id: "apple-music-cover",
-    label: "Buy on Apple Music",
-    href: APPLE_MUSIC_SINGLE_URL,
-    external: true,
-    left: "5%",
-    top: "44.5%",
-    width: "48%",
-    height: "5.5%",
-  },
-  {
-    id: "apple-music",
-    label: "Get it on Apple Music",
-    href: APPLE_MUSIC_SINGLE_URL,
-    external: true,
-    left: "5%",
-    top: "69.5%",
-    width: "90%",
-    height: "13.5%",
-  },
 ] as const;
 
-/** Hotspots aligned to `background image mobile.png` — back handled by MobileArtboardTabHeader. */
-export const MUSIC_MOBILE_VISIBLE_ACTION_IDS = [
-  "apple-music-cover",
-  "apple-music",
-] as const;
+/** Hotspots — back handled by MobileArtboardTabHeader. */
+export const MUSIC_MOBILE_VISIBLE_ACTION_IDS = [] as const;
