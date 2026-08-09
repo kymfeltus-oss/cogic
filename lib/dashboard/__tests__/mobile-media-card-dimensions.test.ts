@@ -26,7 +26,7 @@ test("mobile animated background and live player preserve their intended footpri
     css,
     /\.cl-dashboard-media video\s*\{[^}]*width:\s*100%[^}]*height:\s*100%[^}]*object-fit:\s*contain[^}]*object-position:\s*top center/s,
   );
-  assert.match(css, /\.cl-mobile-home\s*\{[^}]*padding:\s*clamp\(27rem,\s*115vw,\s*31rem\)/s);
+  assert.match(css, /\.cl-mobile-home\s*\{[^}]*padding:\s*clamp\(25rem,\s*105vw,\s*28rem\)/s);
   assert.match(css, /\.cl-dash \.cl-mobile-home \.cl-live-stage::after\s*\{/);
   assert.doesNotMatch(css, /cl-hero|my-sanctuary-hero/);
   assert.doesNotMatch(css, /@media\s*\(min-width|cl-desktop|cl-dashboard-desktop/);

@@ -2,43 +2,47 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import AttendeeDesktopNav from "@/components/navigation/AttendeeDesktopNav";
+import { UserRound } from "lucide-react";
 
-/** Live Hub–style top chrome for attendee pages that do not own a custom header. */
+/** Universal attendee top chrome — same mobile header structure as the dashboard. */
 export default function AttendeeSharedTopBar() {
-  const pathname = usePathname() || "/";
-
   return (
     <header className="cl-topbar cl-topbar--shared">
+      <div className="cl-topbar__phrase-wrap">
+        <Image
+          src="/my-sanctuary/cogic-phrase.png"
+          alt="The Church of God in Christ"
+          width={1535}
+          height={1024}
+          priority
+          sizes="(max-width: 720px) 82vw, 320px"
+          className="cl-topbar__phrase"
+        />
+      </div>
+
       <div className="cl-topbar__brand">
         <Link href="/my-convocation" className="cl-topbar__brand-link" aria-label="COGIC LIVE home">
-          <Image
-            src="/branding/cogic-seal.png"
-            alt=""
-            width={256}
-            height={256}
-            className="cl-topbar__seal"
-            priority
-            style={{ width: "clamp(2.75rem, 4.2vw, 3.5rem)", height: "clamp(2.75rem, 4.2vw, 3.5rem)", maxWidth: "none", objectFit: "cover", objectPosition: "center" }}
-          />
           <Image
             src="/my-sanctuary/cogic-live-logo-purple.png"
             alt="COGIC LIVE"
             width={1250}
             height={270}
             priority
-            sizes="168px"
+            sizes="116px"
             className="cl-topbar__logo"
           />
         </Link>
       </div>
 
-      <AttendeeDesktopNav pathname={pathname} ariaLabel="Primary desktop" />
-
       <div className="cl-topbar__tools cl-topbar__tools--shared">
-        <Link href="/my-convocation?view=profile" className="cl-btn cl-btn--compact">
-          My Account
+        <Link
+          href="/my-convocation?view=profile"
+          className="cl-topbar__profile"
+          aria-label="Open My Account"
+        >
+          <span className="cl-topbar__avatar" aria-hidden="true">
+            <UserRound />
+          </span>
         </Link>
       </div>
     </header>

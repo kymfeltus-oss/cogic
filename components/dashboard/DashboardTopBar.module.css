@@ -79,12 +79,6 @@
   border-radius: .85rem;
 }
 
-.root :global(.cl-topbar__bell-btn)::after {
-  content: "Alerts";
-  font-size: .66rem;
-  font-weight: 650;
-}
-
 .root :global(.cl-topbar__bell) {
   width: 1rem;
   height: 1rem;

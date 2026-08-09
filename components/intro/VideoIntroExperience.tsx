@@ -2,9 +2,6 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { AccessContext } from "@/lib/access";
-import { fetchAccessContext } from "@/lib/access";
-import { buildPersonaHubUrl, DEFAULT_ATTENDEE_NEXT } from "@/lib/auth/routing";
 import {
   INTRO_ENTER_PANEL,
   INTRO_MOBILE_ART,
@@ -12,24 +9,36 @@ import {
   INTRO_VIDEO_ART,
   INTRO_VIDEO_SRC,
 } from "@/lib/experience/intro-assets";
+import {
+  introEnterAnonymousFallback,
+  type IntroEnterDestination,
+} from "@/lib/experience/intro-destination";
 import { introRectStyle } from "@/lib/experience/intro-layout-slots";
 
 const EXIT_MS = 520;
-const ACCESS_TIMEOUT_MS = 600;
-const INTRO_FALLBACK_DESTINATION = buildPersonaHubUrl(DEFAULT_ATTENDEE_NEXT);
+const DESTINATION_TIMEOUT_MS = 2500;
+const INTRO_FALLBACK_DESTINATION = introEnterAnonymousFallback();
 
 async function resolveIntroDestination(): Promise<string> {
   try {
-    const context = await Promise.race<AccessContext>([
-      fetchAccessContext(),
-      new Promise((resolve) => {
-        window.setTimeout(
-          () => resolve({ userId: null, email: null, isGuest: false }),
-          ACCESS_TIMEOUT_MS,
-        );
+    const result = await Promise.race<IntroEnterDestination | null>([
+      fetch("/api/intro/destination", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      }).then(async (response) => {
+        if (!response.ok) return null;
+        return (await response.json()) as IntroEnterDestination;
+      }),
+      new Promise<null>((resolve) => {
+        window.setTimeout(() => resolve(null), DESTINATION_TIMEOUT_MS);
       }),
     ]);
-    return context.userId ? DEFAULT_ATTENDEE_NEXT : INTRO_FALLBACK_DESTINATION;
+
+    if (result?.destination?.startsWith("/")) {
+      return result.destination;
+    }
+    return INTRO_FALLBACK_DESTINATION;
   } catch {
     return INTRO_FALLBACK_DESTINATION;
   }
@@ -120,7 +129,7 @@ export default function VideoIntroExperience() {
             alt="118th Holy Convocation — Enter COGIC LIVE"
             fill
             priority
-            sizes="100vw"
+            sizes="(max-width: 430px) 100vw, 430px"
             className="intro-flash-artboard__image"
           />
           <div className="intro-flash-overlay">

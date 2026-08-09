@@ -1,8 +1,12 @@
-/** Intro splash — mobile video plate + overlay slots. */
+/** Intro splash — mobile plate + overlay slots. */
 
 import { MOBILE_ARTBOARD_REF } from "@/lib/responsive";
 
-export const INTRO_VIDEO_SRC = "/intro%20mobile.png";
+/** Cache-bust when replacing `public/intro mobile.png`. */
+export const INTRO_IMAGE_ASSET_VERSION = "20260808";
+
+/** Served from `public/intro mobile.png` (941×1672). */
+export const INTRO_VIDEO_SRC = `/intro%20mobile.png?v=${INTRO_IMAGE_ASSET_VERSION}`;
 
 /** Cache-bust when replacing `public/intro-music.m4a`. */
 export const INTRO_MUSIC_ASSET_VERSION = "20260618";
@@ -10,10 +14,10 @@ export const INTRO_MUSIC_ASSET_VERSION = "20260618";
 /** Served from `public/intro-music.m4a`. */
 export const INTRO_MUSIC_SRC = `/intro-music.m4a?v=${INTRO_MUSIC_ASSET_VERSION}`;
 
-/** Native intro mobile.mp4 export (9:16 — same ratio as dashboard track). */
+/** Native intro plate — must match PNG pixels so Enter % slots align. */
 export const INTRO_VIDEO_ART = {
-  width: 1254,
-  height: 1254,
+  width: 941,
+  height: 1672,
 } as const;
 
 /** Stage column width — matches attendee dashboard track. */
@@ -26,10 +30,13 @@ export type IntroLayoutRect = {
   height: number;
 };
 
-/** Enter CTA aligned to intro mobile.mp4 art (720×1280). */
+/**
+ * Enter CTA aligned to the baked pill on `intro mobile.png` (941×1672).
+ * Measured from the solid magenta→blue button body (px 228,1385 → 633,1516).
+ */
 export const INTRO_ENTER_PANEL = {
-  left: 34,
-  top: 89.5,
-  width: 32,
-  height: 8.5,
+  left: 24.23,
+  top: 82.835,
+  width: 43.146,
+  height: 7.895,
 } as const satisfies IntroLayoutRect;

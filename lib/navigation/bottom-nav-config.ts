@@ -1,12 +1,10 @@
-import { isAttendeeLiveSurfacePath } from "@/lib/experience/live-routes";
-import { ATTENDEE_DASHBOARD_PATH } from "@/lib/navigation/back-to-dashboard";
+import {
+  ATTENDEE_PRIMARY_NAV,
+  isAttendeePrimaryNavActive,
+  type AttendeePrimaryNavId,
+} from "@/lib/navigation/attendee-primary-nav";
 
-export type BottomNavItemId =
-  | "home"
-  | "live"
-  | "schedule"
-  | "giving"
-  | "replays";
+export type BottomNavItemId = AttendeePrimaryNavId;
 
 export type BottomNavHotspot = {
   id: BottomNavItemId;
@@ -15,48 +13,13 @@ export type BottomNavHotspot = {
   isActive: (pathname: string) => boolean;
 };
 
-function matchesExact(path: string) {
-  return (pathname: string) => pathname === path;
-}
-
-function matchesPrefix(path: string) {
-  return (pathname: string) =>
-    pathname === path || pathname.startsWith(`${path}/`);
-}
-
 /** Native-style tab bar height; phone safe area is added separately in CSS. */
 export const BOTTOM_NAV_BAR_HEIGHT_PX = 56;
 
-export const BOTTOM_NAV_HOTSPOTS: readonly BottomNavHotspot[] = [
-  {
-    id: "home",
-    label: "Home",
-    href: ATTENDEE_DASHBOARD_PATH,
-    isActive: (pathname) =>
-      pathname === ATTENDEE_DASHBOARD_PATH || pathname === "/attendee-dashboard",
-  },
-  {
-    id: "live",
-    label: "Watch Live",
-    href: "/live",
-    isActive: isAttendeeLiveSurfacePath,
-  },
-  {
-    id: "schedule",
-    label: "Schedule",
-    href: "/program",
-    isActive: matchesPrefix("/program"),
-  },
-  {
-    id: "giving",
-    label: "Giving",
-    href: "/giving",
-    isActive: matchesPrefix("/giving"),
-  },
-  {
-    id: "replays",
-    label: "Replays",
-    href: "/replays",
-    isActive: matchesPrefix("/replays"),
-  },
-] as const;
+/** Shared dock destinations — identical to the dashboard primary nav. */
+export const BOTTOM_NAV_HOTSPOTS: readonly BottomNavHotspot[] = ATTENDEE_PRIMARY_NAV.map((item) => ({
+  id: item.id,
+  label: item.label,
+  href: item.href,
+  isActive: (pathname: string) => isAttendeePrimaryNavActive(pathname, item),
+}));

@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
-import { DEFAULT_ATTENDEE_NEXT } from "@/lib/auth/routing";
 
 export const dynamic = "force-dynamic";
 
-/** The welcome artwork is no longer shown at the root; enter the live app directly. */
+/** App entry — COGIC LIVE intro plate with Enter routing. */
 export default function HomePage() {
-  redirect(DEFAULT_ATTENDEE_NEXT);
+  redirect("/intro");
 }

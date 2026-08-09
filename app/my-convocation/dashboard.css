@@ -60,7 +60,7 @@
   min-width: 0;
   display: grid;
   gap: .7rem;
-  padding: clamp(27rem, 115vw, 31rem) var(--cl-mobile-pad-x) .75rem;
+  padding: clamp(25rem, 105vw, 28rem) var(--cl-mobile-pad-x) .75rem;
 }
 
 /* The stream card is the first interactive surface below the integrated MP4 artwork. */

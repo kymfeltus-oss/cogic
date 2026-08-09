@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import type { MouseEvent } from "react";
 import { ArrowRight, Users } from "lucide-react";
 import { EXPERIENCE_BRAND_ASSETS } from "@/lib/experience/brand-assets";
 
@@ -10,6 +10,14 @@ type EmailGatePersonaPlateProps = {
   teamHref: string;
   onAttendeeSelect: () => void;
 };
+
+/** Hard navigate — avoids flaky App Router RSC soft fetches to auth gates. */
+function hardNavigate(href: string, event?: MouseEvent<HTMLAnchorElement>) {
+  if (event) {
+    event.preventDefault();
+  }
+  window.location.assign(href);
+}
 
 export default function EmailGatePersonaPlate({
   attendeeHref,
@@ -45,9 +53,12 @@ export default function EmailGatePersonaPlate({
 
         <div className="glass-panel rounded-[1rem] border border-brand-border p-4 shadow-[0_0_40px_rgba(0,168,255,0.06)] sm:p-5">
           <nav aria-label="Entry path selection">
-            <Link
+            <a
               href={attendeeHref}
-              onClick={onAttendeeSelect}
+              onClick={(event) => {
+                onAttendeeSelect();
+                hardNavigate(attendeeHref, event);
+              }}
               className="touch-target group flex min-h-[4rem] w-full items-center justify-between gap-3 rounded-xl border border-brand-blue/45 bg-brand-blue/12 px-4 py-3 transition hover:bg-brand-blue/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
             >
               <span className="flex min-w-0 items-center gap-3.5">
@@ -67,13 +78,14 @@ export default function EmailGatePersonaPlate({
                 className="size-4 shrink-0 text-brand-blue transition group-hover:translate-x-0.5"
                 aria-hidden="true"
               />
-            </Link>
+            </a>
           </nav>
         </div>
 
         <div className="mt-3 flex justify-center">
-          <Link
+          <a
             href={teamHref}
+            onClick={(event) => hardNavigate(teamHref, event)}
             className="group inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 font-ui text-[0.62rem] font-bold uppercase tracking-[0.16em] text-white/52 transition hover:border-brand-purple/35 hover:bg-brand-purple/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-purple"
             aria-label="Production team login"
           >
@@ -82,7 +94,7 @@ export default function EmailGatePersonaPlate({
               className="size-3.5 transition group-hover:translate-x-0.5"
               aria-hidden="true"
             />
-          </Link>
+          </a>
         </div>
       </div>
     </div>
