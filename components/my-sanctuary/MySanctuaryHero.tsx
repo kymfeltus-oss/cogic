@@ -10,7 +10,7 @@ export default function MySanctuaryHero() {
         height={1280}
         priority
         quality={95}
-        sizes="(max-width: 480px) 100vw, (max-width: 720px) calc(100vw - 28px), (max-width: 1180px) calc(100vw - 100px), min(1100px, calc(100vw - 320px))"
+        sizes="(max-width: 430px) calc(100vw - 1.75rem), 402px"
         style={{ width: "100%", height: "auto", maxWidth: "100%" }}
       />
     </section>

@@ -23,11 +23,12 @@ test("dashboard is wired to the canonical attendee route and real loaders", asyn
 
 test("dashboard cards use real routes and omit fake aggregate metrics", async () => {
   const [nav, giving, liveStage] = await Promise.all([
-    source("lib/navigation/attendee-desktop-nav.ts"),
+    source("lib/navigation/attendee-primary-nav.ts"),
     source("components/dashboard/GivingCard.tsx"),
     source("components/dashboard/DashboardLiveStage.tsx"),
   ]);
-  for (const route of ["/my-convocation", "/live", "/program", "/register", "/giving", "/replays"]) {
+  assert.match(nav, /ATTENDEE_DASHBOARD_PATH/);
+  for (const route of ["/live", "/program", "/giving", "/my-sanctuary"]) {
     assert.match(nav, new RegExp(route.replace("/", "\\/")));
   }
   assert.doesNotMatch(giving, /248,930|500,000|49%/);
@@ -38,68 +39,72 @@ test("attendee dashboard presentation contains no legacy public brand", async ()
   const files = [
     "components/dashboard/DashboardShell.tsx",
     "components/dashboard/DashboardTopBar.tsx",
-    "components/navigation/AttendeeDesktopNav.tsx",
-    "components/dashboard/DesktopDashboardHome.tsx",
-    "components/dashboard/MobileDashboardHome.tsx",
+    "components/dashboard/AttendeeDashboardHome.tsx",
   ];
   const combined = (await Promise.all(files.map(source))).join("\n");
   assert.match(combined, /COGIC/);
-  assert.doesNotMatch(combined, /300 Awakening|Ian Craig/);
+  assert.doesNotMatch(combined, /300 Awakening|Ian Craig|hallelujah-anyhow|ian-craig/i);
 });
 
-test("dashboard top bar uses the COGIC LIVE PNG logo asset", async () => {
-  const [topbar, css] = await Promise.all([
+test("dashboard uses a transparent controls-only layer ready for full-screen media", async () => {
+  const [topbar, css, controlsCss, rootShell] = await Promise.all([
     source("components/dashboard/DashboardTopBar.tsx"),
     source("app/my-convocation/dashboard.css"),
+    source("components/dashboard/DashboardTopBar.module.css"),
+    source("components/RootLayoutShell.tsx"),
   ]);
-  assert.match(topbar, /\/my-sanctuary\/cogic-live-logo-purple\.png/);
-  assert.match(topbar, /\/my-sanctuary\/cogic-phrase\.png/);
+  assert.match(topbar, /cl-dashboard-controls/);
+  assert.match(topbar, /AnnouncementBell/);
+  assert.match(topbar, /cl-topbar__profile/);
+  assert.doesNotMatch(topbar, /<video|header\.mp4|DashboardSearch|cogic-live-logo-purple\.png|cogic-phrase\.png|cl-topbar--video/);
+  assert.doesNotMatch(topbar, /AttendeeDesktopNav|cl-topnav/);
   assert.doesNotMatch(topbar, /<span>COGIC<\/span>/);
-  assert.doesNotMatch(topbar, /<Play[\s/>]/);
-  assert.match(css, /\.cl-topbar__logo[^}]*object-fit:\s*contain/);
-  assert.match(css, /\.cl-topbar__phrase-wrap,\s*\.cl-topbar__phrase\s*\{\s*display:\s*none/);
-  assert.match(css, /\.cl-dash \.cl-topbar__phrase-wrap[\s\S]*justify-content:\s*center/);
-  assert.match(css, /\.cl-dash \.cl-topbar__phrase[\s\S]*object-fit:\s*cover/);
-  const logoPath = path.join(root, "public", "my-sanctuary", "cogic-live-logo-purple.png");
-  const phrasePath = path.join(root, "public", "my-sanctuary", "cogic-phrase.png");
-  assert.equal((await readFile(logoPath)).byteLength > 0, true);
-  assert.equal((await readFile(phrasePath)).byteLength > 0, true);
+  assert.match(controlsCss, /\.root[\s\S]*background:\s*transparent/);
+  assert.match(css, /\.cl-dash\s*\{[\s\S]*background-color:\s*#03040a/);
+  assert.match(css, /\.cl-dash\s*\{[\s\S]*background-image:\s*none/);
+  assert.doesNotMatch(css, /cl-sidebar|cl-topnav|cl-desktop|@media\s*\(min-width/);
+  assert.match(rootShell, /!isCogicDashboard && <BrandBackdrop/);
 });
 
-test("dashboard mounts mobile XOR desktop compositions without CSS concealment", async () => {
-  const [shell, desktop, mobile, hero, mobileNav, css, hook, topBar] = await Promise.all([
+test("dashboard uses one universal attendee shell without desktop XOR mount", async () => {
+  const [shell, home, hero, mobileNav, css, topBar, primaryNav] = await Promise.all([
     source("components/dashboard/DashboardShell.tsx"),
-    source("components/dashboard/DesktopDashboardHome.tsx"),
-    source("components/dashboard/MobileDashboardHome.tsx"),
+    source("components/dashboard/AttendeeDashboardHome.tsx"),
     source("components/dashboard/DashboardHero.tsx"),
     source("components/dashboard/DashboardMobileNav.tsx"),
     source("app/my-convocation/dashboard.css"),
-    source("lib/dashboard/use-desktop-dashboard.ts"),
     source("components/dashboard/DashboardTopBar.tsx"),
+    source("lib/navigation/attendee-primary-nav.ts"),
   ]);
-  assert.match(shell, /useDesktopDashboard/);
-  assert.match(shell, /DesktopDashboardHome/);
-  assert.match(shell, /MobileDashboardHome/);
-  assert.match(shell, /isDesktop \? \(/);
-  assert.doesNotMatch(shell, /cl-dashboard-desktop/);
+  assert.match(shell, /AttendeeDashboardHome/);
+  assert.match(shell, /DashboardMobileNav/);
+  assert.match(shell, /\/my-sanctuary\/dashboard-welcome-background\.png/);
+  assert.match(shell, /width=\{941\}/);
+  assert.match(shell, /height=\{1672\}/);
+  assert.doesNotMatch(shell, /useDesktopDashboard|DesktopDashboardHome|MobileDashboardHome|isDesktop/);
   assert.doesNotMatch(css, /\.cl-dashboard-desktop\s*\{\s*display:\s*none/);
   assert.doesNotMatch(css, /\.cl-mobile-home\s*\{\s*display:\s*none/);
-  assert.match(hook, /min-width: 721px/);
-  assert.match(desktop, /DashboardLiveStage/);
-  assert.match(mobile, /DashboardLiveStage/);
+  assert.match(home, /DashboardLiveStage/);
+  assert.match(home, /DASHBOARD_UTILITIES/);
+  assert.match(home, /StayConnectedPrompt/);
+  assert.match(home, /TicketStoreClient/);
+  assert.match(home, /HousingExperience/);
   assert.match(hero, /\/my-sanctuary\/banner\.png/);
   assert.match(hero, /width=\{2160\}/);
   assert.match(hero, /height=\{1280\}/);
   assert.doesNotMatch(hero, /\bfill\b/);
-  assert.match(desktop, /cl-desktop-utilities/);
-  assert.doesNotMatch(desktop, /cl-action-grid--features/);
-  assert.doesNotMatch(topBar, /cogic-seal\.png|cl-topbar__account-copy|ChevronDown/);
+  assert.doesNotMatch(topBar, /cogic-seal\.png|cl-topbar__account-copy|ChevronDown|AttendeeDesktopNav/);
   for (const label of ["Home", "Watch Live", "Program", "My Sanctuary", "Give"]) {
-    assert.match(mobileNav, new RegExp(label));
+    assert.match(primaryNav, new RegExp(label));
+    assert.match(mobileNav, /ATTENDEE_PRIMARY_NAV/);
   }
-  assert.match(css, /@media \(max-width: 720px\)/);
-  assert.match(css, /env\(safe-area-inset-bottom\)/);
   assert.match(css, /\.cl-bottom-nav[\s\S]*position:\s*fixed/);
+  assert.match(css, /--cl-mobile-shell-max:\s*430px/);
+  assert.match(css, /\.cl-dash\s*\{[\s\S]*width:\s*min\(100%,\s*var\(--cl-mobile-shell-max\)\)/);
+  assert.match(css, /\.cl-bottom-nav\s*\{[\s\S]*left:\s*50%[\s\S]*transform:\s*translateX\(-50%\)/);
+  assert.doesNotMatch(css, /\.cl-bottom-nav\s*\{\s*display:\s*none\s*!important/);
   assert.match(css, /\.cl-hero__image[^}]*object-fit:\s*contain/);
-  assert.match(css, /--cl-hero-aspect:\s*2160\s*\/\s*1280/);
+  assert.match(css, /--cl-mobile-feature-aspect:\s*2160\s*\/\s*1280/);
+  assert.match(css, /\.cl-dashboard-media[\s\S]*aspect-ratio:\s*941\s*\/\s*1672/);
+  assert.match(css, /\.cl-mobile-home[\s\S]*padding:\s*clamp\(14rem,\s*62vw,\s*17rem\)/);
 });

@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-/** Official Convocation banner, fluid across desktop, tablet, and mobile. */
+/** Official Convocation banner within the mobile-only attendee shell. */
 export default function DashboardHero() {
   return (
     <section className="cl-hero" aria-label="118th Holy Convocation featuring Church Of God In Christ bishops">
@@ -11,7 +11,7 @@ export default function DashboardHero() {
         height={1280}
         priority
         quality={90}
-        sizes="(max-width: 720px) calc(100vw - 1.75rem), (max-width: 1180px) calc(100vw - 2rem), min(96vw, 1600px)"
+        sizes="(max-width: 430px) calc(100vw - 1.75rem), 402px"
         className="cl-hero__image"
       />
     </section>

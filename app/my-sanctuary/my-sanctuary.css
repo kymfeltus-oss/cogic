@@ -3,7 +3,7 @@
   max-width: 100%;
   overflow: hidden;
   border: 1px solid rgba(75, 134, 196, 0.38);
-  border-radius: clamp(0.8rem, 1.5vw, 1.125rem);
+  border-radius: 1rem;
   background: #061326;
   box-shadow:
     inset 0 1px rgba(255, 255, 255, 0.04),
@@ -19,14 +19,4 @@
   aspect-ratio: 2160 / 1280;
   object-fit: contain;
   object-position: center;
-}
-
-@media (max-width: 720px) {
-  .my-sanctuary-hero {
-    border-radius: 0.8125rem;
-  }
-
-  .my-sanctuary-hero img {
-    min-height: 0;
-  }
 }

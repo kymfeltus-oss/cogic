@@ -37,8 +37,8 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
   }
 
   return (
-    <div className="relative min-h-dvh w-full bg-transparent">
-      <BrandBackdrop variant={atmosphereVariant} />
+    <div className={cn("relative min-h-dvh w-full bg-transparent", isCogicDashboard && "bg-[#03040a]")}>
+      {!isCogicDashboard && <BrandBackdrop variant={atmosphereVariant} />}
       {hasSharedNavigation && <AttendeeSharedTopBar />}
       {hasSharedNavigation && <BottomNavigation />}
       <div

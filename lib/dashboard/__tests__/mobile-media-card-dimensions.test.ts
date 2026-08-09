@@ -12,7 +12,7 @@ test("mobile banner and live player use the same outer dimensions", async () => 
   assert.match(css, /--cl-mobile-feature-aspect:\s*2160\s*\/\s*1280/);
   assert.match(
     css,
-    /\.cl-dash \.cl-mobile-home \.cl-hero,\s*\.cl-dash \.cl-mobile-home \.cl-live-stage\s*\{[^}]*width:\s*100%[^}]*height:\s*auto[^}]*aspect-ratio:\s*var\(--cl-mobile-feature-aspect\)/s,
+    /\.cl-dash \.cl-mobile-home \.cl-hero,\s*\.cl-dash \.cl-mobile-home \.cl-live-stage,[\s\S]*?\{[^}]*width:\s*100%[^}]*height:\s*auto[^}]*aspect-ratio:\s*var\(--cl-mobile-feature-aspect\)/s,
   );
   assert.match(
     css,
@@ -20,11 +20,12 @@ test("mobile banner and live player use the same outer dimensions", async () => 
   );
   assert.match(
     css,
-    /\.cl-dash \.cl-mobile-home \.cl-hero__image\s*\{[^}]*max-width:\s*100%[^}]*max-height:\s*100%[^}]*object-fit:\s*contain[^}]*object-position:\s*center/s,
+    /\.cl-dash \.cl-mobile-home \.cl-hero__image,[\s\S]*?\{[^}]*max-width:\s*100%[^}]*max-height:\s*100%[^}]*object-fit:\s*contain[^}]*object-position:\s*center/s,
   );
   assert.match(
     css,
-    /\.cl-dash \.cl-mobile-home \.cl-hero\s*\{[^}]*display:\s*grid[^}]*place-items:\s*center[^}]*padding:\s*0/s,
+    /\.cl-dash \.cl-mobile-home \.cl-hero,[\s\S]*?\{[^}]*display:\s*grid[^}]*place-items:\s*center[^}]*padding:\s*0/s,
   );
   assert.match(css, /\.cl-dash \.cl-mobile-home \.cl-live-stage::after\s*\{/);
+  assert.doesNotMatch(css, /@media\s*\(min-width|cl-desktop|cl-dashboard-desktop/);
 });

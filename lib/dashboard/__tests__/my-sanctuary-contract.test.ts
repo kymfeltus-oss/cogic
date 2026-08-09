@@ -9,23 +9,22 @@ async function source(relativePath: string) {
   return readFile(path.join(root, relativePath), "utf8");
 }
 
-test("My Sanctuary reuses the real attendee dashboard loader and cards", async () => {
-  const [page, shell, desktop] = await Promise.all([
+test("My Sanctuary reuses the real attendee dashboard loader and universal home", async () => {
+  const [page, shell, home] = await Promise.all([
     source("app/my-sanctuary/page.tsx"),
     source("components/dashboard/DashboardShell.tsx"),
-    source("components/dashboard/DesktopDashboardHome.tsx"),
+    source("components/dashboard/AttendeeDashboardHome.tsx"),
   ]);
   assert.match(page, /loadAttendeeDashboard/);
   assert.match(page, /dashboardPath="\/my-sanctuary"/);
-  assert.match(shell, /DesktopDashboardHome/);
-  assert.match(shell, /MobileDashboardHome/);
-  assert.match(desktop, /DashboardLiveStage/);
-  assert.match(desktop, /TodayScheduleCard/);
-  assert.match(desktop, /DASHBOARD_UTILITIES/);
-  assert.match(desktop, /cl-desktop-utilities/);
+  assert.match(shell, /AttendeeDashboardHome/);
+  assert.doesNotMatch(shell, /DesktopDashboardHome|MobileDashboardHome|useDesktopDashboard/);
+  assert.match(home, /DashboardLiveStage/);
+  assert.match(home, /DASHBOARD_UTILITIES/);
+  assert.match(home, /StayConnectedPrompt/);
 });
 
-test("My Sanctuary uses the exact banner and official seal assets", async () => {
+test("My Sanctuary uses the exact banner and a controls-only dashboard layer", async () => {
   const [hero, topBar] = await Promise.all([
     source("components/my-sanctuary/MySanctuaryHero.tsx"),
     source("components/dashboard/DashboardTopBar.tsx"),
@@ -33,7 +32,8 @@ test("My Sanctuary uses the exact banner and official seal assets", async () => 
   assert.match(hero, /\/my-sanctuary\/banner\.png/);
   assert.match(hero, /width=\{2160\}/);
   assert.match(hero, /height=\{1280\}/);
-  assert.match(topBar, /\/my-sanctuary\/cogic-live-logo-purple\.png/);
+  assert.match(topBar, /cl-dashboard-controls/);
+  assert.doesNotMatch(topBar, /<video|header\.mp4|cogic-live-logo-purple\.png|cogic-phrase\.png|DashboardSearch/);
   assert.doesNotMatch(topBar, />C<\/span>/);
 });
 
@@ -48,20 +48,19 @@ test("My Sanctuary is protected and isolated from the legacy global dock", async
   assert.match(rootShell, /pathname === "\/my-sanctuary"/);
 });
 
-test("attendee desktop utilities use restrained icon+label presentation", async () => {
-  const [desktop, utilities, css, registration] = await Promise.all([
-    source("components/dashboard/DesktopDashboardHome.tsx"),
+test("attendee universal utilities use restrained icon+label presentation", async () => {
+  const [home, utilities, css, registration] = await Promise.all([
+    source("components/dashboard/AttendeeDashboardHome.tsx"),
     source("lib/dashboard/dashboard-utilities.ts"),
     source("app/my-convocation/dashboard.css"),
     source("components/dashboard/MyConvocationCard.tsx"),
   ]);
-  assert.match(desktop, /cl-desktop-utilities/);
-  assert.doesNotMatch(desktop, /cl-action-grid--features|MyConvocationCard|GivingCard|AnnouncementsCard/);
+  assert.match(home, /cl-mobile-utilities/);
+  assert.doesNotMatch(home, /cl-action-grid--features|cl-desktop-utilities|MyConvocationCard|GivingCard|AnnouncementsCard/);
   assert.match(utilities, /COGIC Travel/);
   assert.match(utilities, /Stay Informed/);
   assert.match(utilities, /COGIC Social/);
-  assert.match(css, /\.cl-desktop-utilities[\s\S]*grid-template-columns/);
-  assert.match(css, /\.cl-desktop-utility[\s\S]*#e9ad32/);
+  assert.match(css, /\.cl-mobile-utilities[\s\S]*grid-template-columns/);
   assert.match(registration, /cl-reg-summary/);
   assert.match(registration, /Policy agreement pending/);
 });
@@ -75,12 +74,9 @@ test("My Sanctuary hero preserves the complete intrinsic banner without overlays
   assert.match(hero, /width=\{2160\}/);
   assert.match(hero, /height=\{1280\}/);
   assert.doesNotMatch(hero, /<h1|Empowered to Serve|convocation-hero__copy/);
-  assert.match(css, /\.convocation-hero__artwork img[^}]*width:\s*100%[^}]*height:\s*auto/);
+  assert.match(css, /\.cl-dash \.cl-mobile-home \.my-sanctuary-hero img[\s\S]*width:\s*100%[\s\S]*height:\s*auto/);
   assert.match(css, /object-fit:\s*contain/);
-  assert.doesNotMatch(css, /\.convocation-hero__artwork img[^}]*object-fit:\s*cover/);
+  assert.doesNotMatch(css, /\.my-sanctuary-hero img[^}]*object-fit:\s*cover/);
   assert.match(css, /--dash-banner-max-h:\s*none/);
-  assert.match(css, /\.convocation-hero__artwork img[^}]*max-height:\s*var\(--dash-banner-max-h\)/);
-  assert.match(css, /@media \(max-width: 720px\)/);
-  assert.match(css, /@media \(max-width: 1180px\)/);
-  assert.match(css, /@media \(max-width: 900px\)/);
+  assert.doesNotMatch(css, /@media\s*\((?:min|max)-width|cl-desktop|cl-dashboard-desktop/);
 });

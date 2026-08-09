@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProfileEditorModal from "@/components/profile/ProfileEditorModal";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
 import DashboardMobileNav from "@/components/dashboard/DashboardMobileNav";
-import DesktopDashboardHome from "@/components/dashboard/DesktopDashboardHome";
-import MobileDashboardHome from "@/components/dashboard/MobileDashboardHome";
+import AttendeeDashboardHome from "@/components/dashboard/AttendeeDashboardHome";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
-import { useDesktopDashboard } from "@/lib/dashboard/use-desktop-dashboard";
 
+/** Universal attendee shell — approved mobile composition at every viewport. */
 export default function DashboardShell({
   data,
   dashboardPath = "/my-convocation",
@@ -22,7 +22,6 @@ export default function DashboardShell({
   const router = useRouter();
   const pathname = usePathname() || dashboardPath;
   const searchParams = useSearchParams();
-  const isDesktop = useDesktopDashboard();
   const [profile, setProfile] = useState(data.profile);
   const [profileOpen, setProfileOpen] = useState(() => {
     const view = searchParams.get("view");
@@ -39,6 +38,17 @@ export default function DashboardShell({
 
   return (
     <div className="cl-dash">
+      <div className="cl-dashboard-media" aria-hidden="true">
+        <Image
+          src="/my-sanctuary/dashboard-welcome-background.png"
+          alt=""
+          width={941}
+          height={1672}
+          priority
+          sizes="(max-width: 430px) 100vw, 430px"
+        />
+      </div>
+
       <div className="cl-dash__stage">
         <DashboardTopBar
           profile={profile}
@@ -46,16 +56,10 @@ export default function DashboardShell({
           onProfile={() => setProfileOpen(true)}
         />
 
-        {isDesktop ? (
-          <DesktopDashboardHome data={data} hero={hero} signedIn={signedIn} />
-        ) : (
-          <MobileDashboardHome data={data} />
-        )}
+        <AttendeeDashboardHome data={data} hero={hero} signedIn={signedIn} />
       </div>
 
-      {!isDesktop ? (
-        <DashboardMobileNav homeHref={dashboardPath} pathname={pathname} />
-      ) : null}
+      <DashboardMobileNav homeHref={dashboardPath} pathname={pathname} />
 
       {signedIn ? (
         <ProfileEditorModal
