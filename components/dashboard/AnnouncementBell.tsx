@@ -2,7 +2,6 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
-import { Bell } from "lucide-react";
 
 type UnreadPayload = {
   unreadCount?: number;
@@ -70,12 +69,19 @@ export default function AnnouncementBell() {
         aria-controls={panelId}
         onClick={() => setOpen((value) => !value)}
       >
-        <Bell className="cl-topbar__bell" aria-hidden="true" />
-        {authenticated && unreadCount > 0 ? (
-          <span className="cl-topbar__bell-badge" aria-hidden="true">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </span>
-        ) : null}
+        <span className="sr-only">Open announcements</span>
+        <span
+          className={`cl-topbar__bell-badge${
+            authenticated && unreadCount > 0 ? "" : " cl-topbar__bell-badge--empty"
+          }`}
+          aria-hidden="true"
+        >
+          {authenticated && unreadCount > 0
+            ? unreadCount > 99
+              ? "99+"
+              : unreadCount
+            : null}
+        </span>
       </button>
 
       {open ? (

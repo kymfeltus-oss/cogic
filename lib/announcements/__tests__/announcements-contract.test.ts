@@ -35,18 +35,21 @@ describe("announcements / updates contracts", () => {
   });
 
   it("wires dashboard Stay Informed utility and bell to /updates with real unread endpoint", () => {
-    const desktop = read("components/dashboard/DesktopDashboardHome.tsx");
+    const home = read("components/dashboard/AttendeeDashboardHome.tsx");
     const utilities = read("lib/dashboard/dashboard-utilities.ts");
     const card = read("components/dashboard/AnnouncementsCard.tsx");
     const bell = read("components/dashboard/AnnouncementBell.tsx");
     const topBar = read("components/dashboard/DashboardTopBar.tsx");
-    assert.match(desktop, /cl-desktop-utilities|DASHBOARD_UTILITIES/);
+    assert.match(home, /DASHBOARD_UTILITIES|cl-mobile-utilities/);
     assert.match(utilities, /Stay Informed/);
     assert.match(utilities, /href:\s*"\/updates"/);
     assert.match(card, /href="\/updates"/);
     assert.match(card, /\/api\/announcements\/unread/);
     assert.match(bell, /\/api\/announcements\/unread/);
     assert.match(bell, /\/updates/);
+    assert.match(bell, /Open announcements/);
+    assert.match(bell, /cl-topbar__bell-badge/);
+    assert.doesNotMatch(bell, /lucide-react|<Bell/);
     assert.match(topBar, /AnnouncementBell/);
     assert.doesNotMatch(card, /3 unread|fake|demo/i);
   });

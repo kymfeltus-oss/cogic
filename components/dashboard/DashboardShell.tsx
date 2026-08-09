@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProfileEditorModal from "@/components/profile/ProfileEditorModal";
 import DashboardTopBar from "@/components/dashboard/DashboardTopBar";
@@ -36,16 +37,23 @@ export default function DashboardShell({
   return (
     <div className="cl-dash">
       <div className="cl-dashboard-media" aria-hidden="true">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          poster="/my-sanctuary/header-backgroung.png"
-        >
-          <source src="/my-sanctuary/mobile_dashboard.mp4" type="video/mp4" />
-        </video>
+        <Image
+          className="cl-dashboard-media__artwork"
+          src="/my-sanctuary/header-backgroung.png"
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 430px) 100vw, 430px"
+        />
+        <Image
+          className="cl-dashboard-media__bishops"
+          src="/my-sanctuary/bishops-overlay.png"
+          alt=""
+          width={1628}
+          height={966}
+          priority
+          sizes="(max-width: 430px) 110vw, 473px"
+        />
       </div>
 
       <div className="cl-dash__stage">

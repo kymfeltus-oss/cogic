@@ -1,7 +1,7 @@
 .root {
   position: absolute;
   z-index: 50;
-  top: max(.65rem, calc(env(safe-area-inset-top) + .35rem));
+  top: max(.35rem, calc(env(safe-area-inset-top) + .2rem));
   right: .75rem;
   left: .75rem;
   width: auto;
@@ -15,10 +15,12 @@
 }
 
 .tools {
+  position: relative;
   width: 100%;
+  min-height: 2.75rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: .5rem;
   min-width: 0;
   pointer-events: auto;
@@ -26,10 +28,19 @@
 
 .root :global(.cl-topbar__account),
 .root :global(.cl-topbar__bell-wrap) {
-  position: relative;
+  position: absolute;
+  top: 0;
   order: initial;
   display: flex;
   align-items: center;
+}
+
+.root :global(.cl-topbar__account) {
+  right: 3.45rem;
+}
+
+.root :global(.cl-topbar__bell-wrap) {
+  right: 0;
 }
 
 .root :global(.cl-topbar__profile),
@@ -42,13 +53,19 @@
   border-radius: 999px;
 }
 
-.root :global(.cl-topbar__profile),
-.root :global(.cl-topbar__bell-btn) {
-  border: 1px solid rgb(255 255 255 / 26%);
+.root :global(.cl-topbar__profile) {
+  border: 2px solid transparent;
   color: #fff;
-  background: rgb(4 6 14 / 72%);
-  box-shadow: 0 5px 16px rgb(0 0 0 / 30%);
+  background:
+    linear-gradient(rgb(4 6 14 / 82%), rgb(4 6 14 / 82%)) padding-box,
+    linear-gradient(135deg, #33c7ff, #8247ff 55%, #e83dce) border-box;
+  box-shadow: 0 0 18px rgb(63 123 255 / 32%);
   backdrop-filter: blur(12px);
+}
+
+.root :global(.cl-topbar__avatar) {
+  border: 0;
+  background: transparent;
 }
 
 .root :global(.cl-topbar__profile img) {
@@ -68,33 +85,45 @@
 }
 
 .root :global(.cl-topbar__bell-btn) {
-  width: auto;
-  min-width: 2.5rem;
-  height: 2.5rem;
+  position: relative;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: .3rem;
-  padding-inline: .6rem;
-  border-radius: .85rem;
-}
-
-.root :global(.cl-topbar__bell) {
-  width: 1rem;
-  height: 1rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  color: transparent;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
 }
 
 .root :global(.cl-topbar__bell-badge) {
-  min-width: 1.15rem;
-  height: 1.15rem;
+  position: absolute;
+  top: -.2rem;
+  right: -.1rem;
+  min-width: 1.25rem;
+  height: 1.25rem;
   display: grid;
   place-items: center;
-  padding-inline: .25rem;
+  padding-inline: .2rem;
+  border: 1px solid rgb(255 255 255 / 14%);
   border-radius: 999px;
   color: #fff;
   background: #5b21b6;
+  box-shadow: 0 0 10px rgb(168 85 247 / 45%);
   font-size: .62rem;
   font-weight: 780;
+}
+
+.root :global(.cl-topbar__bell-badge--empty) {
+  border-color: transparent;
+  color: transparent;
+  background: #050713;
+  box-shadow: none;
 }
 
 .root :global(.cl-topbar__bell-panel) {
