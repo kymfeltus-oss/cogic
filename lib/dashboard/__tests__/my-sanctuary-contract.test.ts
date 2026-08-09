@@ -19,7 +19,7 @@ test("My Sanctuary reuses the real attendee dashboard loader and universal portr
   assert.match(page, /dashboardPath="\/my-sanctuary"/);
   assert.match(shell, /AttendeeDashboardHome/);
   assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png"/);
-  assert.match(shell, /src="\/my-sanctuary\/bishops-overlay\.png"/);
+  assert.match(shell, /src="\/my-sanctuary\/dashboard-target-reference\.png"/);
   assert.doesNotMatch(shell, /<video|mobile_dashboard\.mp4/);
   assert.doesNotMatch(shell, /DesktopDashboardHome|MobileDashboardHome|useDesktopDashboard/);
   assert.doesNotMatch(page, /MySanctuaryHero|my-sanctuary\.css/);
@@ -36,7 +36,7 @@ test("My Sanctuary uses the integrated portrait artwork and controls-only dashbo
   ]);
   assert.doesNotMatch(page, /banner\.png|MySanctuaryHero/);
   assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png"/);
-  assert.match(shell, /src="\/my-sanctuary\/bishops-overlay\.png"/);
+  assert.match(shell, /src="\/my-sanctuary\/dashboard-target-reference\.png"/);
   assert.match(topBar, /cl-dashboard-controls/);
   assert.doesNotMatch(topBar, /<video|header\.mp4|cogic-live-logo-purple\.png|cogic-phrase\.png|DashboardSearch/);
   assert.doesNotMatch(topBar, />C<\/span>/);

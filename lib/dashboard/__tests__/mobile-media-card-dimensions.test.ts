@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
-test("mobile portrait artwork, bishop overlay, and live player preserve their intended footprints", async () => {
+test("mobile portrait artwork, approved hero layer, and live player preserve their intended footprints", async () => {
   const css = await readFile(
     path.join(process.cwd(), "app/my-convocation/dashboard.css"),
     "utf8",
@@ -28,7 +28,7 @@ test("mobile portrait artwork, bishop overlay, and live player preserve their in
   );
   assert.match(
     css,
-    /\.cl-dashboard-media__bishops\s*\{[^}]*top:\s*clamp\(17\.25rem,\s*70vw,\s*19rem\)[^}]*width:\s*110%/s,
+    /\.cl-dashboard-media__approved-reference\s*\{[^}]*top:\s*0[^}]*width:\s*100%[^}]*object-fit:\s*contain/s,
   );
   assert.match(css, /\.cl-mobile-home\s*\{[^}]*padding:\s*clamp\(25rem,\s*105vw,\s*28rem\)/s);
   assert.match(css, /\.cl-dash \.cl-mobile-home \.cl-live-stage::after\s*\{/);

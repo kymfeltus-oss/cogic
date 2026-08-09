@@ -47,13 +47,16 @@
 .root :global(.cl-topbar__avatar) {
   width: 2.5rem;
   height: 2.5rem;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   border-radius: 999px;
 }
 
 .root :global(.cl-topbar__profile) {
+  margin: 0;
+  padding: 0;
   border: 2px solid transparent;
   color: #fff;
   background:
@@ -61,11 +64,19 @@
     linear-gradient(135deg, #33c7ff, #8247ff 55%, #e83dce) border-box;
   box-shadow: 0 0 18px rgb(63 123 255 / 32%);
   backdrop-filter: blur(12px);
+  cursor: pointer;
 }
 
 .root :global(.cl-topbar__avatar) {
   border: 0;
   background: transparent;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  /* letter-spacing shifts glyphs right — indent matches it for optical center */
+  text-indent: .04em;
+  line-height: 1;
+  text-align: center;
 }
 
 .root :global(.cl-topbar__profile img) {
@@ -74,14 +85,11 @@
   object-fit: cover;
 }
 
-.root :global(.cl-topbar__avatar) {
-  font-size: .72rem;
-  font-weight: 700;
-  letter-spacing: .04em;
-}
-
 .root :global(.cl-topbar__avatar svg) {
   width: 1.15rem;
+  height: 1.15rem;
+  display: block;
+  flex-shrink: 0;
 }
 
 .root :global(.cl-topbar__bell-btn) {

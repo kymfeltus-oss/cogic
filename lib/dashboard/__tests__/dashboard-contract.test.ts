@@ -63,6 +63,8 @@ test("dashboard uses a transparent controls-only layer ready for full-screen med
   assert.match(controlsCss, /\.root[\s\S]*right:\s*\.75rem[\s\S]*left:\s*\.75rem/);
   assert.match(controlsCss, /\.tools[\s\S]*position:\s*relative[\s\S]*justify-content:\s*flex-end/);
   assert.match(controlsCss, /cl-topbar__account[\s\S]*right:\s*3\.45rem/);
+  assert.match(controlsCss, /cl-topbar__profile[\s\S]*margin:\s*0[\s\S]*padding:\s*0/);
+  assert.match(controlsCss, /cl-topbar__avatar[\s\S]*align-items:\s*center[\s\S]*justify-content:\s*center/);
   assert.doesNotMatch(controlsCss, /content:\s*"Alerts"/);
   assert.match(css, /\.cl-dash\s*\{[\s\S]*background-color:\s*#03040a/);
   assert.match(css, /\.cl-dash\s*\{[\s\S]*background-image:\s*none/);
@@ -82,7 +84,7 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   assert.match(shell, /AttendeeDashboardHome/);
   assert.match(shell, /DashboardMobileNav/);
   assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png"/);
-  assert.match(shell, /src="\/my-sanctuary\/bishops-overlay\.png"/);
+  assert.match(shell, /src="\/my-sanctuary\/dashboard-target-reference\.png"/);
   assert.doesNotMatch(shell, /<video|mobile_dashboard\.mp4/);
   assert.doesNotMatch(shell, /dashboard-welcome-background\.png/);
   assert.doesNotMatch(shell, /\bhero\b|DashboardHero|MySanctuaryHero/);
@@ -108,7 +110,7 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   assert.match(css, /--cl-mobile-feature-aspect:\s*2160\s*\/\s*1280/);
   assert.match(css, /\.cl-dashboard-media[\s\S]*aspect-ratio:\s*9\s*\/\s*16/);
   assert.match(css, /\.cl-dashboard-media__artwork[\s\S]*object-fit:\s*contain/);
-  assert.match(css, /\.cl-dashboard-media__bishops[\s\S]*width:\s*110%/);
+  assert.match(css, /\.cl-dashboard-media__approved-reference[\s\S]*width:\s*100%/);
   assert.match(css, /\.cl-mobile-home[\s\S]*padding:\s*clamp\(25rem,\s*105vw,\s*28rem\)/);
   assert.doesNotMatch(css, /cl-hero|my-sanctuary-hero/);
 });

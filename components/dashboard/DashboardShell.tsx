@@ -46,13 +46,13 @@ export default function DashboardShell({
           sizes="(max-width: 430px) 100vw, 430px"
         />
         <Image
-          className="cl-dashboard-media__bishops"
-          src="/my-sanctuary/bishops-overlay.png"
+          className="cl-dashboard-media__approved-reference"
+          src="/my-sanctuary/dashboard-target-reference.png"
           alt=""
-          width={1628}
-          height={966}
+          width={536}
+          height={519}
           priority
-          sizes="(max-width: 430px) 110vw, 473px"
+          sizes="(max-width: 430px) 100vw, 430px"
         />
       </div>
 
