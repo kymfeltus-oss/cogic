@@ -60,6 +60,8 @@ test("dashboard uses a transparent controls-only layer ready for full-screen med
   assert.doesNotMatch(topbar, /AttendeeDesktopNav|cl-topnav/);
   assert.doesNotMatch(topbar, /<span>COGIC<\/span>/);
   assert.match(controlsCss, /\.root[\s\S]*background:\s*transparent/);
+  assert.match(controlsCss, /\.root[\s\S]*right:\s*\.75rem[\s\S]*left:\s*\.75rem/);
+  assert.match(controlsCss, /\.tools[\s\S]*width:\s*100%[\s\S]*justify-content:\s*space-between/);
   assert.match(css, /\.cl-dash\s*\{[\s\S]*background-color:\s*#03040a/);
   assert.match(css, /\.cl-dash\s*\{[\s\S]*background-image:\s*none/);
   assert.doesNotMatch(css, /cl-sidebar|cl-topnav|cl-desktop|@media\s*\(min-width/);
@@ -67,10 +69,9 @@ test("dashboard uses a transparent controls-only layer ready for full-screen med
 });
 
 test("dashboard uses one universal attendee shell without desktop XOR mount", async () => {
-  const [shell, home, hero, mobileNav, css, topBar, primaryNav] = await Promise.all([
+  const [shell, home, mobileNav, css, topBar, primaryNav] = await Promise.all([
     source("components/dashboard/DashboardShell.tsx"),
     source("components/dashboard/AttendeeDashboardHome.tsx"),
-    source("components/dashboard/DashboardHero.tsx"),
     source("components/dashboard/DashboardMobileNav.tsx"),
     source("app/my-convocation/dashboard.css"),
     source("components/dashboard/DashboardTopBar.tsx"),
@@ -78,9 +79,11 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   ]);
   assert.match(shell, /AttendeeDashboardHome/);
   assert.match(shell, /DashboardMobileNav/);
-  assert.match(shell, /\/my-sanctuary\/dashboard-welcome-background\.png/);
+  assert.match(shell, /\/my-sanctuary\/header-backgroung\.png/);
   assert.match(shell, /width=\{941\}/);
   assert.match(shell, /height=\{1672\}/);
+  assert.doesNotMatch(shell, /<video|\.mp4|dashboard-welcome-background\.png/);
+  assert.doesNotMatch(shell, /\bhero\b|DashboardHero|MySanctuaryHero/);
   assert.doesNotMatch(shell, /useDesktopDashboard|DesktopDashboardHome|MobileDashboardHome|isDesktop/);
   assert.doesNotMatch(css, /\.cl-dashboard-desktop\s*\{\s*display:\s*none/);
   assert.doesNotMatch(css, /\.cl-mobile-home\s*\{\s*display:\s*none/);
@@ -89,10 +92,7 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   assert.match(home, /StayConnectedPrompt/);
   assert.match(home, /TicketStoreClient/);
   assert.match(home, /HousingExperience/);
-  assert.match(hero, /\/my-sanctuary\/banner\.png/);
-  assert.match(hero, /width=\{2160\}/);
-  assert.match(hero, /height=\{1280\}/);
-  assert.doesNotMatch(hero, /\bfill\b/);
+  assert.doesNotMatch(home, /DashboardHero|MySanctuaryHero|\/my-sanctuary\/banner\.png/);
   assert.doesNotMatch(topBar, /cogic-seal\.png|cl-topbar__account-copy|ChevronDown|AttendeeDesktopNav/);
   for (const label of ["Home", "Watch Live", "Program", "My Sanctuary", "Give"]) {
     assert.match(primaryNav, new RegExp(label));
@@ -103,8 +103,9 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   assert.match(css, /\.cl-dash\s*\{[\s\S]*width:\s*min\(100%,\s*var\(--cl-mobile-shell-max\)\)/);
   assert.match(css, /\.cl-bottom-nav\s*\{[\s\S]*left:\s*50%[\s\S]*transform:\s*translateX\(-50%\)/);
   assert.doesNotMatch(css, /\.cl-bottom-nav\s*\{\s*display:\s*none\s*!important/);
-  assert.match(css, /\.cl-hero__image[^}]*object-fit:\s*contain/);
   assert.match(css, /--cl-mobile-feature-aspect:\s*2160\s*\/\s*1280/);
-  assert.match(css, /\.cl-dashboard-media[\s\S]*aspect-ratio:\s*941\s*\/\s*1672/);
-  assert.match(css, /\.cl-mobile-home[\s\S]*padding:\s*clamp\(14rem,\s*62vw,\s*17rem\)/);
+  assert.match(css, /\.cl-dashboard-media[\s\S]*aspect-ratio:\s*9\s*\/\s*16/);
+  assert.match(css, /\.cl-dashboard-media img[\s\S]*object-fit:\s*contain/);
+  assert.match(css, /\.cl-mobile-home[\s\S]*padding:\s*clamp\(20rem,\s*84vw,\s*23rem\)/);
+  assert.doesNotMatch(css, /cl-hero|my-sanctuary-hero/);
 });

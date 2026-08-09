@@ -3,7 +3,6 @@
   --cl-mobile-shell-max: 430px;
   --cl-mobile-pad-x: .875rem;
   --cl-mobile-feature-aspect: 2160 / 1280;
-  --dash-banner-max-h: none;
   position: relative;
   isolation: isolate;
   width: min(100%, var(--cl-mobile-shell-max));
@@ -42,15 +41,16 @@
   right: 0;
   left: 0;
   width: 100%;
-  aspect-ratio: 941 / 1672;
+  aspect-ratio: 9 / 16;
   overflow: hidden;
+  background: #03040a;
   pointer-events: none;
 }
 
 .cl-dashboard-media img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: contain;
   object-position: top center;
 }
@@ -60,13 +60,11 @@
   min-width: 0;
   display: grid;
   gap: .7rem;
-  padding: clamp(14rem, 62vw, 17rem) var(--cl-mobile-pad-x) .75rem;
+  padding: clamp(20rem, 84vw, 23rem) var(--cl-mobile-pad-x) .75rem;
 }
 
-/* Convocation banner and stream card intentionally share one exact footprint. */
-.cl-dash .cl-mobile-home .cl-hero,
-.cl-dash .cl-mobile-home .cl-live-stage,
-.cl-dash .cl-mobile-home .my-sanctuary-hero {
+/* The stream card is the first interactive surface below the integrated MP4 artwork. */
+.cl-dash .cl-mobile-home .cl-live-stage {
   width: 100%;
   height: auto;
   aspect-ratio: var(--cl-mobile-feature-aspect);
@@ -74,25 +72,6 @@
   overflow: hidden;
   border: 1px solid rgb(255 255 255 / 16%);
   border-radius: 1rem;
-}
-
-.cl-dash .cl-mobile-home .cl-hero,
-.cl-dash .cl-mobile-home .my-sanctuary-hero {
-  display: grid;
-  place-items: center;
-  padding: 0;
-  background: #05070d;
-}
-
-.cl-dash .cl-mobile-home .cl-hero__image,
-.cl-dash .cl-mobile-home .my-sanctuary-hero img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  object-position: center;
 }
 
 .cl-live-stage {

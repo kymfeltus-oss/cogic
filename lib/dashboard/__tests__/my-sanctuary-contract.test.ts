@@ -9,7 +9,7 @@ async function source(relativePath: string) {
   return readFile(path.join(root, relativePath), "utf8");
 }
 
-test("My Sanctuary reuses the real attendee dashboard loader and universal home", async () => {
+test("My Sanctuary reuses the real attendee dashboard loader and universal artwork shell", async () => {
   const [page, shell, home] = await Promise.all([
     source("app/my-sanctuary/page.tsx"),
     source("components/dashboard/DashboardShell.tsx"),
@@ -18,20 +18,24 @@ test("My Sanctuary reuses the real attendee dashboard loader and universal home"
   assert.match(page, /loadAttendeeDashboard/);
   assert.match(page, /dashboardPath="\/my-sanctuary"/);
   assert.match(shell, /AttendeeDashboardHome/);
+  assert.match(shell, /\/my-sanctuary\/header-backgroung\.png/);
+  assert.doesNotMatch(shell, /<video|\.mp4/);
   assert.doesNotMatch(shell, /DesktopDashboardHome|MobileDashboardHome|useDesktopDashboard/);
+  assert.doesNotMatch(page, /MySanctuaryHero|my-sanctuary\.css/);
   assert.match(home, /DashboardLiveStage/);
   assert.match(home, /DASHBOARD_UTILITIES/);
   assert.match(home, /StayConnectedPrompt/);
 });
 
-test("My Sanctuary uses the exact banner and a controls-only dashboard layer", async () => {
-  const [hero, topBar] = await Promise.all([
-    source("components/my-sanctuary/MySanctuaryHero.tsx"),
+test("My Sanctuary uses the integrated artwork and controls-only dashboard layer", async () => {
+  const [page, shell, topBar] = await Promise.all([
+    source("app/my-sanctuary/page.tsx"),
+    source("components/dashboard/DashboardShell.tsx"),
     source("components/dashboard/DashboardTopBar.tsx"),
   ]);
-  assert.match(hero, /\/my-sanctuary\/banner\.png/);
-  assert.match(hero, /width=\{2160\}/);
-  assert.match(hero, /height=\{1280\}/);
+  assert.doesNotMatch(page, /banner\.png|MySanctuaryHero/);
+  assert.match(shell, /\/my-sanctuary\/header-backgroung\.png/);
+  assert.doesNotMatch(shell, /<video|\.mp4/);
   assert.match(topBar, /cl-dashboard-controls/);
   assert.doesNotMatch(topBar, /<video|header\.mp4|cogic-live-logo-purple\.png|cogic-phrase\.png|DashboardSearch/);
   assert.doesNotMatch(topBar, />C<\/span>/);
@@ -65,18 +69,16 @@ test("attendee universal utilities use restrained icon+label presentation", asyn
   assert.match(registration, /Policy agreement pending/);
 });
 
-test("My Sanctuary hero preserves the complete intrinsic banner without overlays", async () => {
-  const [hero, css] = await Promise.all([
-    source("components/my-sanctuary/MySanctuaryHero.tsx"),
+test("My Sanctuary contains no superseded standalone dashboard banner", async () => {
+  const [page, shell, home, css] = await Promise.all([
+    source("app/my-sanctuary/page.tsx"),
+    source("components/dashboard/DashboardShell.tsx"),
+    source("components/dashboard/AttendeeDashboardHome.tsx"),
     source("app/my-convocation/dashboard.css"),
   ]);
-  assert.match(hero, /\/my-sanctuary\/banner\.png/);
-  assert.match(hero, /width=\{2160\}/);
-  assert.match(hero, /height=\{1280\}/);
-  assert.doesNotMatch(hero, /<h1|Empowered to Serve|convocation-hero__copy/);
-  assert.match(css, /\.cl-dash \.cl-mobile-home \.my-sanctuary-hero img[\s\S]*width:\s*100%[\s\S]*height:\s*auto/);
-  assert.match(css, /object-fit:\s*contain/);
-  assert.doesNotMatch(css, /\.my-sanctuary-hero img[^}]*object-fit:\s*cover/);
-  assert.match(css, /--dash-banner-max-h:\s*none/);
+  const combined = `${page}\n${shell}\n${home}\n${css}`;
+  assert.doesNotMatch(combined, /DashboardHero|MySanctuaryHero|cl-hero|my-sanctuary-hero/);
+  assert.doesNotMatch(combined, /\/my-sanctuary\/banner\.png/);
+  assert.match(css, /\.cl-dashboard-media img[\s\S]*object-fit:\s*contain/);
   assert.doesNotMatch(css, /@media\s*\((?:min|max)-width|cl-desktop|cl-dashboard-desktop/);
 });

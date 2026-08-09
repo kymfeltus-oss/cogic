@@ -1,7 +1,5 @@
-import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import DashboardHero from "@/components/dashboard/DashboardHero";
 import DashboardLiveStage from "@/components/dashboard/DashboardLiveStage";
 import DashboardSection from "@/components/dashboard/DashboardSection";
 import StayConnectedPrompt from "@/components/notifications/StayConnectedPrompt";
@@ -37,16 +35,13 @@ const highlightPlaceholders = [
 /** Canonical attendee dashboard — same composition at every viewport. */
 export default function AttendeeDashboardHome({
   data,
-  hero,
   signedIn = false,
 }: {
   data: AttendeeDashboardData;
-  hero?: ReactNode;
   signedIn?: boolean;
 }) {
   return (
     <main id="main-content" className="cl-mobile-home">
-      {hero ?? <DashboardHero />}
       <DashboardLiveStage live={data.live} />
 
       <StayConnectedPrompt signedIn={signedIn} />

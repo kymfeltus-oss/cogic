@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProfileEditorModal from "@/components/profile/ProfileEditorModal";
@@ -13,11 +13,9 @@ import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashbo
 export default function DashboardShell({
   data,
   dashboardPath = "/my-convocation",
-  hero,
 }: {
   data: AttendeeDashboardData;
   dashboardPath?: string;
-  hero?: ReactNode;
 }) {
   const router = useRouter();
   const pathname = usePathname() || dashboardPath;
@@ -40,7 +38,7 @@ export default function DashboardShell({
     <div className="cl-dash">
       <div className="cl-dashboard-media" aria-hidden="true">
         <Image
-          src="/my-sanctuary/dashboard-welcome-background.png"
+          src="/my-sanctuary/header-backgroung.png"
           alt=""
           width={941}
           height={1672}
@@ -56,7 +54,7 @@ export default function DashboardShell({
           onProfile={() => setProfileOpen(true)}
         />
 
-        <AttendeeDashboardHome data={data} hero={hero} signedIn={signedIn} />
+        <AttendeeDashboardHome data={data} signedIn={signedIn} />
       </div>
 
       <DashboardMobileNav homeHref={dashboardPath} pathname={pathname} />
