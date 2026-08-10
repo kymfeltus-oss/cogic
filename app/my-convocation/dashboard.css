@@ -1,15 +1,14 @@
 /* Mobile-only attendee dashboard. The same 430px composition is used at every viewport. */
 .cl-dash {
   --cl-mobile-shell-max: 430px;
-  --cl-mobile-pad-x: .875rem;
-  --cl-mobile-feature-aspect: 2160 / 1280;
+  --cl-mobile-pad-x: 1.085rem;
   position: relative;
   isolation: isolate;
   width: min(100%, var(--cl-mobile-shell-max));
   max-width: var(--cl-mobile-shell-max);
   min-height: 100dvh;
   margin-inline: auto;
-  padding-bottom: calc(5.7rem + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--cl-bottom-nav-height) + .85rem + env(safe-area-inset-bottom, 0px));
   overflow-x: clip;
   color: #f8fbff;
   background-color: #03040a;
@@ -55,18 +54,20 @@
   height: 100%;
   object-fit: contain;
   object-position: top center;
+  transform: translateY(-.35rem);
 }
 
-.cl-dashboard-media__approved-reference {
+.cl-dashboard-media__bishops {
   position: absolute;
-  z-index: 1;
-  top: 0;
-  left: 0;
+  z-index: 2;
+  top: min(74vw, 20rem);
+  left: 50%;
   display: block;
   width: 100%;
+  max-width: none;
   height: auto;
+  transform: translateX(-50%);
   object-fit: contain;
-  object-position: top center;
 }
 
 .cl-mobile-home {
@@ -74,60 +75,84 @@
   min-width: 0;
   display: grid;
   gap: .7rem;
-  padding: clamp(25rem, 105vw, 28rem) var(--cl-mobile-pad-x) .75rem;
+  /* Reset: keep the live card below the full bishop lineup. */
+  padding: clamp(28rem, 110vw, 30rem) var(--cl-mobile-pad-x) .75rem;
 }
 
-/* The stream card is the first interactive surface below the integrated MP4 artwork. */
+/* Compact two-column live card, matching the approved dashboard reference. */
 .cl-dash .cl-mobile-home .cl-live-stage {
-  width: 100%;
+  width: calc(100% + (var(--cl-mobile-pad-x) * 2));
   height: auto;
-  aspect-ratio: var(--cl-mobile-feature-aspect);
-  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+  grid-template-rows: auto 1fr;
+  column-gap: .45rem;
+  row-gap: .28rem;
+  margin-inline: calc(var(--cl-mobile-pad-x) * -1);
   overflow: hidden;
-  border: 1px solid rgb(255 255 255 / 16%);
+  border: 1px solid rgb(207 86 255 / 82%);
   border-radius: 1rem;
+  padding: .42rem;
+  background:
+    radial-gradient(circle at 100% 0, rgb(94 52 176 / 16%), transparent 42%),
+    #05070d;
+  box-shadow:
+    0 0 0 1px rgb(86 95 255 / 40%),
+    0 0 1.35rem rgb(194 54 255 / 34%),
+    0 12px 28px rgb(0 0 0 / 34%);
+}
+
+.cl-dash .cl-mobile-home .cl-live-stage::before {
+  position: absolute;
+  z-index: 3;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(110deg, #d66eff 0%, #8b6dff 45%, #52c8ff 72%, #e34bd8 100%);
+  content: "";
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
 }
 
 .cl-live-stage {
   position: relative;
   isolation: isolate;
-  display: block;
-  padding: 0;
+  display: grid;
+  padding: .75rem;
   background: #05070d;
-  box-shadow: 0 12px 28px rgb(0 0 0 / 34%);
+  box-shadow: none;
 }
 
-.cl-dash .cl-mobile-home .cl-live-stage::after {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, rgb(3 6 11 / 96%) 0%, rgb(3 6 11 / 82%) 38%, rgb(3 6 11 / 22%) 72%, transparent 100%);
-  content: "";
-  pointer-events: none;
+.cl-live-stage__details {
+  display: grid;
+  align-content: start;
+  gap: .16rem;
 }
 
 .cl-live-stage__header {
-  position: absolute;
-  z-index: 2;
-  top: .65rem;
-  left: .75rem;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: .5rem;
 }
 
 .cl-pill {
-  min-height: 1.9rem;
+  min-height: .92rem;
   display: inline-flex;
   align-items: center;
-  gap: .35rem;
-  padding: .35rem .55rem;
+  gap: .2rem;
+  padding: .12rem .28rem;
   border: 1px solid rgb(255 255 255 / 12%);
-  border-radius: .55rem;
+  border-radius: .28rem;
   color: #fff;
   background: rgb(8 11 16 / 78%);
-  font-size: .58rem;
+  font-size: .38rem;
   font-weight: 800;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -159,38 +184,50 @@
 }
 
 .cl-live-stage__title {
-  display: none;
+  min-width: 0;
+  overflow: hidden;
+  color: rgb(255 255 255 / 88%);
+  font-size: .46rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cl-live-stage__program {
-  position: absolute;
-  z-index: 2;
-  top: 3.35rem;
-  left: .8rem;
+  position: relative;
+  z-index: 1;
 }
 
 .cl-live-stage__program h2 {
   color: #fff;
-  font-size: clamp(1.1rem, 5.3vw, 1.45rem);
+  font-size: clamp(.78rem, 3.45vw, .98rem);
   font-weight: 650;
   line-height: 1.05;
 }
 
 .cl-live-stage__program p {
-  margin-top: .2rem;
+  margin-top: .08rem;
   color: rgb(255 255 255 / 82%);
-  font-size: clamp(.68rem, 3.25vw, .82rem);
+  font-size: clamp(.5rem, 2.25vw, .62rem);
 }
 
 .cl-dash .cl-mobile-home .cl-live-stage__viewport {
-  position: absolute;
+  position: relative;
   z-index: 0;
-  inset: 0;
   width: 100%;
-  height: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: inherit;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: .72rem;
   background: #05070d;
+}
+
+.cl-dash .cl-mobile-home .cl-live-stage__viewport {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: stretch;
 }
 
 .cl-live-stage__viewport iframe,
@@ -243,26 +280,34 @@
 }
 
 .cl-btn {
-  min-height: 2.35rem;
+  min-height: 1.05rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: .45rem;
+  gap: .22rem;
   border: 0;
-  border-radius: .65rem;
+  border-radius: .28rem;
   color: #fff;
-  font-size: .66rem;
+  font-size: .38rem;
   font-weight: 800;
   letter-spacing: .04em;
 }
 
+.cl-live-stage__actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  align-self: end;
+  gap: .18rem;
+}
+
 .cl-live-stage .cl-btn--block {
-  position: absolute;
-  z-index: 2;
-  bottom: 2.55rem;
-  left: .75rem;
-  min-width: 9.75rem;
-  padding: .55rem .85rem;
+  position: relative;
+  flex: 1 1 4.4rem;
+  min-width: 4.4rem;
+  padding: .2rem .32rem;
 }
 
 .cl-btn--primary {
@@ -274,23 +319,22 @@
 }
 
 .cl-live-stage__schedule {
-  position: absolute;
-  z-index: 2;
-  bottom: .25rem;
-  left: .65rem;
-  min-height: 2rem;
+  position: relative;
+  z-index: 1;
+  min-height: 1.05rem;
   display: inline-flex;
   align-items: center;
-  gap: .4rem;
-  padding: .35rem .45rem;
+  gap: .16rem;
+  padding: .16rem .1rem;
   color: rgb(255 255 255 / 88%);
-  font-size: .62rem;
+  font-size: .36rem;
   font-weight: 650;
+  white-space: nowrap;
   text-transform: uppercase;
 }
 
 .cl-live-stage__schedule svg {
-  width: 1rem;
+  width: .58rem;
   color: #f2b51f;
 }
 

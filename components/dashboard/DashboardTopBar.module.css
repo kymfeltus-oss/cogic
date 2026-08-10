@@ -128,10 +128,7 @@
 }
 
 .root :global(.cl-topbar__bell-badge--empty) {
-  border-color: transparent;
-  color: transparent;
-  background: #050713;
-  box-shadow: none;
+  display: none;
 }
 
 .root :global(.cl-topbar__bell-panel) {
