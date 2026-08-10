@@ -19,11 +19,13 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
   // Legacy Awakening artboard only — COGIC My Convocation uses normal page chrome.
   const isExperienceDashboard = pathname === "/attendee-dashboard";
   const isCogicDashboard = pathname === "/my-convocation" || pathname === "/my-sanctuary";
+  const isTravelShell =
+    pathname === "/travel" || pathname.startsWith("/travel/");
   const isArtboardTab = isMobileArtboardTabRoute(pathname);
   const isFullHeightArtboard = isFullHeightArtboardRoute(pathname);
   const useFlexViewportShell = isArtboardTab || isFullHeightArtboard;
-  // Dashboards mount their own universal top bar + bottom dock once.
-  const hasSharedNavigation = !hideNav && !isCogicDashboard;
+  // Dashboards / travel mount their own mobile chrome — no shared attendee nav.
+  const hasSharedNavigation = !hideNav && !isCogicDashboard && !isTravelShell;
   const atmosphereVariant = brandVariantFromPath(pathname);
 
   if (isCredentialRoute) {
@@ -36,8 +38,13 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
   }
 
   return (
-    <div className={cn("relative min-h-dvh w-full bg-transparent", isCogicDashboard && "bg-[#03040a]")}>
-      {!isCogicDashboard && <BrandBackdrop variant={atmosphereVariant} />}
+    <div
+      className={cn(
+        "relative min-h-dvh w-full bg-transparent",
+        (isCogicDashboard || isTravelShell) && "bg-[#02030b]",
+      )}
+    >
+      {!isCogicDashboard && !isTravelShell && <BrandBackdrop variant={atmosphereVariant} />}
       {hasSharedNavigation && <AttendeeSharedTopBar />}
       {hasSharedNavigation && <BottomNavigation />}
       <div
@@ -47,7 +54,12 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
             ? "flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden"
             : "min-h-dvh",
           hasSharedNavigation && "cl-global-stage",
-          !hideNav && !isExperienceDashboard && !isCogicDashboard && !isArtboardTab && CONTENT_WITH_NAV,
+          !hideNav &&
+            !isExperienceDashboard &&
+            !isCogicDashboard &&
+            !isTravelShell &&
+            !isArtboardTab &&
+            CONTENT_WITH_NAV,
         )}
       >
         {children}

@@ -1,13 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState, type FormEvent } from "react";
+import { useState } from "react";
 import { ChevronLeft } from "lucide-react";
-import ContactUsForm, { type ContactUsFormValues } from "@/components/prayer/ContactUsForm";
 import AwakeningMenuButton from "@/components/AwakeningMenuButton";
 import ProfileOrbEditor from "@/components/profile/ProfileOrbEditor";
-import { COGIC_LIVE_PUBLIC_NAME } from "@/lib/brand/public-display";
-import { buildContactMailto, isSupportEmailConfigured } from "@/lib/prayer/contact";
 import type { AttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
 import { ATTENDEE_DASHBOARD_PATH } from "@/lib/navigation/back-to-dashboard";
 import { CONTENT_WITH_NAV } from "@/lib/responsive";
@@ -16,76 +14,8 @@ type ContactUsPageClientProps = {
   initialProfile: AttendeeProfileSnapshot;
 };
 
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
-
 export default function ContactUsPageClient({ initialProfile }: ContactUsPageClientProps) {
   const [profile, setProfile] = useState(initialProfile);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [values, setValues] = useState<ContactUsFormValues>(() => ({
-    fullName: [profile.firstName, profile.lastName].filter(Boolean).join(" ").trim(),
-    email: profile.email ?? "",
-    subject: "",
-    message: "",
-  }));
-
-  const canSubmit = useMemo(
-    () =>
-      values.fullName.trim().length > 0 &&
-      isValidEmail(values.email) &&
-      values.subject.trim().length > 0 &&
-      values.message.trim().length > 0 &&
-      !isSubmitting,
-    [isSubmitting, values],
-  );
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setFormError(null);
-
-    if (!values.fullName.trim()) {
-      setFormError("Enter your full name.");
-      return;
-    }
-
-    if (!isValidEmail(values.email)) {
-      setFormError("Enter a valid email address.");
-      return;
-    }
-
-    if (!values.subject.trim()) {
-      setFormError("Enter a subject.");
-      return;
-    }
-
-    if (!values.message.trim()) {
-      setFormError("Enter your message.");
-      return;
-    }
-
-    if (!canSubmit) return;
-
-    if (!isSupportEmailConfigured) {
-      setFormError(
-        "Support email is not configured. Set NEXT_PUBLIC_SUPPORT_EMAIL before launch.",
-      );
-      return;
-    }
-
-    const mailto = buildContactMailto(values);
-    if (!mailto) {
-      setFormError(
-        "Support email is not configured. Set NEXT_PUBLIC_SUPPORT_EMAIL before launch.",
-      );
-      return;
-    }
-
-    setIsSubmitting(true);
-    window.location.href = mailto;
-    window.setTimeout(() => setIsSubmitting(false), 1200);
-  };
 
   return (
     <div className={`contact-us-page ${CONTENT_WITH_NAV} relative min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden bg-brand-black text-white`}>
@@ -108,38 +38,19 @@ export default function ContactUsPageClient({ initialProfile }: ContactUsPageCli
             </div>
           </div>
 
-          <div className="contact-us-page__hero mx-auto mt-6 max-w-md text-center">
-            <p className="font-headline text-[clamp(1.8rem,6vw,2.4rem)] uppercase tracking-[0.12em] text-white">
-              {COGIC_LIVE_PUBLIC_NAME}
-            </p>
-            <p className="contact-us-page__tagline mt-3 font-ui text-[0.58rem] font-bold uppercase tracking-[0.28em] text-brand-blue">
-              118th Holy Convocation
-            </p>
-          </div>
-
-          <div className="mt-8 text-center">
-            <p className="font-ui text-[0.62rem] font-bold uppercase tracking-[0.24em] text-brand-blue">
-              {COGIC_LIVE_PUBLIC_NAME}
-            </p>
-            <h1 className="mt-2 font-headline text-fluid-section uppercase tracking-[0.12em] text-white">
-              Contact Us
-            </h1>
-            <p className="mx-auto mt-3 max-w-lg font-body text-sm leading-relaxed text-brand-muted">
-              We&apos;d love to hear from you. Send a message and our team will get back to you soon.
-            </p>
+          <div className="mx-auto mt-5 max-w-md overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#050714] shadow-[0_1.25rem_3rem_rgb(0_0_0_/_0.32)]">
+            <Image
+              src="/contact-us/contact-us.png"
+              width={864}
+              height={1821}
+              priority
+              sizes="(max-width: 448px) calc(100vw - 2rem), 448px"
+              alt="COGIC LIVE contact information and support options"
+              className="block h-auto w-full"
+            />
           </div>
         </header>
 
-        <ContactUsForm
-          values={values}
-          isSubmitting={isSubmitting}
-          canSubmit={canSubmit}
-          formError={formError}
-          onFieldChange={(key, value) => {
-            setValues((current) => ({ ...current, [key]: value }));
-          }}
-          onSubmit={handleSubmit}
-        />
       </div>
     </div>
   );

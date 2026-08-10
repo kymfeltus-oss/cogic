@@ -907,14 +907,6 @@ body::-webkit-scrollbar {
   pointer-events: auto;
 }
 
-.intro-flash-audio {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
 .intro-flash-motion {
   position: absolute;
   inset: 0;
@@ -5252,7 +5244,8 @@ body::-webkit-scrollbar {
 
 /* Retired legacy bottom-dock — universal .cl-bottom-nav owns primary navigation. */
 :root {
-  --bottom-dock-display-h: 0px;
+  --cl-bottom-nav-height: clamp(5.75rem, 12vw, 8.5rem);
+  --bottom-dock-display-h: var(--cl-bottom-nav-height);
 }
 .bottom-dock {
   display: none !important;
@@ -5448,6 +5441,286 @@ body::-webkit-scrollbar {
   .cogic-auth-page::before { right: -7rem; bottom: -5rem; width: 19rem; }
 }
 
+/* Attendee login — one interactive layer over the supplied artwork. */
+.cogic-login-artboard {
+  display: flex;
+  width: 100%;
+  min-height: 100dvh;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #02030a;
+}
+
+.cogic-login-artboard__frame {
+  position: relative;
+  width: min(100%, 32rem);
+  aspect-ratio: 941 / 1672;
+  flex: none;
+  container-type: inline-size;
+}
+
+.cogic-login-artboard__form {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cogic-login-artboard__field,
+.cogic-login-artboard__password-toggle,
+.cogic-login-artboard__remember,
+.cogic-login-artboard__action,
+.cogic-login-artboard__create-account {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.cogic-login-artboard__field {
+  display: block;
+  min-height: 2.75rem;
+}
+
+.cogic-login-artboard__field--email {
+  top: 50.1%;
+  left: 27.8%;
+  width: 45.5%;
+  height: 5.2%;
+}
+
+.cogic-login-artboard__field--password {
+  top: 56.15%;
+  left: 27.8%;
+  width: 43.5%;
+  height: 5.2%;
+}
+
+.cogic-login-artboard__field input {
+  appearance: none;
+  width: 100%;
+  height: 100%;
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: 0.4rem;
+  outline: 0;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding: 0 0.35rem;
+  color: #ffffff;
+  caret-color: #37d7ff;
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  font-size: clamp(0.72rem, 3.2cqw, 0.98rem);
+  font-weight: 500;
+  text-shadow: 0 1px 0.45rem rgb(0 0 0 / 0.86);
+}
+
+.cogic-login-artboard__field input:-webkit-autofill,
+.cogic-login-artboard__field input:-webkit-autofill:hover,
+.cogic-login-artboard__field input:-webkit-autofill:focus,
+.cogic-login-artboard__field input:-webkit-autofill:active {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-box-shadow: none !important;
+  box-shadow: none !important;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #37d7ff;
+  transition: background-color 99999s ease-out 0s;
+}
+
+.cogic-login-artboard__password-toggle {
+  top: 56.15%;
+  left: 74.2%;
+  display: grid;
+  width: 7.4%;
+  height: 5.2%;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.cogic-login-artboard__password-toggle svg {
+  width: clamp(0.95rem, 4.2cqw, 1.3rem);
+  height: clamp(0.95rem, 4.2cqw, 1.3rem);
+  color: rgb(255 255 255 / 0.9);
+  opacity: 0;
+}
+
+.cogic-login-artboard__password-toggle:focus-visible,
+.cogic-login-artboard__action:focus-visible,
+.cogic-login-artboard__create-account:focus-visible {
+  outline: 2px solid #27dbff;
+  outline-offset: 2px;
+}
+
+.cogic-login-artboard__remember:focus-within {
+  outline: 0;
+}
+
+.cogic-login-artboard__password-toggle:hover svg,
+.cogic-login-artboard__password-toggle:focus-visible svg,
+.cogic-login-artboard__password-toggle[aria-pressed="true"] svg {
+  opacity: 1;
+}
+
+.cogic-login-artboard__remember {
+  top: 62.3%;
+  left: 16.5%;
+  width: 66.5%;
+  height: 5%;
+  min-height: 2.75rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.cogic-login-artboard__remember input {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cogic-login-artboard__remember-indicator {
+  position: absolute;
+  top: 22.9%;
+  right: 6.9%;
+  display: block;
+  width: 11.85%;
+  height: 50.25%;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0d1432, #1a2957);
+  box-shadow: inset 0 0 0 1px rgb(118 149 255 / 0.2);
+  opacity: 0;
+  transition: opacity 160ms ease, background 160ms ease;
+}
+
+.cogic-login-artboard__remember-indicator::after {
+  position: absolute;
+  top: 50%;
+  left: 4.05%;
+  width: 48.65%;
+  height: 85.7%;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0.55rem rgb(255 255 255 / 0.52);
+  content: "";
+  transform: translateY(-50%);
+  transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.cogic-login-artboard__remember input:checked + .cogic-login-artboard__remember-indicator {
+  background: linear-gradient(90deg, #c51ce8, #068ee9);
+  opacity: 1;
+}
+
+.cogic-login-artboard__remember input:checked + .cogic-login-artboard__remember-indicator::after {
+  background: #ffffff;
+  box-shadow: 0 0 0.8rem rgb(64 230 255 / 0.88);
+  transform: translate(88.9%, -50%);
+}
+
+.cogic-login-artboard__action,
+.cogic-login-artboard__create-account {
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.cogic-login-artboard__action:hover,
+.cogic-login-artboard__create-account:hover {
+  background: transparent;
+}
+
+.cogic-login-artboard__action:disabled,
+.cogic-login-artboard__remember input:disabled,
+.cogic-login-artboard__password-toggle:disabled {
+  cursor: not-allowed;
+}
+
+.cogic-login-artboard__action--login {
+  top: 69.55%;
+  left: 16.5%;
+  width: 66.5%;
+  height: 6.25%;
+  min-height: 3.15rem;
+}
+
+.cogic-login-artboard__action--login svg {
+  width: clamp(1rem, 4.2cqw, 1.35rem);
+  height: clamp(1rem, 4.2cqw, 1.35rem);
+}
+
+.cogic-login-artboard__action--apple,
+.cogic-login-artboard__action--google {
+  left: 16.5%;
+  width: 66.5%;
+  height: 4.85%;
+  min-height: 2.75rem;
+  border-radius: 0.85rem;
+}
+
+.cogic-login-artboard__action--apple { top: 81.25%; }
+.cogic-login-artboard__action--google { top: 86.72%; }
+
+.cogic-login-artboard__create-account {
+  top: 93.52%;
+  left: 54.5%;
+  width: 28.5%;
+  height: 4.1%;
+  min-height: 2.5rem;
+}
+
+.cogic-login-artboard__message {
+  position: absolute;
+  top: 76.25%;
+  left: 16.5%;
+  width: 66.5%;
+  margin: 0;
+  border: 1px solid rgb(55 210 255 / 0.5);
+  border-radius: 0.65rem;
+  background: rgb(4 12 36 / 0.93);
+  padding: 0.45rem 0.6rem;
+  color: #c8f3ff;
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+  font-size: clamp(0.62rem, 2.4cqw, 0.78rem);
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.cogic-login-artboard__message--error {
+  border-color: rgb(255 69 172 / 0.58);
+  color: #ffd0ec;
+}
+
+@media (min-width: 33rem) {
+  .cogic-login-artboard__frame {
+    box-shadow: 0 0 4rem rgb(54 18 122 / 0.28);
+  }
+}
+
 .auth-login-page {
   position: relative;
   margin-inline: auto;
@@ -5519,7 +5792,6 @@ body::-webkit-scrollbar {
 
 /* Login with sliced component PNGs â€” header plate only (no duplicate form art). */
 .auth-attendee-artboard--login-plates {
-  /* Keep in sync with AWAKENING_AUTH_LOGIN_FORM.top in awakening-auth-assets.ts */
   --auth-login-header-ratio: 0.4663;
   --auth-login-header-h: calc(var(--auth-login-header-ratio) * 100%);
 }

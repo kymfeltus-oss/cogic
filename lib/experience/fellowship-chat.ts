@@ -19,12 +19,15 @@ export type FellowshipChatMessageRow = {
 export type FellowshipChatMessage = ChatMessage & {
   userId: string;
   isPinned: boolean;
+  authorAvatarUrl?: string | null;
 };
 
 export type FellowshipChatSession = {
   authenticated: boolean;
+  userId: string | null;
   canSend: boolean;
   isModerator: boolean;
+  postingEnabled: boolean;
   mutedUntil: string | null;
   slowModeSeconds: number;
 };

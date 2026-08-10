@@ -10,7 +10,7 @@ import {
   attributionToStripeMetadata,
   resolveGivingAttribution,
 } from "@/lib/giving/attribution";
-import { getGivingFund } from "@/lib/giving/funds";
+import { getActiveGivingFund, listActiveGivingFunds } from "@/lib/giving/repository";
 import { validateGivingCheckoutInput } from "@/lib/giving/validation";
 import {
   enforceGivingCheckoutRateLimit,
@@ -68,7 +68,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = (await request.json()) as Record<string, unknown>;
-    const validated = validateGivingCheckoutInput(body);
+    const activeFunds = await listActiveGivingFunds();
+    const validated = validateGivingCheckoutInput(body, activeFunds);
 
     if (validated.ok === false) {
       return NextResponse.json({ error: validated.error }, { status: 400 });
@@ -87,7 +88,7 @@ export async function POST(request: NextRequest) {
       collectionId,
       programKey,
     } = validated.value;
-    const fund = getGivingFund(fundKey);
+    const fund = await getActiveGivingFund(fundKey);
     if (!fund) {
       return NextResponse.json({ error: "Please select a valid fund." }, { status: 400 });
     }

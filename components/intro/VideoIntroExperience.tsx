@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   INTRO_ENTER_PANEL,
   INTRO_MOBILE_ART,
-  INTRO_MUSIC_SRC,
   INTRO_VIDEO_ART,
   INTRO_VIDEO_SRC,
 } from "@/lib/experience/intro-assets";
@@ -45,7 +44,6 @@ async function resolveIntroDestination(): Promise<string> {
 }
 
 export default function VideoIntroExperience() {
-  const musicRef = useRef<HTMLAudioElement>(null);
   const isNavigatingRef = useRef(false);
   const [isExiting, setIsExiting] = useState(false);
 
@@ -57,59 +55,24 @@ export default function VideoIntroExperience() {
     };
   }, []);
 
-  const playIntroMusic = useCallback(async () => {
-    const audio = musicRef.current;
-    if (!audio) return;
-    audio.volume = 0.85;
-    audio.loop = true;
-    try {
-      await audio.play();
-    } catch {
-      // Browser autoplay policy may require the user's Enter gesture.
-    }
-  }, []);
-
-  useEffect(() => {
-    void playIntroMusic();
-    const audio = musicRef.current;
-    const unlock = () => void playIntroMusic();
-    window.addEventListener("pointerdown", unlock, { passive: true });
-    window.addEventListener("touchstart", unlock, { passive: true });
-    window.addEventListener("keydown", unlock, { passive: true });
-    return () => {
-      window.removeEventListener("pointerdown", unlock);
-      window.removeEventListener("touchstart", unlock);
-      window.removeEventListener("keydown", unlock);
-      audio?.pause();
-    };
-  }, [playIntroMusic]);
-
   const handleEnter = useCallback(() => {
     if (isNavigatingRef.current) return;
     isNavigatingRef.current = true;
-    void playIntroMusic();
     setIsExiting(true);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     void resolveIntroDestination().then((destination) => {
       const navigate = () => {
-        musicRef.current?.pause();
         window.location.assign(destination);
       };
       if (reducedMotion) navigate();
       else window.setTimeout(navigate, EXIT_MS);
     });
-  }, [playIntroMusic]);
+  }, []);
 
   return (
     <div
       className={`intro-flash-root fixed inset-0 z-50 h-dvh w-full overflow-hidden bg-brand-black transition-opacity duration-500 ease-out ${isExiting ? "opacity-0" : "opacity-100"}`}
-      onPointerDown={() => void playIntroMusic()}
-      onTouchStart={() => void playIntroMusic()}
     >
-      <audio ref={musicRef} loop preload="auto" className="intro-flash-audio" aria-hidden="true">
-        <source src={INTRO_MUSIC_SRC} type="audio/mp4" />
-      </audio>
-
       <div className="intro-flash-ambience intro-flash-ambience--back" aria-hidden="true">
         <div className="intro-flash-vignette" />
       </div>

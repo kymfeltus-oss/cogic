@@ -85,6 +85,17 @@ const FEATURES = [
     ],
     permissionMarkers: ["getUserFromSession", "CRON_SECRET", "processDueScheduleReminders"],
   },
+  {
+    name: "COGIC Giving funds",
+    adminRoute: "app/owner/giving/page.tsx",
+    attendeeRoute: "app/giving/page.tsx",
+    apis: [
+      "app/api/owner/giving/funds/route.ts",
+      "app/api/giving/funds/route.ts",
+      "app/api/checkout/route.ts",
+    ],
+    permissionMarkers: ["requireOwnerUser", "listActiveGivingFunds", "getActiveGivingFund"],
+  },
 ];
 
 let failed = 0;

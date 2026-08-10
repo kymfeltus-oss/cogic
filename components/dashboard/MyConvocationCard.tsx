@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, BadgeCheck, ClipboardList, QrCode, X } from "lucide-react";
 import IconBadge from "@/components/brand/IconBadge";
 import RegistrationPolicyDocument from "@/components/registration/RegistrationPolicyDocument";
+import { registrationHeadline } from "@/lib/dashboard/dashboard-module-summaries";
 import type { DashboardRegistrationState } from "@/lib/dashboard/load-attendee-dashboard";
 import { credentialPresentationCopy } from "@/lib/registration/credential-presentation-state";
 
@@ -36,15 +37,26 @@ export default function MyConvocationCard({
   } | null>(null);
   const [credentialError, setCredentialError] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const headline = registrationHeadline(registration, signedIn);
 
   async function showCredential(member: DashboardRegistrationState["members"][number]) {
     setCredentialError("");
     setBusyId(member.registrationId);
     try {
-      const response = await fetch("/api/registration/credential-presentation", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({registrationId:member.registrationId}) });
+      const response = await fetch("/api/registration/credential-presentation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ registrationId: member.registrationId }),
+      });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Credential unavailable.");
-      setCredential({memberId:member.registrationId,name:member.name,type:result.registrationType,status:result.status,qrDataUrl:result.qrDataUrl});
+      setCredential({
+        memberId: member.registrationId,
+        name: member.name,
+        type: result.registrationType,
+        status: result.status,
+        qrDataUrl: result.qrDataUrl,
+      });
     } catch (error) {
       setCredentialError(error instanceof Error ? error.message : "Credential unavailable.");
     } finally {
@@ -54,18 +66,17 @@ export default function MyConvocationCard({
 
   if (!signedIn || registration.status === "none") {
     return (
-      <article className="cl-feature-card cl-feature-card--registration">
-        <p className="cl-feature-card__eyebrow">Registration Hub</p>
-        <IconBadge icon={ClipboardList} className="cl-feature-card__icon-badge" />
-        <h2>No Registration</h2>
-        <p className="cl-feature-card__body">
-          Sign in or start registration for the 118th Holy Convocation.
-        </p>
-        <Link
-          href={signedIn ? "/register" : "/login?next=%2Fregister"}
-          className="cl-btn cl-btn--primary cl-btn--block"
-        >
-          {signedIn ? "Open Registration" : "Sign In"}
+      <article className="cl-section cl-section--registration">
+        <header className="cl-section__head">
+          <div>
+            <p className="cl-section__eyebrow">Registration</p>
+            <h2 className="cl-section__title">{headline.title}</h2>
+          </div>
+          <IconBadge icon={ClipboardList} />
+        </header>
+        <p className="cl-section__body">{headline.summary}</p>
+        <Link href={headline.href} className="cl-btn cl-btn--primary cl-btn--block">
+          {headline.cta}
           <ArrowRight aria-hidden="true" />
         </Link>
       </article>
@@ -73,16 +84,25 @@ export default function MyConvocationCard({
   }
 
   const statusLabel = label(registration.status);
+  const credentialPending =
+    registration.status === "confirmed" && !registration.credentialReady;
 
   return (
-    <article className="cl-feature-card cl-feature-card--registration">
-      <p className="cl-feature-card__eyebrow">Registration Hub</p>
-      <IconBadge
-        icon={registration.credentialReady ? BadgeCheck : ClipboardList}
-        className="cl-feature-card__icon-badge"
-      />
-      <h2>My Registration</h2>
+    <article className="cl-section cl-section--registration">
+      <header className="cl-section__head">
+        <div>
+          <p className="cl-section__eyebrow">Registration</p>
+          <h2 className="cl-section__title">{headline.title}</h2>
+        </div>
+        <IconBadge icon={registration.credentialReady ? BadgeCheck : ClipboardList} />
+      </header>
       <p className="cl-reg-badge">{statusLabel}</p>
+      <p className="cl-section__body">{headline.summary}</p>
+      {credentialPending ? (
+        <p className="cl-reg-credential-note" role="status">
+          Credential Pending
+        </p>
+      ) : null}
 
       <dl className="cl-reg-summary">
         <div>
@@ -167,8 +187,8 @@ export default function MyConvocationCard({
         </p>
       ) : null}
 
-      <Link href="/register" className="cl-btn cl-btn--primary cl-btn--block">
-        Open Registration
+      <Link href={headline.href} className="cl-btn cl-btn--primary cl-btn--block">
+        {headline.cta}
         <ArrowRight aria-hidden="true" />
       </Link>
 

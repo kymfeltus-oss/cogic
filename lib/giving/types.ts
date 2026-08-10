@@ -1,14 +1,12 @@
-export type GivingFundKey =
-  | "tithes"
-  | "offering"
-  | "missions"
-  | "general_fund";
+export type GivingFundKey = string;
 
 export type GivingFund = {
+  id?: string;
   key: GivingFundKey;
   label: string;
   description: string;
   active: boolean;
+  published?: boolean;
   sortOrder: number;
 };
 

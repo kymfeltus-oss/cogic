@@ -16,6 +16,7 @@ export type HealthReadiness = {
   rateLimitConfigured: boolean;
   liveAccessDevBypassDisabled: boolean;
   opsAdminDevBypassDisabled: boolean;
+  attendeeAuthOpenDisabled: boolean;
 };
 
 function isTruthyBypass(value: string | undefined): boolean {
@@ -85,6 +86,7 @@ export function getReadiness(): HealthReadiness {
     process.env.LIVE_ACCESS_DEV_BYPASS,
   );
   const opsAdminDevBypassDisabled = !isTruthyBypass(process.env.OPS_ADMIN_DEV_BYPASS);
+  const attendeeAuthOpenDisabled = !isTruthyBypass(process.env.ATTENDEE_AUTH_OPEN);
 
   const ready =
     supabaseConfigured &&
@@ -94,7 +96,8 @@ export function getReadiness(): HealthReadiness {
     originConfigured &&
     registrationPricingConfigured &&
     liveAccessDevBypassDisabled &&
-    opsAdminDevBypassDisabled;
+    opsAdminDevBypassDisabled &&
+    attendeeAuthOpenDisabled;
 
   return {
     status: ready ? "ready" : "not_ready",
@@ -107,5 +110,6 @@ export function getReadiness(): HealthReadiness {
     rateLimitConfigured,
     liveAccessDevBypassDisabled,
     opsAdminDevBypassDisabled,
+    attendeeAuthOpenDisabled,
   };
 }

@@ -25,38 +25,71 @@ test("intro plate uses intro mobile.png at native 941×1672", async () => {
 });
 
 test("intro Enter destination routes by auth and registration", () => {
-  assert.match(
-    resolveIntroEnterDestination({
-      userId: null,
-      isGuest: false,
-      hasActiveRegistration: false,
-    }).destination,
-    /^\/login\?/,
-  );
-  assert.equal(
-    resolveIntroEnterDestination({
-      userId: "u1",
-      isGuest: true,
-      hasActiveRegistration: false,
-    }).destination,
-    "/my-convocation",
-  );
-  assert.equal(
-    resolveIntroEnterDestination({
-      userId: "u1",
-      isGuest: false,
-      hasActiveRegistration: false,
-    }).destination,
-    "/register",
-  );
-  assert.equal(
-    resolveIntroEnterDestination({
-      userId: "u1",
-      isGuest: false,
-      hasActiveRegistration: true,
-    }).destination,
-    "/my-convocation",
-  );
+  const previous = process.env.ATTENDEE_AUTH_OPEN;
+  process.env.ATTENDEE_AUTH_OPEN = "false";
+  try {
+    assert.match(
+      resolveIntroEnterDestination({
+        userId: null,
+        isGuest: false,
+        hasActiveRegistration: false,
+      }).destination,
+      /^\/login\?/,
+    );
+    assert.equal(
+      resolveIntroEnterDestination({
+        userId: "u1",
+        isGuest: true,
+        hasActiveRegistration: false,
+      }).destination,
+      "/my-convocation",
+    );
+    assert.equal(
+      resolveIntroEnterDestination({
+        userId: "u1",
+        isGuest: false,
+        hasActiveRegistration: false,
+      }).destination,
+      "/register",
+    );
+    assert.equal(
+      resolveIntroEnterDestination({
+        userId: "u1",
+        isGuest: false,
+        hasActiveRegistration: true,
+      }).destination,
+      "/my-convocation",
+    );
+  } finally {
+    if (previous === undefined) delete process.env.ATTENDEE_AUTH_OPEN;
+    else process.env.ATTENDEE_AUTH_OPEN = previous;
+  }
+});
+
+test("intro Enter goes straight to dashboard when attendee auth is open", () => {
+  const previous = process.env.ATTENDEE_AUTH_OPEN;
+  process.env.ATTENDEE_AUTH_OPEN = "true";
+  try {
+    assert.equal(
+      resolveIntroEnterDestination({
+        userId: null,
+        isGuest: false,
+        hasActiveRegistration: false,
+      }).destination,
+      "/my-convocation",
+    );
+    assert.equal(
+      resolveIntroEnterDestination({
+        userId: "u1",
+        isGuest: false,
+        hasActiveRegistration: false,
+      }).destination,
+      "/my-convocation",
+    );
+  } finally {
+    if (previous === undefined) delete process.env.ATTENDEE_AUTH_OPEN;
+    else process.env.ATTENDEE_AUTH_OPEN = previous;
+  }
 });
 
 test("intro experience wires Enter hit to measured panel and destination API", async () => {
@@ -68,6 +101,7 @@ test("intro experience wires Enter hit to measured panel and destination API", a
   assert.match(experience, /INTRO_ENTER_PANEL/);
   assert.match(experience, /introRectStyle\(INTRO_ENTER_PANEL\)/);
   assert.match(experience, /\/api\/intro\/destination/);
+  assert.doesNotMatch(experience, /<audio|\.play\(\)|intro-music/i);
   assert.match(api, /getUserFromSession/);
   assert.match(api, /getActiveRegistrationForUser/);
   assert.match(api, /resolveIntroEnterDestination/);

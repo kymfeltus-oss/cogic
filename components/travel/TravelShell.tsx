@@ -8,7 +8,7 @@ export function HonestUnavailable({kind,embedded}:{kind:string;embedded?:boolean
     :kind==="rental car"
       ?"Rental car search is being connected to our travel partners."
       :`Live ${kind} search coming soon`;
-  return <div className="mt-7 rounded-3xl border border-amber-300/30 bg-amber-200/10 p-6">
+  return <div className="ct-unavailable-panel mt-7 rounded-3xl border border-amber-300/30 bg-amber-200/10 p-6">
     <h2 className="text-2xl font-bold">{title}</h2>
     <p className="mt-2 max-w-2xl text-lg leading-8 text-white/75">A live travel provider has not been configured. We will never show invented prices or availability.{embedded?null:" You can save a reservation made elsewhere in COGIC Travel."}</p>
     {embedded?null:<Link href="/travel" className="mt-5 inline-flex min-h-12 items-center rounded-xl bg-white px-5 font-bold text-black">Open COGIC Travel Hub</Link>}

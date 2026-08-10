@@ -6,6 +6,7 @@ import {
   insertFellowshipChatMessage,
   loadActiveMuteUntil,
   loadFellowshipChatFeed,
+  loadSocialPostingEnabled,
 } from "@/lib/experience/fellowship-chat-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { createServerSupabaseClient } from "@/lib/supabase/ssr-server";
@@ -22,10 +23,11 @@ export async function GET() {
     } = await supabase.auth.getUser();
 
     const admin = getSupabaseAdmin();
-    const [feed, session] = await Promise.all([
+    const [feed, postingEnabled] = await Promise.all([
       loadFellowshipChatFeed(admin),
-      buildFellowshipSession(admin, user),
+      loadSocialPostingEnabled(admin),
     ]);
+    const session = await buildFellowshipSession(admin, user, postingEnabled);
 
     return NextResponse.json({
       messages: feed.messages,
@@ -77,6 +79,13 @@ export async function POST(request: NextRequest) {
     }
 
     const admin = getSupabaseAdmin();
+    const postingEnabled = await loadSocialPostingEnabled(admin);
+    if (!postingEnabled) {
+      return NextResponse.json(
+        { error: "Community posting is temporarily paused." },
+        { status: 403 },
+      );
+    }
     const mutedUntil = await loadActiveMuteUntil(admin, user.id);
 
     if (mutedUntil) {

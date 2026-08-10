@@ -13,8 +13,8 @@ export type BottomNavHotspot = {
   isActive: (pathname: string) => boolean;
 };
 
-/** Native-style tab bar height; phone safe area is added separately in CSS. */
-export const BOTTOM_NAV_BAR_HEIGHT_PX = 56;
+/** Reference-style tab bar height; phone safe area is added separately in CSS. */
+export const BOTTOM_NAV_BAR_HEIGHT_PX = 92;
 
 /** Shared dock destinations — identical to the dashboard primary nav. */
 export const BOTTOM_NAV_HOTSPOTS: readonly BottomNavHotspot[] = ATTENDEE_PRIMARY_NAV.map((item) => ({

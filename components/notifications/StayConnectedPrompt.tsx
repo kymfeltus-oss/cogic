@@ -70,6 +70,8 @@ export default function StayConnectedPrompt({ signedIn }: { signedIn: boolean })
           alt=""
           width={48}
           height={48}
+          priority
+          loading="eager"
           className="h-12 w-12 shrink-0 object-contain"
         />
         <div className="min-w-0">

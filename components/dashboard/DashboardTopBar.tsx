@@ -21,37 +21,39 @@ export default function DashboardTopBar({
       ? `${profile.title} ${profile.lastName}`
       : profile.firstName || "Guest";
 
+  const avatar = profile.avatarUrl ? (
+    <Image src={profile.avatarUrl} alt="" width={40} height={40} unoptimized />
+  ) : (
+    <span className="cl-topbar__avatar" aria-hidden="true">
+      {profile.userId && profile.profileInitials ? profile.profileInitials : <UserRound />}
+    </span>
+  );
+
   return (
     <div className={`${styles.root} cl-dashboard-controls`}>
       <div className={`${styles.tools} cl-topbar__tools`} role="group" aria-label="Dashboard tools">
-        {profile.userId ? (
-          <div className="cl-topbar__account">
+        <div className="cl-topbar__account">
+          {profile.userId ? (
             <button
               type="button"
               className="cl-topbar__profile"
               onClick={onProfile}
               aria-label={`Open profile for ${profileLabel}`}
             >
-              {profile.avatarUrl ? (
-                <Image src={profile.avatarUrl} alt="" width={40} height={40} unoptimized />
-              ) : (
-                <span className="cl-topbar__avatar" aria-hidden="true">
-                  {profile.profileInitials || <UserRound />}
-                </span>
-              )}
+              {avatar}
+              <span className="cl-topbar__name">{profileLabel}</span>
             </button>
-          </div>
-        ) : (
-          <a
-            href={`/login?next=${encodeURIComponent(profileReturnPath)}`}
-            className="cl-topbar__profile"
-            aria-label="Sign in to access your profile"
-          >
-            <span className="cl-topbar__avatar" aria-hidden="true">
-              <UserRound />
-            </span>
-          </a>
-        )}
+          ) : (
+            <a
+              href={`/login?next=${encodeURIComponent(profileReturnPath)}`}
+              className="cl-topbar__profile"
+              aria-label="Sign in to access your profile"
+            >
+              {avatar}
+              <span className="cl-topbar__name">{profileLabel}</span>
+            </a>
+          )}
+        </div>
 
         <AnnouncementBell />
       </div>

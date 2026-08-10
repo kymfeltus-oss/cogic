@@ -1,192 +1,203 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, BriefcaseBusiness, CalendarDays, Car, ChevronDown, ChevronRight, CircleUserRound, MapPin, Plane, Star } from "lucide-react";
+import {
+  BriefcaseBusiness,
+  Building2,
+  CalendarDays,
+  Car,
+  ChevronDown,
+  ChevronRight,
+  CircleCheck,
+  MapPin,
+  Menu,
+  Plane,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react";
 import TravelHubClient from "@/components/travel/TravelHubClient";
-import { publishedHotels } from "@/lib/travel/repository";
+import { publishedHotels, publicTravelInfo } from "@/lib/travel/repository";
 import { getUserFromSession } from "@/lib/auth/session";
 import { userHotelState } from "@/lib/travel/reservations";
+import { fetchAttendeeProfileRecord } from "@/lib/experience/fetch-attendee-profile";
+import { buildAttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
 import "./travel-home.css";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "COGIC Travel | 118th Holy Convocation" };
 
 export default async function TravelPage() {
-  const [hotels, user] = await Promise.all([publishedHotels(), getUserFromSession()]);
-  const hotelState = user?.id ? await userHotelState(user.id) : null;
+  const [hotels, user, travelInfo] = await Promise.all([
+    publishedHotels(),
+    getUserFromSession(),
+    publicTravelInfo(),
+  ]);
+  const [hotelState, attendeeRecord] = await Promise.all([
+    user?.id ? userHotelState(user.id) : Promise.resolve(null),
+    user?.id ? fetchAttendeeProfileRecord(user.id) : Promise.resolve(null),
+  ]);
+  const hasGettingAround =
+    travelInfo.airports.length > 0 ||
+    travelInfo.transport.length > 0 ||
+    travelInfo.announcements.length > 0;
+  const profile = buildAttendeeProfileSnapshot(user, attendeeRecord);
+  const profileName = [profile.title, profile.firstName, profile.lastName].filter(Boolean).join(" ");
+  const profileHref = user ? "/my-convocation?view=profile" : "/login?next=%2Ftravel";
 
   return (
-    <main className="ct-page">
+    <main id="main-content" className="ct-page">
       <div className="ct-frame">
-        <header className="ct-nav">
-          <Link href="/my-convocation" className="ct-brand" aria-label="COGIC STREAM LIVE home">
-            <Image
-              src="/branding/cogic-seal.png"
-              alt=""
-              width={256}
-              height={256}
-              priority
-              className="ct-nav-seal"
-              sizes="(max-width: 900px) 52px, 208px"
-              style={{ width: "clamp(9.5rem, 13vw, 13rem)", height: "clamp(9.5rem, 13vw, 13rem)", maxWidth: "none", objectFit: "cover", objectPosition: "center" }}
-            />
-            <span className="ct-travel-logo-lockup" aria-label="COGIC Travel">
-              <span className="ct-travel-suitcase" aria-hidden="true" />
-              <span>
-                COGIC <b>Travel</b>
-              </span>
-            </span>
+        <header className="ct-header">
+          <Link href="/my-convocation" className="ct-menu-control" aria-label="Open My Convocation">
+            <Menu aria-hidden="true" />
           </Link>
-          <nav aria-label="Travel navigation">
-            <Link href="/my-convocation">Home</Link>
-            <Link href="/program">Schedule</Link>
-            <Link href="/program">Speakers</Link>
-            <Link href="/program">Events</Link>
-            <Link className="active" href="/travel">
-              Travel
-            </Link>
-            <Link href="/my-convocation">
-              More <ChevronDown />
-            </Link>
-          </nav>
-          <div className="ct-user">
-            <Bell />
-            <CircleUserRound />
-          </div>
+
+          <p className="ct-wordmark" aria-label="COGIC Travel">
+            <span>COGIC</span>
+            <strong>TRAVEL</strong>
+          </p>
+
+          <Link href={profileHref} className="ct-account" aria-label="Open your account">
+            <span className="ct-account__avatar" aria-hidden="true">
+              {profile.avatarUrl ? (
+                <Image src={profile.avatarUrl} alt="" fill sizes="52px" unoptimized />
+              ) : (
+                <span>{profile.profileInitials || <UserRound />}</span>
+              )}
+            </span>
+            <span className="ct-account__copy">
+              <small>Welcome back,</small>
+              <strong>{profileName || "Guest"}</strong>
+            </span>
+            <ChevronDown aria-hidden="true" />
+          </Link>
         </header>
 
-        <section className="ct-hero">
-          <Image
-            src="/travel-st-louis-hero.png"
-            fill
-            priority
-            sizes="(max-width: 900px) 100vw, 1200px"
-            alt="St. Louis skyline and Gateway Arch at sunset"
-          />
-          <div className="ct-hero-shade" />
-          <div className="ct-hero-copy">
-            <h1 className="ct-travel-header-lockup">
-              <span className="sr-only">COGIC Travel</span>
-            </h1>
-            <p>Your Convocation journey starts here.</p>
-            <div className="ct-event">
-              <Image
-                src="/branding/cogic-seal.png"
-                width={192}
-                height={192}
-                alt="COGIC seal"
-                className="ct-event-seal"
-              />
-              <div>
-                <strong>118th Holy Convocation</strong>
+        <section className="ct-hero" aria-labelledby="travel-convocation-title">
+          <div className="ct-hero__media">
+            <Image
+              src="/travel-st-louis-hero.png"
+              fill
+              priority
+              sizes="430px"
+              alt="St. Louis skyline and Gateway Arch at sunset"
+              className="ct-hero__image"
+            />
+            <div className="ct-hero-shade" />
+          </div>
+          <div className="ct-hero__content">
+            <div className="ct-hero-copy">
+              <p className="ct-hero__eyebrow">118th</p>
+              <h1 id="travel-convocation-title">
+                <span>Holy</span>
+                <span>Convocation</span>
+              </h1>
+              <div className="ct-event">
                 <span>
-                  <MapPin /> St. Louis, Missouri <i /> <CalendarDays /> November 2026
+                  <MapPin aria-hidden="true" /> St. Louis, Missouri
+                </span>
+                <span>
+                  <CalendarDays aria-hidden="true" /> November 2026
                 </span>
               </div>
+              <p className="ct-hero__journey">
+                Your Convocation journey <em>starts here.</em>
+              </p>
+            </div>
+
+            <div className="ct-hero__seal" aria-hidden="true">
+              <Image src="/branding/cogic-seal.png" fill sizes="144px" alt="" priority />
             </div>
           </div>
         </section>
 
         {hotelState?.primary ? (
-          <section className="mx-[38px] mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-green-400/30 bg-green-400/10 p-5">
-            <div>
-              <p className="font-black text-green-300">YOUR STAY IS SET ✓</p>
-              <h2 className="mt-1 text-xl font-bold">{hotelState.primary.hotel_name_snapshot}</h2>
-              <p>
-                {hotelState.primary.check_in} – {hotelState.primary.check_out}
+          <section id="saved-trip" className="ct-confirmed-stay">
+            <span className="ct-confirmed-stay__icon" aria-hidden="true">
+              <Building2 />
+            </span>
+            <div className="ct-confirmed-stay__copy">
+              <p aria-label="YOUR STAY IS SET">
+                Your stay is <strong>set</strong> <CircleCheck aria-hidden="true" />
               </p>
+              <h2>{hotelState.primary.hotel_name_snapshot}</h2>
+              <span>
+                {hotelState.primary.check_in} &ndash; {hotelState.primary.check_out}
+              </span>
             </div>
-            <Link href="/travel" className="rounded-lg bg-white px-5 py-3 font-bold text-black">
-              View COGIC Travel
+            <Link href="/travel/trip" className="ct-neon-button ct-confirmed-stay__action">
+              Open My Trip <ChevronRight aria-hidden="true" />
             </Link>
           </section>
         ) : null}
 
         <div className="ct-body ct-body-hub">
-          <div className="ct-hub-main">
-            <TravelHubClient hotels={hotels} />
-          </div>
+          <TravelHubClient hotels={hotels} hasSavedStay={Boolean(hotelState?.primary)} />
+        </div>
 
-          <aside className="ct-aside">
-            <Link href="/travel/getting-around">
-              <span>
-                <Plane />
-              </span>
-              <div>
-                <strong>Airport Information</strong>
-                <small>Lambert–St. Louis International Airport (STL)</small>
-              </div>
-              <ChevronRight />
-            </Link>
-            <Link href="/travel/getting-around">
-              <span>
-                <Car />
-              </span>
-              <div>
-                <strong>Ground Transportation</strong>
-                <small>Shuttles, rideshares, taxis & more</small>
-              </div>
-              <ChevronRight />
-            </Link>
-            <Link href="/travel">
+        <section className="ct-helpful-links" aria-labelledby="travel-helpful-links">
+          <div className="ct-helpful-links__heading">
+            <span />
+            <h2 id="travel-helpful-links">Helpful Travel Links</h2>
+            <span />
+          </div>
+          <div className="ct-helpful-links__rows">
+            {hasGettingAround ? (
+              <>
+                <Link href="/travel/getting-around">
+                  <span>
+                    <Plane />
+                  </span>
+                  <div>
+                    <strong>Airport Information</strong>
+                    <small>Lambert&ndash;St. Louis International Airport (STL)</small>
+                  </div>
+                  <ChevronRight />
+                </Link>
+                <Link href="/travel/getting-around">
+                  <span>
+                    <Car />
+                  </span>
+                  <div>
+                    <strong>Ground Transportation</strong>
+                    <small>Shuttles, rideshares, taxis &amp; more</small>
+                  </div>
+                  <ChevronRight />
+                </Link>
+              </>
+            ) : null}
+            <Link href="/travel/trip">
               <span>
                 <BriefcaseBusiness />
               </span>
               <div>
-                <strong>COGIC Travel Hub</strong>
-                <small>Hotels, flights, and rental cars in one place</small>
+                <strong>My Trip</strong>
+                <small>Save hotel, flight, and transportation details</small>
               </div>
               <ChevronRight />
             </Link>
-            <div className="ct-trip-preview">
-              <div>
-                <strong>My Trip</strong>
-                <Link href="/travel">
-                  View Details <ChevronRight />
-                </Link>
-              </div>
-              <p>Your private itinerary is ready when you are.</p>
-              <Link href="/travel">Add travel details</Link>
-            </div>
-          </aside>
-        </div>
+          </div>
+        </section>
 
-        <footer className="ct-progress">
-          <div className="done">
-            <span>✓</span>
-            <p>
-              <b>Registered</b>
-              <small>You&apos;re all set!</small>
-            </p>
-          </div>
-          <i />
-          <div className="current">
-            <span>
-              <BriefcaseBusiness />
+        <footer className="ct-footer">
+          <div className="ct-footer__church">
+            <span className="ct-footer__seal" aria-hidden="true">
+              <Image src="/branding/cogic-seal.png" fill sizes="48px" alt="" />
             </span>
-            <p>
-              <b>Travel</b>
-              <small>Plan your trip</small>
-            </p>
-          </div>
-          <i />
-          <div>
             <span>
-              <CalendarDays />
+              &copy; 2026 Church of God in Christ, Inc.
+              <small>All rights reserved.</small>
             </span>
-            <p>
-              <b>My Schedule</b>
-              <small>Build your agenda</small>
-            </p>
           </div>
-          <i />
-          <div>
+          <p className="ct-footer__scripture">
+            &ldquo;One Church, One Mission, One Future.&rdquo;
+            <small>Matthew 28:19&ndash;20</small>
+          </p>
+          <div className="ct-footer__trust">
             <span>
-              <Star />
+              Secure. Trusted. Official.
+              <small>Powered by COGIC Travel</small>
             </span>
-            <p>
-              <b>Ready for Convocation</b>
-              <small>See you in St. Louis!</small>
-            </p>
+            <ShieldCheck aria-hidden="true" />
           </div>
         </footer>
       </div>

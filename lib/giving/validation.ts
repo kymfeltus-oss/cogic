@@ -1,6 +1,11 @@
-import { getGivingFund, isActiveGivingFundKey } from "@/lib/giving/funds";
+import {
+  getGivingFundFrom,
+  isActiveGivingFundKeyIn,
+  SEED_GIVING_FUNDS,
+} from "@/lib/giving/funds";
 import type {
   GivingCheckoutRequest,
+  GivingFund,
   GivingFundKey,
   GivingPaymentMethodId,
 } from "@/lib/giving/types";
@@ -21,19 +26,22 @@ function sanitizeNote(raw: unknown): string | undefined {
   return trimmed.slice(0, MAX_GIVING_NOTE_LENGTH);
 }
 
-export function validateGivingCheckoutInput(input: {
-  amountInCents?: unknown;
-  fundKey?: unknown;
-  note?: unknown;
-  source?: unknown;
-  paymentMethod?: unknown;
-  sourceType?: unknown;
-  mediaId?: unknown;
-  eventId?: unknown;
-  eventOccurrenceId?: unknown;
-  collectionId?: unknown;
-  programKey?: unknown;
-}): GivingValidationResult {
+export function validateGivingCheckoutInput(
+  input: {
+    amountInCents?: unknown;
+    fundKey?: unknown;
+    note?: unknown;
+    source?: unknown;
+    paymentMethod?: unknown;
+    sourceType?: unknown;
+    mediaId?: unknown;
+    eventId?: unknown;
+    eventOccurrenceId?: unknown;
+    collectionId?: unknown;
+    programKey?: unknown;
+  },
+  activeFunds: readonly GivingFund[] = SEED_GIVING_FUNDS,
+): GivingValidationResult {
   const amountInCents = input.amountInCents;
 
   if (
@@ -49,11 +57,11 @@ export function validateGivingCheckoutInput(input: {
   }
 
   const fundKeyRaw = typeof input.fundKey === "string" ? input.fundKey.trim() : "";
-  if (!isActiveGivingFundKey(fundKeyRaw)) {
+  if (!isActiveGivingFundKeyIn(activeFunds, fundKeyRaw)) {
     return { ok: false, error: "Please select a valid fund." };
   }
 
-  const fund = getGivingFund(fundKeyRaw);
+  const fund = getGivingFundFrom(activeFunds, fundKeyRaw);
   if (!fund?.active) {
     return { ok: false, error: "That fund is not available." };
   }

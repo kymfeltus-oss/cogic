@@ -45,12 +45,15 @@ export async function loadActiveMuteUntil(
 export async function buildFellowshipSession(
   admin: SupabaseClient,
   user: User | null,
+  postingEnabled = true,
 ): Promise<FellowshipChatSession> {
   if (!user) {
     return {
       authenticated: false,
+      userId: null,
       canSend: false,
       isModerator: false,
+      postingEnabled,
       mutedUntil: null,
       slowModeSeconds: FELLOWSHIP_SLOW_MODE_SECONDS,
     };
@@ -60,11 +63,65 @@ export async function buildFellowshipSession(
 
   return {
     authenticated: true,
-    canSend: !mutedUntil,
+    userId: user.id,
+    canSend: postingEnabled && !mutedUntil,
     isModerator: false,
+    postingEnabled,
     mutedUntil,
     slowModeSeconds: FELLOWSHIP_SLOW_MODE_SECONDS,
   };
+}
+
+export async function loadSocialPostingEnabled(admin: SupabaseClient): Promise<boolean> {
+  const { data, error } = await admin
+    .from("social_settings")
+    .select("posting_enabled")
+    .eq("id", "community")
+    .maybeSingle();
+
+  if (error) {
+    if (isFellowshipSchemaMismatchError(error)) return true;
+    console.warn("COGIC Social setting lookup failed:", error.message);
+    return true;
+  }
+
+  return data?.posting_enabled !== false;
+}
+
+async function hydrateFellowshipAuthors(
+  admin: SupabaseClient,
+  messages: FellowshipChatMessage[],
+): Promise<FellowshipChatMessage[]> {
+  const userIds = [...new Set(messages.map((message) => message.userId).filter(Boolean))];
+  if (userIds.length === 0) return messages;
+
+  const { data, error } = await admin
+    .from("attendees")
+    .select("id, first_name, last_name, avatar_url")
+    .in("id", userIds);
+  if (error) return messages;
+
+  const profiles = new Map(
+    (data ?? []).map((row) => [
+      row.id as string,
+      {
+        name: [row.first_name, row.last_name]
+          .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+          .join(" "),
+        avatarUrl: typeof row.avatar_url === "string" ? row.avatar_url : null,
+      },
+    ]),
+  );
+
+  return messages.map((message) => {
+    const profile = profiles.get(message.userId);
+    if (!profile) return message;
+    return {
+      ...message,
+      author: profile.name || message.author,
+      authorAvatarUrl: profile.avatarUrl,
+    };
+  });
 }
 
 async function loadFellowshipChatFeedLegacy(admin: SupabaseClient): Promise<{
@@ -86,7 +143,7 @@ async function loadFellowshipChatFeedLegacy(admin: SupabaseClient): Promise<{
     .reverse()
     .map((row) => mapFellowshipChatRow(row as FellowshipChatMessageRow));
 
-  return { messages, pinned: null };
+  return { messages: await hydrateFellowshipAuthors(admin, messages), pinned: null };
 }
 
 export async function loadFellowshipChatFeed(admin: SupabaseClient): Promise<{
@@ -137,7 +194,14 @@ export async function loadFellowshipChatFeed(admin: SupabaseClient): Promise<{
     ? mapFellowshipChatRow(pinnedResult.data as FellowshipChatMessageRow)
     : null;
 
-  return { messages, pinned };
+  const hydrated = await hydrateFellowshipAuthors(
+    admin,
+    pinned ? [...messages, pinned] : messages,
+  );
+  return {
+    messages: pinned ? hydrated.slice(0, -1) : hydrated,
+    pinned: pinned ? hydrated.at(-1) ?? pinned : null,
+  };
 }
 
 export async function assertFellowshipSlowMode(

@@ -1,1 +1,12 @@
-import {TravelShell,HonestUnavailable} from "@/components/travel/TravelShell";export default function Page(){return <TravelShell back><h1 className="mt-8 text-5xl font-black">Rental Cars</h1><div className="mt-8 grid gap-4 rounded-3xl border border-white/15 bg-white/[.06] p-6 sm:grid-cols-2"><label className="text-lg sm:col-span-2">Pickup location<input className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black" value="St. Louis Lambert International Airport (STL)" readOnly/></label><label className="text-lg">Pickup date and time<input type="datetime-local" className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label><label className="text-lg">Drop-off date and time<input type="datetime-local" className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label><label className="text-lg">Driver age<input type="number" min="18" className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label></div><HonestUnavailable kind="rental car"/></TravelShell>}
+import { TravelShell } from "@/components/travel/TravelShell";
+import RentalCarSearchPanel from "@/components/travel/RentalCarSearchPanel";
+
+export const metadata = { title: "Rental Cars | COGIC Travel" };
+
+export default function TravelCarsPage() {
+  return (
+    <TravelShell back>
+      <RentalCarSearchPanel />
+    </TravelShell>
+  );
+}

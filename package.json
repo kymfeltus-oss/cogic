@@ -15,6 +15,7 @@
     "test:broadcast": "npx tsx --test services/broadcast/__tests__/**/*.test.ts",
     "test:streaming": "npx tsx --test lib/streaming/__tests__/**/*.test.ts",
     "test:honesty": "npx tsx --test lib/live/__tests__/attendee-live-honesty.test.ts",
+    "verify:production-honesty": "npx tsx --test lib/live/__tests__/attendee-live-honesty.test.ts",
     "test:events": "npx tsx --test lib/events/__tests__/**/*.test.ts",
     "test:registration": "npx tsx --test lib/registration/__tests__/**/*.test.ts",
     "test:tickets": "npx tsx --test lib/tickets/__tests__/**/*.test.ts",

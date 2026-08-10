@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import DashboardLoading from "@/components/dashboard/DashboardLoading";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { COGIC_LIVE_PUBLIC_NAME } from "@/lib/brand/public-display";
 import { loadAttendeeDashboard } from "@/lib/dashboard/load-attendee-dashboard";
@@ -13,7 +14,15 @@ export const metadata: Metadata = {
   description: "Your registration, schedule, live broadcast, and attendee account shortcuts.",
 };
 
-export default async function MyConvocationPage() {
+async function DashboardPageBody() {
   const data = await loadAttendeeDashboard();
-  return <Suspense fallback={null}><DashboardShell data={data} /></Suspense>;
+  return <DashboardShell data={data} />;
+}
+
+export default function MyConvocationPage() {
+  return (
+    <Suspense fallback={<DashboardLoading />}>
+      <DashboardPageBody />
+    </Suspense>
+  );
 }

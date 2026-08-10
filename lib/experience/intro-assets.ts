@@ -8,12 +8,6 @@ export const INTRO_IMAGE_ASSET_VERSION = "20260808";
 /** Served from `public/intro mobile.png` (941×1672). */
 export const INTRO_VIDEO_SRC = `/intro%20mobile.png?v=${INTRO_IMAGE_ASSET_VERSION}`;
 
-/** Cache-bust when replacing `public/intro-music.m4a`. */
-export const INTRO_MUSIC_ASSET_VERSION = "20260618";
-
-/** Served from `public/intro-music.m4a`. */
-export const INTRO_MUSIC_SRC = `/intro-music.m4a?v=${INTRO_MUSIC_ASSET_VERSION}`;
-
 /** Native intro plate — must match PNG pixels so Enter % slots align. */
 export const INTRO_VIDEO_ART = {
   width: 941,

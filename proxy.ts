@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import type { User } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { isAttendeeAuthOpen } from "@/lib/auth/attendee-auth-open";
 import {
   ATTENDEE_GATE_PATH,
   AUTH_NEXT_COOKIE,
@@ -86,6 +87,11 @@ export async function proxy(request: NextRequest) {
 
   const isAttendeeRoute = isAttendeeProtectedPath(pathname);
   const isTeamRoute = isTeamProtectedPath(pathname);
+
+  // Temporary: let anonymous visitors browse attendee surfaces (dashboard, etc.).
+  if (isAttendeeRoute && !isTeamRoute && isAttendeeAuthOpen()) {
+    return NextResponse.next();
+  }
 
   if (!isAttendeeRoute && !isTeamRoute) {
     return NextResponse.next();

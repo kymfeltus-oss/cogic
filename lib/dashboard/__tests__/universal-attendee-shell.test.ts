@@ -39,7 +39,7 @@ test("one universal shell mounts home + dock without XOR", async () => {
   assert.doesNotMatch(rootShell, /isTravelHubRoute|AttendeeDesktopNav/);
   assert.match(bottom, /DashboardMobileNav/);
   assert.match(primary, /ATTENDEE_PRIMARY_NAV/);
-  for (const label of ["Home", "Watch Live", "Program", "My Sanctuary", "Give"]) {
+  for (const label of ["Home", "Registration", "COGIC Live", "Giving", "Travel"]) {
     assert.match(primary, new RegExp(label));
   }
 });

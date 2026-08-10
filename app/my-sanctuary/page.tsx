@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import DashboardLoading from "@/components/dashboard/DashboardLoading";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { COGIC_LIVE_PUBLIC_NAME } from "@/lib/brand/public-display";
 import { loadAttendeeDashboard } from "@/lib/dashboard/load-attendee-dashboard";
@@ -13,11 +14,15 @@ export const metadata: Metadata = {
   description: "Your personalized COGIC LIVE Holy Convocation home.",
 };
 
-export default async function MySanctuaryPage() {
+async function DashboardPageBody() {
   const data = await loadAttendeeDashboard();
+  return <DashboardShell data={data} dashboardPath="/my-sanctuary" />;
+}
+
+export default function MySanctuaryPage() {
   return (
-    <Suspense fallback={null}>
-      <DashboardShell data={data} dashboardPath="/my-sanctuary" />
+    <Suspense fallback={<DashboardLoading />}>
+      <DashboardPageBody />
     </Suspense>
   );
 }

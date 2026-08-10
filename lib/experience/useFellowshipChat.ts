@@ -39,8 +39,10 @@ type UseFellowshipChatResult = {
 
 const DEFAULT_SESSION: FellowshipChatSession = {
   authenticated: false,
+  userId: null,
   canSend: false,
   isModerator: false,
+  postingEnabled: true,
   mutedUntil: null,
   slowModeSeconds: 7,
 };

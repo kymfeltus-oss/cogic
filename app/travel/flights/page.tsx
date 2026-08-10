@@ -1,1 +1,12 @@
-import {TravelShell,HonestUnavailable} from "@/components/travel/TravelShell";export default function Page(){return <TravelShell back><h1 className="mt-8 text-5xl font-black">Flights to St. Louis</h1><p className="mt-3 text-xl">Destination: STL — St. Louis Lambert International Airport</p><div className="mt-8 grid gap-4 rounded-3xl border border-white/15 bg-white/[.06] p-6 sm:grid-cols-2"><label className="text-lg">Leaving from<input className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black" placeholder="City or airport"/></label><label className="text-lg">Flying to<input className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black" value="STL — St. Louis" readOnly/></label><label className="text-lg">Depart<input type="date" className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label><label className="text-lg">Return<input type="date" className="mt-2 min-h-14 w-full rounded-xl bg-white p-3 text-black"/></label><p className="sm:col-span-2 text-white/70">Presets: Arrive before Convocation · Depart after Convocation</p></div><HonestUnavailable kind="flight"/></TravelShell>}
+import { TravelShell } from "@/components/travel/TravelShell";
+import FlightSearchPanel from "@/components/travel/FlightSearchPanel";
+
+export const metadata = { title: "Flights | COGIC Travel" };
+
+export default function TravelFlightsPage() {
+  return (
+    <TravelShell back>
+      <FlightSearchPanel />
+    </TravelShell>
+  );
+}

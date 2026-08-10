@@ -9,7 +9,7 @@ async function source(relativePath: string) {
   return readFile(path.join(root, relativePath), "utf8");
 }
 
-test("Watch Live attendee nav routes to /live", async () => {
+test("COGIC Live attendee nav routes to /live", async () => {
   const [mobileNav, primaryNav, bottomNav, liveStage, liveNav] = await Promise.all([
     source("components/dashboard/DashboardMobileNav.tsx"),
     source("lib/navigation/attendee-primary-nav.ts"),
@@ -18,7 +18,7 @@ test("Watch Live attendee nav routes to /live", async () => {
     source("lib/experience/useAttendeeLiveNavTarget.ts"),
   ]);
   assert.match(mobileNav, /ATTENDEE_PRIMARY_NAV/);
-  assert.match(primaryNav, /label:\s*"Watch Live"[\s\S]*href:\s*"\/live"/);
+  assert.match(primaryNav, /label:\s*"COGIC Live"[\s\S]*href:\s*"\/live"/);
   assert.match(bottomNav, /ATTENDEE_PRIMARY_NAV/);
   assert.match(liveStage, /"\/live"/);
   assert.match(liveNav, /EXPERIENCE_LIVE_PATH/);
@@ -130,7 +130,7 @@ test("Live Hub Convocation dock exposes only real attendee routes", async () => 
   assert.doesNotMatch(hub, /href=["']\/(tickets|exhibitors|maps)["']/);
 });
 
-test("mobile navigation marks Watch Live active on /live", async () => {
+test("mobile navigation marks COGIC Live active on /live", async () => {
   const [nav, primary] = await Promise.all([
     source("components/dashboard/DashboardMobileNav.tsx"),
     source("lib/navigation/attendee-primary-nav.ts"),

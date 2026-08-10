@@ -23,7 +23,7 @@ test("7 new version preserves prior version",()=>{assert.match(api,/status:"supe
 test("8 retire or supersede works",()=>assert.match(api,/retire_policy[\s\S]*status:"retired"/));
 test("9 accepted historical policy cannot be deleted",()=>assert.match(migration,/policy_id uuid NOT NULL REFERENCES public\.registration_policies\(id\) ON DELETE RESTRICT/));
 test("10 acceptance remains linked to original version",()=>assert.match(migration,/policy_snapshot text NOT NULL/));
-test("11 primary registration appears",()=>assert.match(attendee,/My Registration/));
+test("11 primary registration appears",()=>assert.match(attendee,/Registration Confirmed|My Registration|registrationHeadline/));
 test("12 group members appear",()=>assert.match(attendee,/Group Members/));
 test("13 Junior relationship appears",()=>assert.match(attendee,/member\.isJunior\?" · Junior"/));
 test("14 accepted policy version appears",()=>assert.match(attendee,/Version \{registration\.policy\.version\}/));
@@ -33,6 +33,6 @@ test("17 historical detail uses accepted snapshot",()=>assert.match(attendee,/co
 test("18 active or issued credential renders real QR",()=>{assert.match(credentialState,/status === "issued" \|\| status === "active"/);assert.match(attendee,/credentialState\.canPresent/);assert.match(attendee,/result\.qrDataUrl/);});
 test("19 pending credential has no fake QR",()=>{assert.match(attendee,/credentialState\.canPresent/);assert.match(attendee,/credentialState\.message/);});
 test("20 revoked credential is truthful",()=>{assert.match(qr,/credential\?\.status==="revoked"/);assert.match(credentialState,/case "revoked"/);});
-test("21 group members have individual credentials",()=>{assert.match(attendee,/registrationId:member\.registrationId/);assert.match(loader,/registration_credentials\(status\)/);});
+test("21 group members have individual credentials",()=>{assert.match(attendee,/registrationId:\s*member\.registrationId/);assert.match(loader,/registration_credentials\(status\)/);});
 test("22 attendee cannot access another credential",()=>assert.match(qr,/registration_groups\.owner_user_id",user\.id/));
 test("23 owner sees individual credential statuses",()=>{assert.match(owner,/registration_credentials\?\.at\(-1\)\?\.status/);assert.match(flow,/RegistrationPolicyDocument/);assert.match(shared,/registration-policy-document/);});

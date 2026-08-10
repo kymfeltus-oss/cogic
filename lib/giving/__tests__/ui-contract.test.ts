@@ -21,8 +21,11 @@ describe("COGIC Giving UI and checkout contract", () => {
     assert.match(amount, /inputMode="decimal"/);
     assert.match(amount, /htmlFor="cogic-giving-amount-input"/);
     assert.match(quick, /aria-pressed=\{pressed\}/);
-    assert.match(funds, /listActiveGivingFunds/);
+    assert.match(funds, /funds\.map/);
     assert.match(funds, /aria-pressed=\{pressed\}/);
+    assert.match(await read("app/giving/page.tsx"), /listActiveGivingFunds/);
+    assert.match(await read("app/api/checkout/route.ts"), /getActiveGivingFund/);
+    assert.match(await read("lib/giving/repository.ts"), /from\("giving_funds"\)/);
     assert.match(note, /Add a short note\.\.\./);
     assert.match(methods, /aria-pressed=\{selected === "card"\}/);
     assert.match(submit, /disabled=\{disabled \|\| loading\}/);

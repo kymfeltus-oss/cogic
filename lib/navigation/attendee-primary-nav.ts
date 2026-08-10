@@ -1,13 +1,13 @@
-import { CalendarDays, HandHeart, Home, Radio, Sparkles, type LucideIcon } from "lucide-react";
+import { ClipboardList, HandHeart, Home, Plane, Radio, type LucideIcon } from "lucide-react";
 import { isAttendeeLiveSurfacePath } from "@/lib/experience/live-routes";
 import { ATTENDEE_DASHBOARD_PATH } from "@/lib/navigation/back-to-dashboard";
 
 export type AttendeePrimaryNavId =
   | "home"
+  | "registration"
   | "live"
-  | "schedule"
-  | "sanctuary"
-  | "giving";
+  | "giving"
+  | "travel";
 
 export type AttendeePrimaryNavItem = {
   id: AttendeePrimaryNavId;
@@ -27,31 +27,31 @@ export const ATTENDEE_PRIMARY_NAV: readonly AttendeePrimaryNavItem[] = [
     match: "home",
   },
   {
+    id: "registration",
+    label: "Registration",
+    href: "/register",
+    icon: ClipboardList,
+    match: "prefix",
+  },
+  {
     id: "live",
-    label: "Watch Live",
+    label: "COGIC Live",
     href: "/live",
     icon: Radio,
     match: "live",
   },
   {
-    id: "schedule",
-    label: "Program",
-    href: "/program",
-    icon: CalendarDays,
+    id: "giving",
+    label: "Giving",
+    href: "/giving",
+    icon: HandHeart,
     match: "prefix",
   },
   {
-    id: "sanctuary",
-    label: "My Sanctuary",
-    href: "/my-sanctuary",
-    icon: Sparkles,
-    match: "exact",
-  },
-  {
-    id: "giving",
-    label: "Give",
-    href: "/giving",
-    icon: HandHeart,
+    id: "travel",
+    label: "Travel",
+    href: "/travel",
+    icon: Plane,
     match: "prefix",
   },
 ] as const;

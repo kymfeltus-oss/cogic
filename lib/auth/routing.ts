@@ -73,8 +73,11 @@ export function buildAttendeeGateUrl(nextPath?: string | null): string {
   return buildGateUrl(ATTENDEE_GATE_PATH, sanitizeNextPath(nextPath, DEFAULT_ATTENDEE_NEXT));
 }
 
-export function buildCreateAccountUrl(_nextPath?: string | null): string {
-  return CREATE_ACCOUNT_PATH;
+export function buildCreateAccountUrl(nextPath?: string | null): string {
+  return buildGateUrl(
+    CREATE_ACCOUNT_PATH,
+    sanitizeNextPath(nextPath, DEFAULT_ATTENDEE_NEXT),
+  );
 }
 
 export function buildForgotPasswordUrl(nextPath?: string | null): string {
@@ -96,6 +99,11 @@ export function setAuthNextCookie(nextPath: string): void {
   if (typeof document === "undefined") return;
   const safePath = resolveAttendeeDestination(nextPath);
   document.cookie = `${AUTH_NEXT_COOKIE}=${encodeURIComponent(safePath)}; path=/; max-age=600; samesite=lax`;
+}
+
+export function clearAuthNextCookie(): void {
+  if (typeof document === "undefined") return;
+  document.cookie = `${AUTH_NEXT_COOKIE}=; path=/; max-age=0`;
 }
 
 export function buildTeamGateUrl(nextPath?: string | null): string {

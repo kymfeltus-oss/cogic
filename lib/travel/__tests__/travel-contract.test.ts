@@ -8,11 +8,39 @@ it("keeps primary Hotels/Flights/Cars controls as in-page tabs on the travel hub
   assert.doesNotMatch(page,/href="\/travel\/flights"/);
   assert.doesNotMatch(page,/href="\/travel\/cars"/);
   assert.match(hub,/useState<TravelTab>\("hotels"\)/);
+  assert.match(hub,/href="\/travel\/trip"/);
   assert.match(tabs,/role="tablist"/);
   assert.doesNotMatch(tabs,/href=|router\.push|Link /);
   assert.match(read("components/travel/HotelSearchPanel.tsx"),/OfficialHotelsClient/);
   assert.match(read("components/travel/FlightSearchPanel.tsx"),/HonestUnavailable/);
   assert.match(read("components/travel/RentalCarSearchPanel.tsx"),/HonestUnavailable/);
   assert.doesNotMatch(read("components/travel/FlightSearchPanel.tsx")+read("components/travel/RentalCarSearchPanel.tsx"),/fake fare|sample flight|demo inventory|invented/i);
+});
+it("completes hotel booking into My Trip without fake confirmation",()=>{
+  const start=read("app/api/travel/hotel-booking/start/route.ts");
+  const trip=read("app/travel/trip/page.tsx");
+  const availability=read("components/travel/HotelAvailabilityClient.tsx");
+  assert.match(start,/redirectTo:\s*destination/);
+  assert.match(start,/\/travel\/trip/);
+  assert.doesNotMatch(start,/redirect_destination:\s*"\/housing"|destination="\/housing"/);
+  assert.match(start,/login\?next=/);
+  assert.match(trip,/MyTripClient/);
+  assert.match(availability,/Continue to My Trip/);
+  assert.match(availability,/does not confirm|confirmation number/i);
+});
+it("standalone flights and cars reuse honest search panels",()=>{
+  assert.match(read("app/travel/flights/page.tsx"),/FlightSearchPanel/);
+  assert.match(read("app/travel/cars/page.tsx"),/RentalCarSearchPanel/);
+  assert.doesNotMatch(read("app/travel/flights/page.tsx"),/<input(?![^>]*readOnly)/);
+});
+it("locks travel hub to the universal mobile shell at every viewport",()=>{
+  const css=read("app/travel/travel-home.css");
+  assert.match(css,/--ct-mobile-shell-max:\s*430px/);
+  assert.match(css,/max-width:\s*var\(--ct-mobile-shell-max\)/);
+  assert.match(css,/Mobile-only COGIC Travel/);
+  assert.doesNotMatch(css,/@media\s*\(max-width:\s*73rem\)/);
+  assert.doesNotMatch(css,/@media\s*\(max-width:\s*48rem\)/);
+  assert.match(css,/\.ct-hotel-result-card\s*\{[\s\S]*grid-template-columns:\s*1fr/);
+  assert.match(css,/\.ct-secondary-travel\s*\{[\s\S]*grid-template-columns:\s*1fr/);
 });
 });

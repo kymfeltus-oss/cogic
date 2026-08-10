@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   Archive,
   CalendarDays,
+  HandHeart,
   Megaphone,
   MonitorDot,
   Palette,
@@ -17,6 +18,7 @@ import {
 
 const PRODUCTION_NAV_ITEMS = [
   { id: "travel", label: "COGIC Travel", eyebrow: "Hotels & transportation", href: "/owner/travel", icon: Plane },
+  { id: "giving", label: "COGIC Giving", eyebrow: "Funds & designations", href: "/owner/giving", icon: HandHeart },
   { id: "check-in", label: "Check-In", eyebrow: "Door operations", href: "/owner/check-in", icon: ScanLine },
   { id: "housing", label: "Housing", eyebrow: "Hotels & requests", href: "/owner/housing", icon: Archive },
   { id: "tickets", label: "Tickets & Add-ons", eyebrow: "Commerce", href: "/owner/tickets", icon: ScanLine },
