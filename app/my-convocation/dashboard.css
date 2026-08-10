@@ -57,26 +57,12 @@
   transform: translateY(-.35rem);
 }
 
-.cl-dashboard-media__bishops {
-  position: absolute;
-  z-index: 2;
-  top: min(74vw, 20rem);
-  left: 50%;
-  display: block;
-  width: 100%;
-  max-width: none;
-  height: auto;
-  transform: translateX(-50%);
-  object-fit: contain;
-}
-
 .cl-mobile-home {
   width: 100%;
   min-width: 0;
   display: grid;
   gap: .7rem;
-  /* Slightly lower the live card without changing the bishop artwork. */
-  padding: clamp(30rem, 118vw, 32rem) var(--cl-mobile-pad-x) .75rem;
+  padding: clamp(17rem, 104vw, 28rem) var(--cl-mobile-pad-x) .75rem;
 }
 
 /* Restored committed live-card layout. */
@@ -384,6 +370,53 @@
 .cl-live-stage__schedule svg {
   width: 1rem;
   color: #f2b51f;
+}
+
+/* Dashboard cards share one restrained lift so every touch target has the same response. */
+.cl-dash .cl-live-stage,
+.cl-dash .cl-dashboard-feature-card,
+.cl-dash .cl-dashboard-highlight,
+.cl-dash .cl-dashboard-account-card,
+.cl-dash .cl-section,
+.cl-dash .cl-rail__card,
+.cl-dash .cl-empty-panel,
+.cl-dash .cl-module-error {
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  will-change: transform;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cl-dash .cl-live-stage:hover,
+  .cl-dash .cl-dashboard-feature-card:hover,
+  .cl-dash .cl-dashboard-highlight:hover,
+  .cl-dash .cl-dashboard-account-card:hover,
+  .cl-dash .cl-section:hover,
+  .cl-dash .cl-rail__card:hover,
+  .cl-dash .cl-empty-panel:hover,
+  .cl-dash .cl-module-error:hover {
+    transform: translateY(-.22rem);
+    border-color: rgb(98 194 255 / 76%);
+    box-shadow: 0 .95rem 2.25rem rgb(4 12 35 / 46%), 0 0 1.1rem rgb(104 73 255 / 18%);
+  }
+
+  .cl-dash .cl-dashboard-feature-card:hover > i,
+  .cl-dash .cl-dashboard-highlight:hover > i,
+  .cl-dash .cl-dashboard-account-card:hover .cl-dashboard-account-card__action svg {
+    transform: translateX(.16rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cl-dash .cl-live-stage,
+  .cl-dash .cl-dashboard-feature-card,
+  .cl-dash .cl-dashboard-highlight,
+  .cl-dash .cl-dashboard-account-card,
+  .cl-dash .cl-section,
+  .cl-dash .cl-rail__card,
+  .cl-dash .cl-empty-panel,
+  .cl-dash .cl-module-error {
+    transition: none;
+  }
 }
 
 .cl-dashboard-feature-suite {

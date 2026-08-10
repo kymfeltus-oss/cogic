@@ -2,6 +2,10 @@ import Link from "next/link";
 import { Play, Radio } from "lucide-react";
 import type { AttendeeDashboardData } from "@/lib/dashboard/load-attendee-dashboard";
 import { resolveAttendeeMediaState } from "@/lib/live/attendee-media-state";
+import {
+  COGIC_SERVICE_PREVIEW_EMBED_URL,
+  COGIC_SERVICE_PREVIEW_TITLE,
+} from "@/lib/live/service-preview";
 
 /** Live wins over a published, assigned replay; otherwise truthful OFFLINE. */
 export default function DashboardLiveStage({
@@ -47,6 +51,14 @@ export default function DashboardLiveStage({
             controls
             playsInline
             preload="metadata"
+          />
+        ) : !hasReplay ? (
+          <iframe
+            src={COGIC_SERVICE_PREVIEW_EMBED_URL}
+            title={COGIC_SERVICE_PREVIEW_TITLE}
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
           />
         ) : (
           <div className="cl-live-stage__empty">

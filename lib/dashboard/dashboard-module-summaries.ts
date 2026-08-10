@@ -33,6 +33,8 @@ function label(value: string | null | undefined) {
   return (value || "unavailable").replaceAll("_", " ");
 }
 
+const MY_REGISTRATION = "/my-convocation/registration";
+
 export function registrationHeadline(registration: DashboardRegistrationState, signedIn: boolean) {
   if (!signedIn || registration.status === "none") {
     return {
@@ -40,8 +42,8 @@ export function registrationHeadline(registration: DashboardRegistrationState, s
       summary: signedIn
         ? "Start registration for the 118th Holy Convocation."
         : "Sign in to register or view your registration.",
-      cta: signedIn ? "Register" : "Sign In",
-      href: signedIn ? "/register" : "/login?next=%2Fregister",
+      cta: signedIn ? "Register for Holy Convocation" : "Sign In",
+      href: signedIn ? "/register" : "/login?next=%2Fmy-convocation%2Fregistration",
     };
   }
 
@@ -50,58 +52,58 @@ export function registrationHeadline(registration: DashboardRegistrationState, s
       return {
         title: "Registration In Progress",
         summary: "Continue your registration for the 118th Holy Convocation.",
-        cta: "Continue Registration",
-        href: "/register",
+        cta: "My Registration",
+        href: MY_REGISTRATION,
       };
     case "submitted":
       return {
         title: "Registration Submitted",
         summary: "Complete payment or review to finish registration.",
-        cta: "Open Registration",
-        href: "/register",
+        cta: "My Registration",
+        href: MY_REGISTRATION,
       };
     case "payment_pending":
       return {
         title: "Payment Pending",
         summary: "Your registration is waiting for payment confirmation.",
-        cta: "Complete Payment",
-        href: "/register/review",
+        cta: "My Registration",
+        href: MY_REGISTRATION,
       };
     case "confirmed":
       if (registration.credentialReady) {
         return {
           title: "Registration Confirmed",
-          summary: "Your credential is ready. Show QR for secure entry.",
-          cta: "View Credential",
-          href: "/register",
+          summary: "Your credential is ready. Open My Registration for secure QR entry.",
+          cta: "My Registration",
+          href: MY_REGISTRATION,
         };
       }
       return {
         title: "Registration Confirmed",
-        summary: "Credential pending. Check back when issuance completes.",
-        cta: "Open Registration",
-        href: "/register",
+        summary: "Credential pending. Check My Registration when issuance completes.",
+        cta: "My Registration",
+        href: MY_REGISTRATION,
       };
     case "canceled":
       return {
         title: "Registration Canceled",
         summary: "This registration was canceled.",
-        cta: "Open Registration",
-        href: "/register",
+        cta: "My Registration",
+        href: MY_REGISTRATION,
       };
     case "refunded":
       return {
         title: "Registration Refunded",
         summary: "This registration was refunded.",
-        cta: "Open Registration",
-        href: "/register",
+        cta: "My Registration",
+        href: MY_REGISTRATION,
       };
     default:
       return {
         title: "My Registration",
         summary: `Status: ${label(registration.status)}`,
-        cta: "Open Registration",
-        href: "/register",
+        cta: "My Registration",
+        href: MY_REGISTRATION,
       };
   }
 }

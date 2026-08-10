@@ -73,10 +73,15 @@ export async function PATCH(request: Request) {
   const kind = text(body?.kind, 24);
   const id = text(body?.id, 64);
   const active = body?.active;
-  if (!id || typeof active !== "boolean") return NextResponse.json({ error: "ID and active state are required." }, { status: 400 });
+  const isPublic = body?.public;
+  if (!id) return NextResponse.json({ error: "A configuration ID is required." }, { status: 400 });
   const table = kind === "product" ? "registration_products" : kind === "entitlement" ? "access_entitlements" : kind === "assignment" ? "registration_product_entitlements" : null;
   if (!table) return NextResponse.json({ error: "Unsupported configuration operation." }, { status: 400 });
-  const query = getSupabaseAdmin().from(table).update({ active, ...(kind === "assignment" ? {} : { updated_by: auth.userId }) }).eq("id", id);
+  if (typeof active !== "boolean" && !(kind === "product" && typeof isPublic === "boolean")) return NextResponse.json({ error: "Provide an active state or product visibility state." }, { status: 400 });
+  const updates: Record<string, unknown> = kind === "assignment" ? {} : { updated_by: auth.userId };
+  if (typeof active === "boolean") updates.active = active;
+  if (kind === "product" && typeof isPublic === "boolean") updates.public = isPublic;
+  const query = getSupabaseAdmin().from(table).update(updates).eq("id", id);
   if (kind !== "assignment") query.eq("program_key", DEFAULT_PROGRAM_KEY);
   const { error } = await query;
   return error ? NextResponse.json({ error: "Unable to update configuration." }, { status: 400 }) : NextResponse.json({ ok: true });

@@ -29,7 +29,7 @@ export const ATTENDEE_PRIMARY_NAV: readonly AttendeePrimaryNavItem[] = [
   {
     id: "registration",
     label: "Registration",
-    href: "/register",
+    href: "/my-convocation/registration",
     icon: ClipboardList,
     match: "prefix",
   },
@@ -65,6 +65,14 @@ export function isAttendeePrimaryNavActive(
     return pathname === homeHref || pathname === ATTENDEE_DASHBOARD_PATH || pathname === "/attendee-dashboard";
   }
   if (item.match === "live") return isAttendeeLiveSurfacePath(pathname);
+  if (item.id === "registration") {
+    return (
+      pathname === "/my-convocation/registration" ||
+      pathname.startsWith("/my-convocation/registration/") ||
+      pathname === "/register" ||
+      pathname.startsWith("/register/")
+    );
+  }
   if (item.match === "exact") return pathname === item.href;
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }

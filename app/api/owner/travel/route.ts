@@ -3,7 +3,12 @@ import { NextResponse } from "next/server";
 import { requireOwnerUser } from "@/lib/owner/auth";
 import { isOwnerAuthed, ownerAuthFailureResponse } from "@/lib/owner/api-response";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { providerStatuses } from "@/lib/travel/providers";
+import { marketplaceStatus } from "@/lib/travel/providers";
+import {
+  isStaleMarketplaceAttempt,
+  listOwnerMarketplaceAttempts,
+  marketplaceExceptionQueues,
+} from "@/lib/travel/marketplace/booking";
 import { TRAVEL_PROGRAM_KEY } from "@/lib/travel/types";
 
 const clean = (v: unknown, n = 1000) => String(v ?? "").trim().slice(0, n) || null;
@@ -12,39 +17,57 @@ export async function GET(request: Request) {
   const auth = await requireOwnerUser();
   if (!isOwnerAuthed(auth)) return ownerAuthFailureResponse(auth);
   const db = getSupabaseAdmin();
-  const q = new URL(request.url).searchParams.get("q")?.trim().toLowerCase() || "";
+  const params = new URL(request.url).searchParams;
+  const q = params.get("q")?.trim().toLowerCase() || "";
+  const marketplaceProvider = params.get("marketplaceProvider") || "";
+  const marketplaceKind = params.get("marketplaceKind") || "";
+  const marketplaceBookingStatus = params.get("marketplaceStatus") || "";
+  const marketplaceDateFrom = params.get("marketplaceDateFrom") || "";
+  const marketplaceDateTo = params.get("marketplaceDateTo") || "";
+  const marketplaceStaleOnly = params.get("marketplaceStaleOnly") === "1";
+  const readiness = marketplaceStatus();
 
-  const [hotels, events, res, airports, transport, announcements] = await Promise.all([
-    db
-      .from("travel_hotels")
-      .select("*,travel_hotel_room_types(*,travel_hotel_nightly_availability(*))")
-      .eq("program_key", TRAVEL_PROGRAM_KEY)
-      .order("display_order"),
-    db
-      .from("travel_analytics_events")
-      .select("id", { count: "exact", head: true })
-      .eq("program_key", TRAVEL_PROGRAM_KEY),
-    db
-      .from("travel_hotel_reservations")
-      .select("*,travel_hotels(name)")
-      .eq("program_key", TRAVEL_PROGRAM_KEY)
-      .order("created_at", { ascending: false }),
-    db
-      .from("travel_airports")
-      .select("*")
-      .eq("program_key", TRAVEL_PROGRAM_KEY)
-      .order("display_order"),
-    db
-      .from("travel_transportation_options")
-      .select("*")
-      .eq("program_key", TRAVEL_PROGRAM_KEY)
-      .order("display_order"),
-    db
-      .from("travel_announcements")
-      .select("*")
-      .eq("program_key", TRAVEL_PROGRAM_KEY)
-      .order("published_at", { ascending: false }),
-  ]);
+  const [hotels, events, res, airports, transport, announcements, marketplaceAttempts] =
+    await Promise.all([
+      db
+        .from("travel_hotels")
+        .select("*,travel_hotel_room_types(*,travel_hotel_nightly_availability(*))")
+        .eq("program_key", TRAVEL_PROGRAM_KEY)
+        .order("display_order"),
+      db
+        .from("travel_analytics_events")
+        .select("id", { count: "exact", head: true })
+        .eq("program_key", TRAVEL_PROGRAM_KEY),
+      db
+        .from("travel_hotel_reservations")
+        .select("*,travel_hotels(name)")
+        .eq("program_key", TRAVEL_PROGRAM_KEY)
+        .order("created_at", { ascending: false }),
+      db
+        .from("travel_airports")
+        .select("*")
+        .eq("program_key", TRAVEL_PROGRAM_KEY)
+        .order("display_order"),
+      db
+        .from("travel_transportation_options")
+        .select("*")
+        .eq("program_key", TRAVEL_PROGRAM_KEY)
+        .order("display_order"),
+      db
+        .from("travel_announcements")
+        .select("*")
+        .eq("program_key", TRAVEL_PROGRAM_KEY)
+        .order("published_at", { ascending: false }),
+      listOwnerMarketplaceAttempts({
+        q,
+        provider: marketplaceProvider || undefined,
+        kind: marketplaceKind || undefined,
+        status: marketplaceBookingStatus || undefined,
+        dateFrom: marketplaceDateFrom || undefined,
+        dateTo: marketplaceDateTo || undefined,
+        staleOnly: marketplaceStaleOnly || undefined,
+      }),
+    ]);
 
   const enriched = await Promise.all(
     (res.data ?? []).map(async (r: any) => {
@@ -56,15 +79,78 @@ export async function GET(request: Request) {
     ? enriched.filter((r) => JSON.stringify(r).toLowerCase().includes(q))
     : enriched;
 
+  const now = Date.now();
+  const marketplaceWithEmail = await Promise.all(
+    marketplaceAttempts.map(async (attempt) => {
+      const { data } = await db.auth.admin.getUserById(attempt.user_id);
+      return {
+        id: attempt.id,
+        user_id: attempt.user_id,
+        kind: attempt.kind,
+        provider_key: attempt.provider_key,
+        status: attempt.status,
+        offer_id: attempt.offer_id,
+        provider_offer_ref: attempt.provider_offer_ref,
+        destination_label: attempt.destination_label,
+        origin_label: attempt.origin_label,
+        start_at: attempt.start_at,
+        end_at: attempt.end_at,
+        quoted_amount_cents: attempt.quoted_amount_cents,
+        currency: attempt.currency,
+        confirmation_number: attempt.confirmation_number
+          ? `••••${attempt.confirmation_number.slice(-4)}`
+          : null,
+        failure_reason: attempt.failure_reason,
+        started_at: attempt.started_at,
+        redirected_at: attempt.redirected_at,
+        returned_at: attempt.returned_at,
+        confirmed_at: attempt.confirmed_at,
+        canceled_at: attempt.canceled_at,
+        updated_at: attempt.updated_at,
+        stale: isStaleMarketplaceAttempt(attempt, now),
+        attendee_email: data.user?.email ?? null,
+      };
+    }),
+  );
+
+  const queues = marketplaceExceptionQueues(marketplaceAttempts, now);
+  const providerExceptions = {
+    provider_not_configured: readiness.providers.filter((p) => !p.configured).map((p) => p.id),
+    provider_unavailable: readiness.providers
+      .filter((p) => p.configured && p.connection === "unavailable")
+      .map((p) => p.id),
+  };
+
   return NextResponse.json(
     {
       hotels: hotels.data ?? [],
-      providers: providerStatuses(),
+      providers: readiness.providers.map((p) => ({
+        id: p.id,
+        name: p.name,
+        configured: p.configured,
+        connection: p.connection,
+        kinds: p.kinds,
+        lastCheckAt: p.lastCheckAt,
+        lastCheckOk: p.lastCheckOk,
+        lastFailureMessage: p.lastFailureMessage,
+      })),
+      marketplaceReadiness: {
+        expediaConfigured: readiness.providers.find((p) => p.id === "expedia-rapid")?.configured ?? false,
+        duffelConfigured: readiness.providers.find((p) => p.id === "duffel")?.configured ?? false,
+        amadeusConfigured: readiness.providers.find((p) => p.id === "amadeus")?.configured ?? false,
+        hotelsSearchOperational: readiness.hotels.searchOperational,
+        flightsSearchOperational: readiness.flights.searchOperational,
+        carsSearchOperational: readiness.cars.searchOperational,
+        bookingHandoffOperational: readiness.bookingHandoffOperational,
+      },
       analytics: { total: events.count ?? 0 },
       reservations,
       airports: airports.data ?? [],
       transport: transport.data ?? [],
       announcements: announcements.data ?? [],
+      marketplaceAttempts: marketplaceWithEmail,
+      marketplaceQueues: queues,
+      marketplaceProviderExceptions: providerExceptions,
     },
     { headers: { "Cache-Control": "private, no-store" } },
   );

@@ -32,19 +32,22 @@ const baseRegistration = (
 test("1 no-registration dashboard state", () => {
   const state = registrationHeadline(baseRegistration(), true);
   assert.equal(state.title, "No Registration");
-  assert.equal(state.cta, "Register");
+  assert.equal(state.cta, "Register for Holy Convocation");
+  assert.equal(state.href, "/register");
 });
 
 test("2 draft registration state", () => {
   const state = registrationHeadline(baseRegistration({ status: "draft" }), true);
   assert.equal(state.title, "Registration In Progress");
-  assert.equal(state.cta, "Continue Registration");
+  assert.equal(state.cta, "My Registration");
+  assert.equal(state.href, "/my-convocation/registration");
 });
 
 test("3 payment-pending state", () => {
   const state = registrationHeadline(baseRegistration({ status: "payment_pending" }), true);
   assert.equal(state.title, "Payment Pending");
-  assert.equal(state.cta, "Complete Payment");
+  assert.equal(state.cta, "My Registration");
+  assert.equal(state.href, "/my-convocation/registration");
 });
 
 test("4 confirmed registration state", () => {
@@ -66,10 +69,11 @@ test("5 issued credential state", () => {
 });
 
 test("6 credential secure CTA reuses presentation API", async () => {
-  const card = await read("components/dashboard/MyConvocationCard.tsx");
-  assert.match(card, /\/api\/registration\/credential-presentation/);
-  assert.match(card, /Show Credential|View Credential|qrDataUrl/);
-  assert.doesNotMatch(card, /secure_token|token_hash|raw token/i);
+  const dashboard = await read("components/registration/MyRegistrationDashboard.tsx");
+  assert.match(dashboard, /\/api\/registration\/credential-presentation/);
+  assert.match(dashboard, /View Credential|qrDataUrl/);
+  assert.doesNotMatch(dashboard, /secure_token|token_hash|raw token/i);
+  assert.match(await read("components/dashboard/MyConvocationCard.tsx"), /My Registration/);
 });
 
 test("7 ticket empty state from real zero rows", () => {
@@ -229,7 +233,7 @@ test("25 dead controls = 0 for Connect and account cards", async () => {
   assert.match(home, /href=\{ticketsHref\}/);
   assert.match(home, /href=\{housingHref\}/);
   for (const href of [
-    "/register",
+    "/my-convocation/registration",
     "/live",
     "/travel",
     "/giving",
@@ -237,7 +241,7 @@ test("25 dead controls = 0 for Connect and account cards", async () => {
     "/contact-us",
     "/social",
   ]) {
-    assert.match(utilities, new RegExp(href.replace("/", "\\/")));
+    assert.match(utilities, new RegExp(href.replace(/\//g, "\\/")));
   }
 });
 

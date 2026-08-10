@@ -3,15 +3,19 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
+
 import { isAttendeeProtectedPath } from "@/lib/auth/routing";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const read = (relativePath: string) => fs.readFileSync(path.join(root, relativePath), "utf8");
 
 describe("registration UI / security contracts", () => {
   it("uses Stripe dynamic payment methods for registration checkout", () => {
-    const checkout = fs.readFileSync(path.join(root, "lib/registration/checkout.ts"), "utf8");
+    const checkout = read("lib/registration/checkout.ts");
     assert.doesNotMatch(checkout, /payment_method_types/);
     assert.match(checkout, /dynamically present eligible cards, wallets, and flexible/);
+    assert.match(checkout, /getLatestPendingRegistrationPayment/);
+    assert.match(checkout, /cancelPendingRegistrationCheckout/);
   });
 
   it("protects registration routes for authenticated attendees", () => {
@@ -20,83 +24,82 @@ describe("registration UI / security contracts", () => {
     assert.equal(isAttendeeProtectedPath("/register/payment/complete"), true);
   });
 
-  it("wires registration checkout API and payment complete surface", () => {
+  it("keeps the checkout API and confirmation surface connected", () => {
     assert.equal(fs.existsSync(path.join(root, "app/api/registration/checkout/route.ts")), true);
-    assert.equal(
-      fs.existsSync(path.join(root, "app/register/payment/complete/page.tsx")),
-      true,
-    );
+    assert.equal(fs.existsSync(path.join(root, "app/register/payment/complete/page.tsx")), true);
     assert.equal(fs.existsSync(path.join(root, "app/register/confirmation")), false);
   });
 
-  it("wizard uses real submit/save actions and payment status UI", () => {
-    const wizard = fs.readFileSync(
-      path.join(root, "components/registration/RegistrationWizard.tsx"),
-      "utf8",
-    );
-    const status = fs.readFileSync(
-      path.join(root, "components/registration/RegistrationStatusPanel.tsx"),
-      "utf8",
-    );
-    const payButton = fs.readFileSync(
-      path.join(root, "components/registration/RegistrationCheckoutButton.tsx"),
-      "utf8",
-    );
-    const actions = fs.readFileSync(
-      path.join(root, "lib/registration/actions.ts"),
-      "utf8",
-    );
+  it("uses one persisted group flow for registration, review, and payment", () => {
+    const flow = read("components/registration/RegistrationSlice2Experience.tsx");
+    const status = read("components/registration/RegistrationGroupStatus.tsx");
+    const repository = read("lib/registration/slice2-repository.ts");
+    const checkoutButton = read("components/registration/RegistrationCheckoutButton.tsx");
 
-    assert.match(wizard, /updateRegistrationDraft/);
-    assert.match(wizard, /submitRegistration/);
-    assert.match(wizard, /htmlFor=/);
-    assert.match(wizard, /aria-invalid/);
-    assert.match(wizard, /aria-describedby/);
-    assert.match(wizard, /aria-busy/);
-    assert.match(wizard, /Step \{currentStep\} of 4/);
-    assert.doesNotMatch(wizard, /href="#"/);
-    assert.doesNotMatch(wizard, /console\.log/);
-    assert.doesNotMatch(wizard, /You're registered|You are registered/i);
+    assert.match(flow, /save_registrant/);
+    assert.match(flow, /submit_group/);
+    assert.match(flow, /RegistrationPolicyDocument/);
+    assert.match(flow, /HousingExperience/);
+    assert.match(flow, /getGroupTotalCents/);
+    assert.match(flow, /isJuniorRegistrationProduct/);
+    assert.doesNotMatch(flow, /href="#"/);
+    assert.doesNotMatch(flow, /console\.log/);
 
-    assert.match(status, /honestSubmittedCopy/);
     assert.match(status, /RegistrationCheckoutButton/);
-    assert.match(status, /server webhook/);
-    assert.doesNotMatch(status, /You're registered/i);
-    assert.doesNotMatch(status, /Payment processing is not available in this step yet/);
+    assert.match(status, /router\.refresh/);
+    assert.match(status, /Plan My Trip/);
+    assert.match(status, /Go to My Convocation/);
+    assert.doesNotMatch(status, /fake|demo/i);
 
-    assert.match(payButton, /\/api\/registration\/checkout/);
-    assert.match(payButton, /credentials:\s*"include"/);
+    assert.match(repository, /registration_group_id/);
+    assert.match(repository, /isJuniorRegistrationProduct/);
+    assert.match(repository, /policy_content_hash/);
+    assert.match(repository, /eq\("registration_group_id", group\.id\)/);
+    assert.match(repository, /findActiveLegacyRegistration/);
+    assert.match(repository, /is\("registration_group_id", null\)/);
+    assert.match(repository, /loadOrMigrateRegistrationExperience/);
 
-    assert.match(actions, /getUserFromSession/);
-    assert.match(actions, /parseAccessContext/);
-    assert.match(actions, /DEFAULT_PROGRAM_KEY/);
-    assert.match(actions, /status !== "submitted"/);
-    assert.doesNotMatch(actions, /payment_pending/);
-    assert.doesNotMatch(actions, /status:\s*"confirmed"/);
+    assert.match(checkoutButton, /\/api\/registration\/checkout/);
+    assert.match(checkoutButton, /credentials:\s*"include"/);
   });
 
-  it("repository forces server-controlled program_key and ownership checks", () => {
-    const repository = fs.readFileSync(
-      path.join(root, "lib/registration/repository.ts"),
-      "utf8",
-    );
-    assert.match(repository, /return DEFAULT_PROGRAM_KEY/);
-    assert.match(repository, /\.eq\("user_id", userId\)/);
-    assert.match(repository, /status:\s*"submitted"/);
-    assert.doesNotMatch(repository, /status:\s*"confirmed"/);
-    assert.doesNotMatch(repository, /status:\s*"payment_pending"/);
+  it("removes duplicate legacy registration surfaces", () => {
+    for (const relativePath of [
+      "components/registration/RegistrationWizard.tsx",
+      "components/registration/RegistrationStatusPanel.tsx",
+      "components/registration/RegistrationPaymentCompleteClient.tsx",
+      "lib/registration/actions.ts",
+      "lib/registration/form-model.ts",
+      "lib/registration/fee-display.ts",
+    ]) {
+      assert.equal(fs.existsSync(path.join(root, relativePath)), false, relativePath);
+    }
   });
 
-  it("register pages redirect unauthenticated users through real auth", () => {
-    const page = fs.readFileSync(path.join(root, "app/register/page.tsx"), "utf8");
-    const review = fs.readFileSync(
-      path.join(root, "app/register/review/page.tsx"),
-      "utf8",
-    );
+  it("redirects each registration page through the real group state", () => {
+    const page = read("app/register/page.tsx");
+    const review = read("app/register/review/page.tsx");
+    const complete = read("app/register/payment/complete/page.tsx");
+
     assert.match(page, /buildAttendeeGateUrl\("\/register"\)/);
-    assert.match(page, /isGuest/);
-    assert.match(page, /loadRegistrationExperience/);
+    assert.match(page, /loadOrMigrateRegistrationExperience/);
+    assert.match(page, /initial\.group\?\.status === "confirmed"/);
     assert.match(review, /buildAttendeeGateUrl\("\/register\/review"\)/);
-    assert.match(review, /loadRegistrationForCurrentUser|createOrResumeRegistrationDraft/);
+    assert.match(review, /RegistrationGroupStatus/);
+    assert.match(review, /loadOrMigrateRegistrationExperience/);
+    assert.match(complete, /buildAttendeeGateUrl\("\/register\/payment\/complete"\)/);
+    assert.match(complete, /RegistrationGroupStatus/);
+    const experienceApi = read("app/api/registration/experience/route.ts");
+    assert.match(experienceApi, /parseAccessContext/);
+    assert.match(experienceApi, /Create an attendee account to continue registration/);
+  });
+
+  it("lets owners publish or withdraw existing products", () => {
+    const route = read("app/api/owner/registration-products/route.ts");
+    const client = read("components/owner/RegistrationProductAccessClient.tsx");
+    assert.match(route, /typeof isPublic === "boolean"/);
+    assert.match(route, /updates\.public = isPublic/);
+    assert.match(client, /Publish to attendees/);
+    assert.match(client, /Make private/);
   });
 });

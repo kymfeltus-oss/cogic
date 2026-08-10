@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/ssr-server";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 const REPORT_REASONS = new Set(["spam", "harassment", "safety", "other"]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -15,32 +16,38 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  const messageId = typeof body?.messageId === "string" ? body.messageId.trim() : "";
+  const postId =
+    typeof body?.postId === "string"
+      ? body.postId.trim()
+      : typeof body?.messageId === "string"
+        ? body.messageId.trim()
+        : "";
   const reason = typeof body?.reason === "string" ? body.reason.trim().toLowerCase() : "";
   const detail = typeof body?.detail === "string" ? body.detail.trim().slice(0, 500) : "";
 
-  if (!UUID.test(messageId) || !REPORT_REASONS.has(reason)) {
+  if (!UUID.test(postId) || !REPORT_REASONS.has(reason)) {
     return NextResponse.json({ error: "Choose a valid report reason." }, { status: 400 });
   }
 
-  const { data: message, error: messageError } = await supabase
-    .from("chat_messages")
-    .select("id, user_id")
-    .eq("id", messageId)
+  const admin = getSupabaseAdmin();
+  const { data: post, error: postError } = await admin
+    .from("connect_posts")
+    .select("id, author_id")
+    .eq("id", postId)
     .is("deleted_at", null)
     .maybeSingle();
 
-  if (messageError || !message) {
+  if (postError || !post) {
     return NextResponse.json({ error: "That post is no longer available." }, { status: 404 });
   }
-  if (message.user_id === user.id) {
+  if (post.author_id === user.id) {
     return NextResponse.json({ error: "You cannot report your own post." }, { status: 400 });
   }
 
   const now = new Date().toISOString();
-  const { error } = await supabase.from("chat_message_reports").upsert(
+  const { error } = await admin.from("connect_post_reports").upsert(
     {
-      message_id: messageId,
+      post_id: postId,
       reporter_id: user.id,
       reason,
       detail: detail || null,
@@ -49,11 +56,11 @@ export async function POST(request: Request) {
       reviewed_at: null,
       updated_at: now,
     },
-    { onConflict: "message_id,reporter_id" },
+    { onConflict: "post_id,reporter_id" },
   );
 
   if (error) {
-    console.error("COGIC Social report failed:", error.message);
+    console.error("COGIC Connect report failed:", error.message);
     return NextResponse.json({ error: "Unable to submit the report." }, { status: 500 });
   }
 

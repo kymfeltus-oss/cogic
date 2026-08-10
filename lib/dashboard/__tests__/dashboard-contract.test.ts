@@ -32,14 +32,29 @@ test("dashboard cards use real routes and omit fake aggregate metrics", async ()
     source("lib/dashboard/dashboard-utilities.ts"),
   ]);
   assert.match(nav, /ATTENDEE_DASHBOARD_PATH/);
-  for (const route of ["/register", "/live", "/giving", "/travel"]) {
-    assert.match(nav, new RegExp(route.replace("/", "\\/")));
+  for (const route of ["/my-convocation/registration", "/live", "/giving", "/travel"]) {
+    assert.match(nav, new RegExp(route.replace(/\//g, "\\/")));
   }
   assert.doesNotMatch(giving, /248,930|500,000|49%/);
   assert.match(liveStage, /href=\{isNowLive \? "\/live"/);
+  assert.match(liveStage, /COGIC_SERVICE_PREVIEW_EMBED_URL/);
+  assert.match(liveStage, /<iframe/);
   assert.doesNotMatch(liveStage, /resolveAttendeeMediaState\([^)]*,\s*true\)/);
   assert.match(utilities, /href:\s*"\/social"/);
   assert.doesNotMatch(utilities, /\/experience\/live/);
+});
+
+test("dashboard video preview and interactive cards provide a visible response", async () => {
+  const [preview, css] = await Promise.all([
+    source("lib/live/service-preview.ts"),
+    source("app/my-convocation/dashboard.css"),
+  ]);
+  assert.match(preview, /4nO4nPV38Qk/);
+  assert.match(preview, /start=17/);
+  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)/);
+  assert.match(css, /\.cl-dashboard-feature-card:hover/);
+  assert.match(css, /\.cl-dashboard-account-card:hover/);
+  assert.match(css, /prefers-reduced-motion: reduce/);
 });
 
 test("attendee dashboard presentation contains no legacy public brand", async () => {
@@ -78,7 +93,8 @@ test("dashboard uses a transparent controls-only layer ready for full-screen med
   assert.match(css, /\.cl-dash\s*\{[\s\S]*background-color:\s*#03040a/);
   assert.match(css, /\.cl-dash\s*\{[\s\S]*background-image:\s*none/);
   assert.doesNotMatch(css, /cl-sidebar|cl-topnav|cl-desktop|@media\s*\(min-width/);
-  assert.match(rootShell, /!isCogicDashboard && !isTravelShell && <BrandBackdrop/);
+  assert.match(rootShell, /!useSolidScrollingSurface && <BrandBackdrop/);
+  assert.match(rootShell, /isMyRegistration/);
 });
 
 test("dashboard uses one universal attendee shell without desktop XOR mount", async () => {
@@ -93,7 +109,7 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   assert.match(shell, /AttendeeDashboardHome/);
   assert.match(shell, /DashboardMobileNav/);
   assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png"/);
-  assert.match(shell, /src="\/my-sanctuary\/bishops-hc-2026-final\.png"/);
+  assert.doesNotMatch(shell, /bishops-hc-2026-final\.png/);
   assert.doesNotMatch(shell, /<video|mobile_dashboard\.mp4/);
   assert.doesNotMatch(shell, /dashboard-welcome-background\.png/);
   assert.doesNotMatch(shell, /\bhero\b|DashboardHero|MySanctuaryHero/);
@@ -123,8 +139,8 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   assert.doesNotMatch(css, /\.cl-bottom-nav\s*\{\s*display:\s*none\s*!important/);
   assert.match(css, /\.cl-dashboard-media[\s\S]*aspect-ratio:\s*9\s*\/\s*16/);
   assert.match(css, /\.cl-dashboard-media__artwork[\s\S]*object-fit:\s*contain/);
-  assert.match(css, /\.cl-dashboard-media__bishops[\s\S]*width:\s*100%/);
+  assert.doesNotMatch(css, /\.cl-dashboard-media__bishops\s*\{/);
   assert.match(css, /\.cl-dash \.cl-mobile-home \.cl-live-stage[\s\S]*border:\s*1px solid rgb\(201 162 39 \/ 28%\)/);
-  assert.match(css, /\.cl-mobile-home[\s\S]*padding:\s*clamp\(30rem,\s*118vw,\s*32rem\)/);
+  assert.match(css, /\.cl-mobile-home[\s\S]*padding:\s*clamp\(17rem,\s*104vw,\s*28rem\)/);
   assert.doesNotMatch(css, /cl-hero|my-sanctuary-hero/);
 });

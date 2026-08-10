@@ -19,13 +19,18 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
   // Legacy Awakening artboard only — COGIC My Convocation uses normal page chrome.
   const isExperienceDashboard = pathname === "/attendee-dashboard";
   const isCogicDashboard = pathname === "/my-convocation" || pathname === "/my-sanctuary";
+  const isMyRegistration =
+    pathname === "/my-convocation/registration" ||
+    pathname.startsWith("/my-convocation/registration/");
   const isTravelShell =
     pathname === "/travel" || pathname.startsWith("/travel/");
   const isArtboardTab = isMobileArtboardTabRoute(pathname);
   const isFullHeightArtboard = isFullHeightArtboardRoute(pathname);
   const useFlexViewportShell = isArtboardTab || isFullHeightArtboard;
   // Dashboards / travel mount their own mobile chrome — no shared attendee nav.
+  // My Registration keeps the dock, but uses a solid scrolling page (no fixed backdrop).
   const hasSharedNavigation = !hideNav && !isCogicDashboard && !isTravelShell;
+  const useSolidScrollingSurface = isCogicDashboard || isTravelShell || isMyRegistration;
   const atmosphereVariant = brandVariantFromPath(pathname);
 
   if (isCredentialRoute) {
@@ -40,11 +45,11 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
   return (
     <div
       className={cn(
-        "relative min-h-dvh w-full bg-transparent",
-        (isCogicDashboard || isTravelShell) && "bg-[#02030b]",
+        "relative min-h-dvh w-full",
+        useSolidScrollingSurface ? "bg-[#07040f]" : "bg-transparent",
       )}
     >
-      {!isCogicDashboard && !isTravelShell && <BrandBackdrop variant={atmosphereVariant} />}
+      {!useSolidScrollingSurface && <BrandBackdrop variant={atmosphereVariant} />}
       {hasSharedNavigation && <AttendeeSharedTopBar />}
       {hasSharedNavigation && <BottomNavigation />}
       <div

@@ -45,16 +45,6 @@ export default function DashboardShell({
           priority
           sizes="(max-width: 430px) 100vw, 430px"
         />
-        <Image
-          className="cl-dashboard-media__bishops"
-          src="/my-sanctuary/bishops-hc-2026-final.png"
-          alt=""
-          width={1536}
-          height={1024}
-          priority
-          quality={100}
-          sizes="(max-width: 430px) 100vw, 430px"
-        />
       </div>
 
       <div className="cl-dash__stage">

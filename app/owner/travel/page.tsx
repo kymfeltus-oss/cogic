@@ -11,9 +11,10 @@ export default function OwnerTravelPage() {
         <div>
           <h1 className="text-3xl font-bold">COGIC Travel</h1>
           <p className="mt-2 text-white/60">
-            Manage official hotel availability, attendee reservations, Getting Around
-            guidance, and travel provider configuration status. Flight and car inventory
-            remain unavailable until a live provider is connected.
+            Manage official COGIC hotel availability, attendee reservations, Getting Around
+            guidance, and marketplace provider status. US-wide hotel/flight/car search stays
+            unavailable until Expedia Rapid and/or Duffel (or Enterprise Amadeus) credentials
+            are configured on the server.
           </p>
           <TravelManagementClient />
         </div>

@@ -8,28 +8,43 @@ export default function TravelManagementClient() {
   const [data, setData] = useState<any>({
     hotels: [],
     providers: [],
+    marketplaceReadiness: {},
     analytics: {},
     reservations: [],
     airports: [],
     transport: [],
     announcements: [],
+    marketplaceAttempts: [],
+    marketplaceQueues: {},
+    marketplaceProviderExceptions: {},
   });
   const [error, setError] = useState("");
   const [q, setQ] = useState("");
+  const [marketplaceProvider, setMarketplaceProvider] = useState("");
+  const [marketplaceKind, setMarketplaceKind] = useState("");
+  const [marketplaceStatus, setMarketplaceStatus] = useState("");
+  const [marketplaceDateFrom, setMarketplaceDateFrom] = useState("");
+  const [marketplaceDateTo, setMarketplaceDateTo] = useState("");
+  const [marketplaceStaleOnly, setMarketplaceStaleOnly] = useState(false);
 
   async function load(query = "") {
-    const r = await fetch(
-      `/api/owner/travel${query ? `?q=${encodeURIComponent(query)}` : ""}`,
-      { cache: "no-store" },
-    );
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (marketplaceProvider) params.set("marketplaceProvider", marketplaceProvider);
+    if (marketplaceKind) params.set("marketplaceKind", marketplaceKind);
+    if (marketplaceStatus) params.set("marketplaceStatus", marketplaceStatus);
+    if (marketplaceDateFrom) params.set("marketplaceDateFrom", marketplaceDateFrom);
+    if (marketplaceDateTo) params.set("marketplaceDateTo", marketplaceDateTo);
+    if (marketplaceStaleOnly) params.set("marketplaceStaleOnly", "1");
+    const r = await fetch(`/api/owner/travel?${params}`, { cache: "no-store" });
     if (r.ok) setData(await r.json());
     else setError("Unable to load travel administration.");
   }
 
   useEffect(() => {
-    queueMicrotask(() => {
-      void load();
-    });
+    void load();
+    // Initial owner travel load only.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function availability(id: number, status: string) {
@@ -279,16 +294,176 @@ export default function TravelManagementClient() {
       </section>
 
       <section className="rounded-xl border border-white/10 p-5">
-        <h2 className="text-2xl font-bold">Travel Providers</h2>
+        <h2 className="text-2xl font-bold">Marketplace booking attempts</h2>
         <p className="mt-2 text-white/60">
-          Configuration status only. Live flight/car inventory is not shown unless a provider is
-          connected.
+          Partner redirects never confirm bookings. Confirmation numbers are masked. Stale means still
+          non-final after 24 hours — not automatically failed.
         </p>
+        <div className="mt-4 grid gap-2 md:grid-cols-3 lg:grid-cols-6">
+          {[
+            ["booking_started_unconfirmed", "Started / unconfirmed"],
+            ["pending_confirmation", "Pending confirmation"],
+            ["stale_pending_review", "Stale / pending review"],
+            ["missing_reference", "Missing reference"],
+            ["failed", "Failed"],
+            ["canceled", "Canceled"],
+          ].map(([key, label]) => (
+            <div key={key} className="rounded border border-white/10 p-3">
+              <span className="block text-xs uppercase text-white/50">{label}</span>
+              <strong className="text-2xl">
+                {Array.isArray(data.marketplaceQueues?.[key]) ? data.marketplaceQueues[key].length : 0}
+              </strong>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 grid gap-2 md:grid-cols-3">
+          <div className="rounded border border-white/10 p-3">
+            <span className="block text-xs uppercase text-white/50">Providers not configured</span>
+            <strong>
+              {(data.marketplaceProviderExceptions?.provider_not_configured || []).join(", ") || "None"}
+            </strong>
+          </div>
+          <div className="rounded border border-white/10 p-3">
+            <span className="block text-xs uppercase text-white/50">Providers unavailable</span>
+            <strong>
+              {(data.marketplaceProviderExceptions?.provider_unavailable || []).join(", ") || "None"}
+            </strong>
+          </div>
+          <div className="rounded border border-white/10 p-3">
+            <span className="block text-xs uppercase text-white/50">Confirmed (filter list)</span>
+            <strong>
+              {Array.isArray(data.marketplaceQueues?.confirmed) ? data.marketplaceQueues.confirmed.length : 0}
+            </strong>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-2 md:grid-cols-4">
+          <select
+            className={input}
+            value={marketplaceProvider}
+            onChange={(e) => setMarketplaceProvider(e.target.value)}
+          >
+            <option value="">All providers</option>
+            <option value="expedia-rapid">Expedia Rapid</option>
+            <option value="duffel">Duffel</option>
+            <option value="amadeus">Amadeus</option>
+          </select>
+          <select className={input} value={marketplaceKind} onChange={(e) => setMarketplaceKind(e.target.value)}>
+            <option value="">All types</option>
+            <option value="hotel">Hotel</option>
+            <option value="flight">Flight</option>
+            <option value="car">Car</option>
+          </select>
+          <select
+            className={input}
+            value={marketplaceStatus}
+            onChange={(e) => setMarketplaceStatus(e.target.value)}
+          >
+            <option value="">All states</option>
+            {["booking_started", "pending_confirmation", "confirmed", "canceled", "failed"].map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+          <label className="flex items-center gap-2 text-sm text-white/80">
+            <input
+              type="checkbox"
+              checked={marketplaceStaleOnly}
+              onChange={(e) => setMarketplaceStaleOnly(e.target.checked)}
+            />
+            Stale only
+          </label>
+          <input
+            type="date"
+            className={input}
+            value={marketplaceDateFrom}
+            onChange={(e) => setMarketplaceDateFrom(e.target.value)}
+            aria-label="Marketplace date from"
+          />
+          <input
+            type="date"
+            className={input}
+            value={marketplaceDateTo}
+            onChange={(e) => setMarketplaceDateTo(e.target.value)}
+            aria-label="Marketplace date to"
+          />
+          <button type="button" className="rounded bg-white px-4 font-bold text-black md:col-span-2" onClick={() => void load(q)}>
+            Apply filters
+          </button>
+        </div>
+        <div className="mt-4 grid gap-2">
+          {(data.marketplaceAttempts || []).map((attempt: any) => (
+            <article key={attempt.id} className="rounded border border-white/10 p-3">
+              <strong>
+                {attempt.kind} · {attempt.provider_key} · {attempt.status}
+                {attempt.stale ? " · STALE" : ""}
+              </strong>
+              <p className="text-sm text-white/60">
+                {attempt.attendee_email || attempt.user_id} ·{" "}
+                {[attempt.origin_label, attempt.destination_label].filter(Boolean).join(" → ") ||
+                  attempt.destination_label ||
+                  "Offer"}
+              </p>
+              <p className="text-sm text-white/60">
+                Internal {attempt.id.slice(0, 8)} · Ref {attempt.confirmation_number || "—"} · started{" "}
+                {new Date(attempt.started_at).toLocaleString()} · updated{" "}
+                {new Date(attempt.updated_at).toLocaleString()}
+              </p>
+              {attempt.failure_reason ? (
+                <p className="text-sm text-red-300">{attempt.failure_reason}</p>
+              ) : null}
+            </article>
+          ))}
+          {!data.marketplaceAttempts?.length ? (
+            <p className="text-white/60">No marketplace booking attempts match these filters.</p>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-white/10 p-5">
+        <h2 className="text-2xl font-bold">Provider readiness diagnostics</h2>
+        <p className="mt-2 text-white/60">
+          Configuration and connectivity status only. Provider API keys and tokens are never shown.
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {[
+            ["Expedia", data.marketplaceReadiness?.expediaConfigured],
+            ["Duffel", data.marketplaceReadiness?.duffelConfigured],
+            ["Amadeus", data.marketplaceReadiness?.amadeusConfigured],
+          ].map(([label, configured]) => (
+            <div key={String(label)} className="rounded border border-white/10 p-4">
+              <strong>{label}</strong>
+              <p>{configured ? "YES — configured" : "NO — not configured"}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="rounded border border-white/10 p-4">
+            <strong>Search operational</strong>
+            <p>
+              Hotels {data.marketplaceReadiness?.hotelsSearchOperational ? "YES" : "NO"} · Flights{" "}
+              {data.marketplaceReadiness?.flightsSearchOperational ? "YES" : "NO"} · Cars{" "}
+              {data.marketplaceReadiness?.carsSearchOperational ? "YES" : "NO"}
+            </p>
+          </div>
+          <div className="rounded border border-white/10 p-4">
+            <strong>Booking handoff operational</strong>
+            <p>{data.marketplaceReadiness?.bookingHandoffOperational ? "YES" : "NO"}</p>
+          </div>
+        </div>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           {data.providers.map((p: any) => (
             <div key={p.id} className="rounded border border-white/10 p-4">
               <strong>{p.name}</strong>
               <p>{p.configured ? "CONFIGURED" : "NOT CONFIGURED"}</p>
+              <p className="text-sm text-white/60">Connection: {p.connection || "—"}</p>
+              <p className="text-sm text-white/60">
+                Last check: {p.lastCheckAt ? new Date(p.lastCheckAt).toLocaleString() : "None yet"}
+                {p.lastCheckOk == null ? "" : p.lastCheckOk ? " · OK" : " · FAILED"}
+              </p>
+              {p.lastFailureMessage ? (
+                <p className="text-sm text-red-300">{p.lastFailureMessage}</p>
+              ) : null}
             </div>
           ))}
         </div>

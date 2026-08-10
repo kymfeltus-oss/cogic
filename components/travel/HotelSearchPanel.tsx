@@ -2,6 +2,7 @@
 
 import { Headphones, Mail, Phone, ShieldCheck } from "lucide-react";
 import OfficialHotelsClient from "@/components/travel/OfficialHotelsClient";
+import MarketplaceHotelSearch from "@/components/travel/MarketplaceHotelSearch";
 import type { TravelHotel } from "@/lib/travel/types";
 
 export default function HotelSearchPanel({ hotels }: { hotels: TravelHotel[] }) {
@@ -33,6 +34,8 @@ export default function HotelSearchPanel({ hotels }: { hotels: TravelHotel[] }) 
           </a>
         </div>
       </section>
+
+      <MarketplaceHotelSearch />
     </div>
   );
 }

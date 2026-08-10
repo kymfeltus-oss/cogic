@@ -1353,6 +1353,46 @@
   background: rgb(255 201 40 / 0.14);
 }
 
+.ct-marketplace-lane {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgb(255 255 255 / 0.12);
+}
+
+.ct-marketplace-results {
+  margin-top: 1.25rem;
+}
+
+.ct-marketplace-offer-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ct-marketplace-offer {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.04);
+}
+
+.ct-marketplace-offer p {
+  margin: 0.25rem 0 0;
+  color: rgb(247 247 251 / 0.72);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.ct-marketplace-offer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 @keyframes ct-panel-in {
   from {
     opacity: 0;

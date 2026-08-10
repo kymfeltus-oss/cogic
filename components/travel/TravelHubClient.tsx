@@ -70,7 +70,7 @@ export default function TravelHubClient({
           </span>
           <span className="ct-secondary-travel__copy">
             <strong>Flights</strong>
-            <small>Search flights to St. Louis for Holy Convocation.</small>
+            <small>Search US flights — STL for Convocation or any airport.</small>
           </span>
           <span className="ct-secondary-travel__action">
             Search Flights <ArrowUpRight aria-hidden="true" />
@@ -83,7 +83,7 @@ export default function TravelHubClient({
           </span>
           <span className="ct-secondary-travel__copy">
             <strong>Rental Cars</strong>
-            <small>Search rental cars for your St. Louis Convocation stay.</small>
+            <small>Search US rental cars for Convocation or any trip.</small>
           </span>
           <span className="ct-secondary-travel__action">
             Search Cars <ArrowUpRight aria-hidden="true" />

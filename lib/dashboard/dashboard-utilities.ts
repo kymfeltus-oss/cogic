@@ -18,7 +18,7 @@ export type DashboardUtility = {
 
 /** Primary attendee feature shortcuts shared by mobile and desktop dashboard homes. */
 export const DASHBOARD_UTILITIES: readonly DashboardUtility[] = [
-  { title: "Registration", copy: "Register & manage your experience", href: "/register", icon: BadgeCheck },
+  { title: "My Registration", copy: "View status, group, payment & credential", href: "/my-convocation/registration", icon: BadgeCheck },
   { title: "COGIC LIVE", copy: "Watch live services", href: "/live", icon: Radio },
   { title: "COGIC Travel", copy: "Official hotels & trip planning", href: "/travel", icon: Plane },
   { title: "COGIC Giving", copy: "Give securely anytime", href: "/giving", icon: HandHeart },

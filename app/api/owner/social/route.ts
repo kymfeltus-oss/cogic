@@ -15,33 +15,33 @@ export async function GET() {
   if (!isOwnerAuthed(auth)) return ownerAuthFailureResponse(auth);
 
   const admin = getSupabaseAdmin();
-  const [settingsResult, messagesResult, reportsResult, mutesResult] = await Promise.all([
+  const [settingsResult, postsResult, reportsResult, mutesResult] = await Promise.all([
     admin.from("social_settings").select("posting_enabled, updated_at").eq("id", "community").maybeSingle(),
     admin
-      .from("chat_messages")
-      .select("id, user_id, email, content, created_at, deleted_at, is_pinned, pinned_at")
+      .from("connect_posts")
+      .select("id, author_id, body, created_at, deleted_at, is_pinned, pinned_at, media_count, like_count, amen_count")
       .order("created_at", { ascending: false })
       .limit(150),
     admin
-      .from("chat_message_reports")
-      .select("id, message_id, reporter_id, reason, detail, status, created_at, reviewed_at")
+      .from("connect_post_reports")
+      .select("id, post_id, reporter_id, reason, detail, status, created_at, reviewed_at")
       .order("created_at", { ascending: false })
       .limit(200),
     admin
-      .from("chat_room_mutes")
+      .from("connect_user_mutes")
       .select("user_id, muted_until, reason")
       .gt("muted_until", new Date().toISOString()),
   ]);
 
-  const firstError = settingsResult.error || messagesResult.error || reportsResult.error || mutesResult.error;
+  const firstError = settingsResult.error || postsResult.error || reportsResult.error || mutesResult.error;
   if (firstError) {
-    console.error("Owner COGIC Social load failed:", firstError.message);
-    return NextResponse.json({ error: "Unable to load COGIC Social moderation." }, { status: 500 });
+    console.error("Owner COGIC Connect load failed:", firstError.message);
+    return NextResponse.json({ error: "Unable to load COGIC Connect moderation." }, { status: 500 });
   }
 
   const userIds = [
     ...new Set([
-      ...(messagesResult.data ?? []).map((row) => row.user_id as string),
+      ...(postsResult.data ?? []).map((row) => row.author_id as string),
       ...(reportsResult.data ?? []).map((row) => row.reporter_id as string),
     ]),
   ].filter(Boolean);
@@ -59,24 +59,44 @@ export async function GET() {
   );
   const muteByUser = new Map((mutesResult.data ?? []).map((row) => [row.user_id as string, row]));
 
+  const posts = (postsResult.data ?? []).map((row) => ({
+    id: row.id,
+    userId: row.author_id,
+    author: profileById.get(row.author_id as string)?.name || "Attendee",
+    avatarUrl: profileById.get(row.author_id as string)?.avatarUrl ?? null,
+    content: row.body,
+    body: row.body,
+    createdAt: row.created_at,
+    deletedAt: row.deleted_at,
+    isPinned: row.is_pinned === true,
+    pinnedAt: row.pinned_at,
+    mediaCount: row.media_count,
+    likeCount: row.like_count,
+    amenCount: row.amen_count,
+    mute: muteByUser.get(row.author_id as string) ?? null,
+  }));
+
+  const postById = new Map(posts.map((post) => [post.id as string, post]));
+
   return ownerJsonResponse({
     settings: {
       postingEnabled: settingsResult.data?.posting_enabled !== false,
       updatedAt: settingsResult.data?.updated_at ?? null,
     },
-    messages: (messagesResult.data ?? []).map((row) => ({
-      id: row.id,
-      userId: row.user_id,
-      author: profileById.get(row.user_id as string)?.name || "Attendee",
-      avatarUrl: profileById.get(row.user_id as string)?.avatarUrl ?? null,
-      content: row.content,
-      createdAt: row.created_at,
-      deletedAt: row.deleted_at,
-      isPinned: row.is_pinned === true,
-      pinnedAt: row.pinned_at,
-      mute: muteByUser.get(row.user_id as string) ?? null,
-    })),
-    reports: reportsResult.data ?? [],
+    posts,
+    messages: posts,
+    reports: (reportsResult.data ?? []).map((row) => {
+      const linked = postById.get(row.post_id as string);
+      return {
+        ...row,
+        message_id: row.post_id,
+        post_body: linked?.body ?? null,
+        postBody: linked?.body ?? null,
+        postAuthor: linked?.author ?? null,
+        postAuthorId: linked?.userId ?? null,
+        postDeletedAt: linked?.deletedAt ?? null,
+      };
+    }),
   });
 }
 
@@ -86,7 +106,7 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   const action = text(body?.action, 40).toLowerCase();
-  const messageId = text(body?.messageId, 64);
+  const postId = text(body?.postId, 64) || text(body?.messageId, 64);
   const userId = text(body?.userId, 64);
   const reportId = text(body?.reportId, 64);
   const admin = getSupabaseAdmin();
@@ -107,39 +127,46 @@ export async function POST(request: Request) {
   }
 
   if (["pin", "unpin", "remove", "restore"].includes(action)) {
-    if (!UUID.test(messageId)) {
-      return NextResponse.json({ error: "Valid messageId is required." }, { status: 400 });
+    if (!UUID.test(postId)) {
+      return NextResponse.json({ error: "Valid postId is required." }, { status: 400 });
     }
 
     if (action === "pin") {
       const { error: clearError } = await admin
-        .from("chat_messages")
-        .update({ is_pinned: false, pinned_at: null, pinned_by: null })
+        .from("connect_posts")
+        .update({ is_pinned: false, pinned_at: null, pinned_by: null, updated_at: now })
         .eq("is_pinned", true);
       if (clearError) return NextResponse.json({ error: "Unable to update the pinned post." }, { status: 500 });
       const { error } = await admin
-        .from("chat_messages")
-        .update({ is_pinned: true, pinned_at: now, pinned_by: auth.userId })
-        .eq("id", messageId)
+        .from("connect_posts")
+        .update({ is_pinned: true, pinned_at: now, pinned_by: auth.userId, updated_at: now })
+        .eq("id", postId)
         .is("deleted_at", null);
       if (error) return NextResponse.json({ error: "Unable to pin that post." }, { status: 500 });
     } else if (action === "unpin") {
       const { error } = await admin
-        .from("chat_messages")
-        .update({ is_pinned: false, pinned_at: null, pinned_by: null })
-        .eq("id", messageId);
+        .from("connect_posts")
+        .update({ is_pinned: false, pinned_at: null, pinned_by: null, updated_at: now })
+        .eq("id", postId);
       if (error) return NextResponse.json({ error: "Unable to unpin that post." }, { status: 500 });
     } else if (action === "remove") {
       const { error } = await admin
-        .from("chat_messages")
-        .update({ deleted_at: now, deleted_by: auth.userId, is_pinned: false, pinned_at: null, pinned_by: null })
-        .eq("id", messageId);
+        .from("connect_posts")
+        .update({
+          deleted_at: now,
+          deleted_by: auth.userId,
+          is_pinned: false,
+          pinned_at: null,
+          pinned_by: null,
+          updated_at: now,
+        })
+        .eq("id", postId);
       if (error) return NextResponse.json({ error: "Unable to remove that post." }, { status: 500 });
     } else {
       const { error } = await admin
-        .from("chat_messages")
-        .update({ deleted_at: null, deleted_by: null })
-        .eq("id", messageId);
+        .from("connect_posts")
+        .update({ deleted_at: null, deleted_by: null, updated_at: now })
+        .eq("id", postId);
       if (error) return NextResponse.json({ error: "Unable to restore that post." }, { status: 500 });
     }
     return ownerJsonResponse({ ok: true });
@@ -151,11 +178,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Valid userId and mute duration are required." }, { status: 400 });
     }
     const mutedUntil = new Date(Date.now() + minutes * 60_000).toISOString();
-    const { error } = await admin.from("chat_room_mutes").upsert({
+    const { error } = await admin.from("connect_user_mutes").upsert({
       user_id: userId,
       muted_until: mutedUntil,
       muted_by: auth.userId,
-      reason: text(body?.reason) || "COGIC Social moderation",
+      reason: text(body?.reason) || "COGIC Connect moderation",
       updated_at: now,
     });
     if (error) return NextResponse.json({ error: "Unable to mute that attendee." }, { status: 500 });
@@ -164,7 +191,7 @@ export async function POST(request: Request) {
 
   if (action === "unmute") {
     if (!UUID.test(userId)) return NextResponse.json({ error: "Valid userId is required." }, { status: 400 });
-    const { error } = await admin.from("chat_room_mutes").delete().eq("user_id", userId);
+    const { error } = await admin.from("connect_user_mutes").delete().eq("user_id", userId);
     if (error) return NextResponse.json({ error: "Unable to unmute that attendee." }, { status: 500 });
     return ownerJsonResponse({ ok: true });
   }
@@ -172,7 +199,7 @@ export async function POST(request: Request) {
   if (action === "resolve_report" || action === "dismiss_report") {
     if (!UUID.test(reportId)) return NextResponse.json({ error: "Valid reportId is required." }, { status: 400 });
     const { error } = await admin
-      .from("chat_message_reports")
+      .from("connect_post_reports")
       .update({
         status: action === "resolve_report" ? "resolved" : "dismissed",
         reviewed_by: auth.userId,

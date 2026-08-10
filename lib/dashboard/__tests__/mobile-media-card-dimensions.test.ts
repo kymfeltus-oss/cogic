@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 
-test("mobile portrait artwork, transparent bishops cutout, and clear live player preserve their intended footprints", async () => {
+test("mobile portrait artwork and clear live player preserve their intended footprints", async () => {
   const css = await readFile(
     path.join(process.cwd(), "app/my-convocation/dashboard.css"),
     "utf8",
@@ -25,13 +25,10 @@ test("mobile portrait artwork, transparent bishops cutout, and clear live player
     css,
     /\.cl-dashboard-media__artwork\s*\{[\s\S]*?width:\s*100%[\s\S]*?height:\s*100%[\s\S]*?object-fit:\s*contain[\s\S]*?object-position:\s*top center/,
   );
+  assert.doesNotMatch(css, /\.cl-dashboard-media__bishops\s*\{/);
   assert.match(
     css,
-    /\.cl-dashboard-media__bishops\s*\{[\s\S]*?top:\s*min\(74vw,\s*20rem\)[\s\S]*?width:\s*100%/,
-  );
-  assert.match(
-    css,
-    /\.cl-mobile-home\s*\{[\s\S]*?padding:\s*clamp\(30rem,\s*118vw,\s*32rem\)/,
+    /\.cl-mobile-home\s*\{[\s\S]*?padding:\s*clamp\(17rem,\s*104vw,\s*28rem\)/,
   );
   assert.match(
     css,

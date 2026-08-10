@@ -12,6 +12,7 @@ import {
   Radio,
   ScanLine,
   Timer,
+  UsersRound,
   Video,
   Plane,
 } from "lucide-react";
@@ -19,6 +20,13 @@ import {
 const PRODUCTION_NAV_ITEMS = [
   { id: "travel", label: "COGIC Travel", eyebrow: "Hotels & transportation", href: "/owner/travel", icon: Plane },
   { id: "giving", label: "COGIC Giving", eyebrow: "Funds & designations", href: "/owner/giving", icon: HandHeart },
+  {
+    id: "social",
+    label: "COGIC Connect",
+    eyebrow: "Feed moderation",
+    href: "/owner/social",
+    icon: UsersRound,
+  },
   { id: "check-in", label: "Check-In", eyebrow: "Door operations", href: "/owner/check-in", icon: ScanLine },
   { id: "housing", label: "Housing", eyebrow: "Hotels & requests", href: "/owner/housing", icon: Archive },
   { id: "tickets", label: "Tickets & Add-ons", eyebrow: "Commerce", href: "/owner/tickets", icon: ScanLine },

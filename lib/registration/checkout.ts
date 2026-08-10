@@ -9,7 +9,12 @@ import {
   getStripeSecretKey,
   resolveAuthenticatedBuyer,
 } from "@/lib/checkout/server";
-import { beginRegistrationCheckout, getCheckoutEligibleRegistration } from "@/lib/registration/payment-repository";
+import {
+  beginRegistrationCheckout,
+  cancelPendingRegistrationCheckout,
+  getCheckoutEligibleRegistration,
+  getLatestPendingRegistrationPayment,
+} from "@/lib/registration/payment-repository";
 import { RegistrationError } from "@/lib/registration/errors";
 import {
   DEFAULT_PROGRAM_KEY,
@@ -63,6 +68,31 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
 
     const stripe = new Stripe(stripeSecretKey);
     const appUrl = getAppUrl(request);
+    const pendingPayment = await getLatestPendingRegistrationPayment(registration.id);
+
+    if (pendingPayment?.stripeSessionId) {
+      const pendingSession = await stripe.checkout.sessions.retrieve(pendingPayment.stripeSessionId);
+      if (pendingSession.status === "open" && pendingSession.url) {
+        return {
+          ok: true as const,
+          url: pendingSession.url,
+          withSessionCookies,
+        };
+      }
+      if (pendingSession.status === "complete") {
+        return {
+          ok: true as const,
+          url: `${appUrl}/register/payment/complete?session_id=${encodeURIComponent(pendingSession.id)}`,
+          withSessionCookies,
+        };
+      }
+
+      await cancelPendingRegistrationCheckout({
+        userId: buyer.userId,
+        registrationId: registration.id,
+        stripeSessionId: pendingPayment.stripeSessionId,
+      });
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",

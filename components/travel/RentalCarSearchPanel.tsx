@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { HonestUnavailable } from "@/components/travel/TravelShell";
+import MarketplaceOfferActions from "@/components/travel/MarketplaceOfferActions";
+import MarketplaceSearchOutcome from "@/components/travel/MarketplaceSearchOutcome";
+import type { MarketplaceCarOffer, MarketplaceSearchCode } from "@/lib/travel/marketplace/types";
+
+const money = (cents: number | null, currency = "USD") =>
+  cents == null
+    ? "—"
+    : new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
 
 export default function RentalCarSearchPanel() {
   const [pickupLocation, setPickupLocation] = useState("St. Louis, Missouri");
@@ -12,23 +19,55 @@ export default function RentalCarSearchPanel() {
   const [dropoffDate, setDropoffDate] = useState("2026-11-15");
   const [dropoffTime, setDropoffTime] = useState("10:00");
   const [driverAge, setDriverAge] = useState("25+");
-  const [searched, setSearched] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [code, setCode] = useState<MarketplaceSearchCode | null>(null);
+  const [reason, setReason] = useState("");
+  const [provider, setProvider] = useState<string | null>(null);
+  const [offers, setOffers] = useState<MarketplaceCarOffer[] | null>(null);
 
-  function onSearch(e: FormEvent) {
+  async function onSearch(e: FormEvent) {
     e.preventDefault();
-    setSearched(true);
-    void fetch("/api/travel/analytics", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        event: "travel_car_search_started",
-        properties: {
+    setBusy(true);
+    setError("");
+    setCode(null);
+    setReason("");
+    setOffers(null);
+    try {
+      const response = await fetch("/api/travel/marketplace/cars/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           pickupLocation,
-          differentDropoff,
+          dropoffLocation: differentDropoff ? dropoffLocation : pickupLocation,
+          pickupDate,
+          pickupTime,
+          dropoffDate,
+          dropoffTime,
           driverAge,
-        },
-      }),
-    }).catch(() => undefined);
+        }),
+      });
+      const json = await response.json();
+      if (json?.code === "validation_error" || (!response.ok && !json?.reason && !json?.code)) {
+        throw new Error(json.error || "Car search failed.");
+      }
+      setCode(json.code ?? (response.ok ? "results" : "provider_not_configured"));
+      setProvider(json.provider ?? null);
+      setReason(json.reason || json.error || "");
+      setOffers(Array.isArray(json.offers) ? json.offers : []);
+      void fetch("/api/travel/analytics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "travel_car_search_started",
+          properties: { pickupLocation, differentDropoff, driverAge },
+        }),
+      }).catch(() => undefined);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Car search failed.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -36,7 +75,7 @@ export default function RentalCarSearchPanel() {
       <div className="ct-section-head">
         <div>
           <h2>Rental Cars</h2>
-          <p>Search rental cars for your St. Louis Convocation stay.</p>
+          <p>Search rental cars across the US for Convocation week or any trip dates.</p>
         </div>
       </div>
 
@@ -47,24 +86,26 @@ export default function RentalCarSearchPanel() {
             <input
               value={pickupLocation}
               onChange={(e) => setPickupLocation(e.target.value)}
+              placeholder="City or airport (US)"
+              required
               autoComplete="off"
             />
           </label>
           <label>
             Pick-up date
-            <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} />
+            <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} required />
           </label>
           <label>
             Pick-up time
-            <input type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} />
+            <input type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} required />
           </label>
           <label>
             Drop-off date
-            <input type="date" value={dropoffDate} onChange={(e) => setDropoffDate(e.target.value)} />
+            <input type="date" value={dropoffDate} onChange={(e) => setDropoffDate(e.target.value)} required />
           </label>
           <label>
             Drop-off time
-            <input type="time" value={dropoffTime} onChange={(e) => setDropoffTime(e.target.value)} />
+            <input type="time" value={dropoffTime} onChange={(e) => setDropoffTime(e.target.value)} required />
           </label>
           <label className="ct-span-2 ct-check-row">
             <input
@@ -81,6 +122,7 @@ export default function RentalCarSearchPanel() {
                 value={dropoffLocation}
                 onChange={(e) => setDropoffLocation(e.target.value)}
                 placeholder="City or airport"
+                required
                 autoComplete="off"
               />
             </label>
@@ -95,16 +137,52 @@ export default function RentalCarSearchPanel() {
           </label>
         </div>
 
-        <button type="submit" className="ct-search-submit">
-          Search Rental Cars
+        <button type="submit" className="ct-search-submit" disabled={busy}>
+          {busy ? "Searching…" : "Search Rental Cars"}
         </button>
       </form>
 
-      {searched ? (
-        <HonestUnavailable kind="rental car" embedded />
+      {error ? (
+        <p role="alert" className="ct-honest-hint">
+          {error}
+        </p>
+      ) : null}
+
+      {offers && code === "results" && offers.length ? (
+        <div className="ct-marketplace-results">
+          <p className="ct-honest-hint">
+            Showing {offers.length} live offer{offers.length === 1 ? "" : "s"}
+            {provider ? ` via ${provider}` : ""}. Complete booking with the partner, then save confirmation on My
+            Trip.
+          </p>
+          <ul className="ct-marketplace-offer-list">
+            {offers.map((offer) => (
+              <li key={offer.id} className="ct-marketplace-offer">
+                <div>
+                  <strong>
+                    {offer.company || "Rental"} · {offer.vehicleName || offer.vehicleClass || "Vehicle"}
+                  </strong>
+                  <p>
+                    {offer.pickupLocation}
+                    {offer.dropoffLocation !== offer.pickupLocation ? ` → ${offer.dropoffLocation}` : ""}
+                  </p>
+                  <p>{money(offer.totalRateCents, offer.currency)} total est.</p>
+                </div>
+                <MarketplaceOfferActions
+                  kind="car"
+                  offer={offer as unknown as Record<string, unknown>}
+                  label={offer.bookingUrl ? "Continue booking" : "Start booking on My Trip"}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : offers ? (
+        <MarketplaceSearchOutcome code={code} reason={reason} />
       ) : (
         <p className="ct-honest-hint">
-          Enter pick-up details and search. Live rental inventory appears only when a travel partner is connected.
+          Enter a US pick-up location and search. Live inventory appears only when Expedia Rapid or Enterprise Amadeus
+          cars are connected.
         </p>
       )}
     </div>

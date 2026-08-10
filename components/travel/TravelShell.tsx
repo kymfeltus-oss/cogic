@@ -4,13 +4,13 @@ export function TravelShell({children,back}:{children:React.ReactNode;back?:bool
 export const travelLinks=[{href:"/travel/hotels",label:"Hotels",icon:BedDouble},{href:"/travel/flights",label:"Flights",icon:Plane},{href:"/travel/cars",label:"Rental Cars",icon:Car},{href:"/travel/getting-around",label:"Getting Around",icon:MapPinned},{href:"/travel",label:"COGIC Travel Hub",icon:BriefcaseBusiness}];
 export function HonestUnavailable({kind,embedded}:{kind:string;embedded?:boolean}){
   const title=kind==="flight"
-    ?"Flight search is being connected to our travel partners."
+    ?"US flight marketplace is not connected yet."
     :kind==="rental car"
-      ?"Rental car search is being connected to our travel partners."
-      :`Live ${kind} search coming soon`;
+      ?"US rental-car marketplace is not connected yet."
+      :`Live ${kind} marketplace is not connected yet.`;
   return <div className="ct-unavailable-panel mt-7 rounded-3xl border border-amber-300/30 bg-amber-200/10 p-6">
     <h2 className="text-2xl font-bold">{title}</h2>
-    <p className="mt-2 max-w-2xl text-lg leading-8 text-white/75">A live travel provider has not been configured. We will never show invented prices or availability.{embedded?null:" You can save a reservation made elsewhere in COGIC Travel."}</p>
+    <p className="mt-2 max-w-2xl text-lg leading-8 text-white/75">Configure Expedia Rapid and/or Duffel (or Enterprise Amadeus) on the server to enable live US inventory. We will never show invented prices or availability.{embedded?null:" Official COGIC rates remain available, and you can save reservations made elsewhere on My Trip."}</p>
     {embedded?null:<Link href="/travel" className="mt-5 inline-flex min-h-12 items-center rounded-xl bg-white px-5 font-bold text-black">Open COGIC Travel Hub</Link>}
   </div>
 }

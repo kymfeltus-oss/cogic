@@ -20,7 +20,7 @@ test("My Sanctuary reuses the real attendee dashboard loader and universal portr
   assert.match(page, /DashboardLoading/);
   assert.match(shell, /AttendeeDashboardHome/);
   assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png"/);
-  assert.match(shell, /src="\/my-sanctuary\/bishops-hc-2026-final\.png"/);
+  assert.doesNotMatch(shell, /bishops-hc-2026-final\.png/);
   assert.doesNotMatch(shell, /<video|mobile_dashboard\.mp4/);
   assert.doesNotMatch(shell, /DesktopDashboardHome|MobileDashboardHome|useDesktopDashboard/);
   assert.doesNotMatch(page, /MySanctuaryHero|my-sanctuary\.css/);
@@ -38,7 +38,7 @@ test("My Sanctuary uses the integrated portrait artwork and controls-only dashbo
   ]);
   assert.doesNotMatch(page, /banner\.png|MySanctuaryHero/);
   assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png"/);
-  assert.match(shell, /src="\/my-sanctuary\/bishops-hc-2026-final\.png"/);
+  assert.doesNotMatch(shell, /bishops-hc-2026-final\.png/);
   assert.match(topBar, /cl-dashboard-controls/);
   assert.doesNotMatch(topBar, /<video|header\.mp4|cogic-live-logo-purple\.png|cogic-phrase\.png|DashboardSearch/);
   assert.doesNotMatch(topBar, />C<\/span>/);
@@ -65,6 +65,8 @@ test("attendee universal utilities use approved feature suite presentation", asy
   assert.match(home, /cl-dashboard-feature-suite/);
   assert.match(home, /MyConvocationCard/);
   assert.doesNotMatch(home, /cl-action-grid--features|cl-desktop-utilities|GivingCard|AnnouncementsCard/);
+  assert.match(utilities, /My Registration/);
+  assert.match(utilities, /href:\s*"\/my-convocation\/registration"/);
   assert.match(utilities, /COGIC Travel/);
   assert.match(utilities, /Stay Informed/);
   assert.match(utilities, /COGIC Connect/);
@@ -72,7 +74,7 @@ test("attendee universal utilities use approved feature suite presentation", asy
   assert.match(css, /\.cl-dashboard-feature-suite|\.cl-dashboard-feature-card/);
   assert.match(registration, /cl-reg-summary/);
   assert.match(registration, /Policy agreement pending/);
-  assert.match(registration, /credential-presentation/);
+  assert.match(registration, /\/my-convocation\/registration|My Registration/);
 });
 
 test("My Sanctuary contains no superseded standalone dashboard banner", async () => {
