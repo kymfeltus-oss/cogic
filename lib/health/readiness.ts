@@ -1,5 +1,9 @@
+import { isDistributedRateLimitConfigured } from "@/lib/rate-limit/config";
+import {
+  assessMockRegistrationDisabled,
+  isMockRegistrationEnabled,
+} from "@/lib/registration/runtime-mode";
 import { resolveRegistrationPricingConfig } from "@/lib/registration/pricing-core";
-import { isDistributedRateLimitConfigured } from "@/lib/rate-limit/redis-store";
 
 export type HealthLiveness = {
   status: "ok";
@@ -17,7 +21,23 @@ export type HealthReadiness = {
   liveAccessDevBypassDisabled: boolean;
   opsAdminDevBypassDisabled: boolean;
   attendeeAuthOpenDisabled: boolean;
+  /** False when USE_MOCK_REGISTRATION=true — required true for ready. */
+  mockRegistrationDisabled: boolean;
+  /** Present when readiness fails closed on a mock/production sandbox leak. */
+  reason?: string;
 };
+
+export type SystemReadinessStatus = {
+  status: "HEALTHY" | "UNHEALTHY";
+  ready: boolean;
+  mockRegistrationDisabled: boolean;
+  /** Effective sandbox mode after production boundary force-off. */
+  mockRegistrationEnabled: boolean;
+  reason?: string;
+};
+
+const MOCK_PRODUCTION_BLOCK_REASON =
+  "BLOCKED: USE_MOCK_REGISTRATION is active on a production runtime instance.";
 
 function isTruthyBypass(value: string | undefined): boolean {
   return value?.trim().toLowerCase() === "true";
@@ -55,11 +75,10 @@ function publicHttpsOriginConfigured(): boolean {
   return false;
 }
 
-export function getLiveness(): HealthLiveness {
-  return { status: "ok" };
-}
-
-export function getReadiness(): HealthReadiness {
+function evaluateConfigurationFlags(): Omit<
+  HealthReadiness,
+  "status" | "mockRegistrationDisabled" | "reason"
+> {
   let registrationPricingConfigured = false;
   try {
     resolveRegistrationPricingConfig({
@@ -88,19 +107,7 @@ export function getReadiness(): HealthReadiness {
   const opsAdminDevBypassDisabled = !isTruthyBypass(process.env.OPS_ADMIN_DEV_BYPASS);
   const attendeeAuthOpenDisabled = !isTruthyBypass(process.env.ATTENDEE_AUTH_OPEN);
 
-  const ready =
-    supabaseConfigured &&
-    stripeConfigured &&
-    stripeWebhookConfigured &&
-    credentialSessionConfigured &&
-    originConfigured &&
-    registrationPricingConfigured &&
-    liveAccessDevBypassDisabled &&
-    opsAdminDevBypassDisabled &&
-    attendeeAuthOpenDisabled;
-
   return {
-    status: ready ? "ready" : "not_ready",
     supabaseConfigured,
     stripeConfigured,
     stripeWebhookConfigured,
@@ -111,5 +118,107 @@ export function getReadiness(): HealthReadiness {
     liveAccessDevBypassDisabled,
     opsAdminDevBypassDisabled,
     attendeeAuthOpenDisabled,
+  };
+}
+
+export function getLiveness(): HealthLiveness {
+  return { status: "ok" };
+}
+
+/**
+ * Canonical readiness probe used by GET /api/health.
+ * Fails closed instantly when USE_MOCK_REGISTRATION is set inside the production boundary.
+ */
+export function getReadiness(): HealthReadiness {
+  const mockAssessment = assessMockRegistrationDisabled(process.env);
+
+  // Strict compliance: block readiness if a sandbox leak is present on production nodes.
+  if (mockAssessment.failClosedImmediate) {
+    const configuration = evaluateConfigurationFlags();
+    return {
+      status: "not_ready",
+      ...configuration,
+      mockRegistrationDisabled: false,
+      reason: MOCK_PRODUCTION_BLOCK_REASON,
+    };
+  }
+
+  const configuration = evaluateConfigurationFlags();
+  const mockRegistrationDisabled = mockAssessment.mockRegistrationDisabled;
+
+  const ready =
+    configuration.supabaseConfigured &&
+    configuration.stripeConfigured &&
+    configuration.stripeWebhookConfigured &&
+    configuration.credentialSessionConfigured &&
+    configuration.publicHttpsOriginConfigured &&
+    configuration.registrationPricingConfigured &&
+    configuration.liveAccessDevBypassDisabled &&
+    configuration.opsAdminDevBypassDisabled &&
+    configuration.attendeeAuthOpenDisabled &&
+    mockRegistrationDisabled;
+
+  return {
+    status: ready ? "ready" : "not_ready",
+    ...configuration,
+    mockRegistrationDisabled,
+    ...(ready
+      ? {}
+      : {
+          reason: mockRegistrationDisabled
+            ? "One or more readiness configuration checks failed."
+            : "USE_MOCK_REGISTRATION is active; readiness stays not_ready until the flag is cleared.",
+        }),
+  };
+}
+
+/**
+ * Operator-facing readiness summary with HEALTHY/UNHEALTHY semantics.
+ * Uses the same production-boundary rules as runtime-mode (Preview ≠ production).
+ */
+export function getSystemReadinessStatus(
+  env: NodeJS.ProcessEnv = process.env,
+): SystemReadinessStatus {
+  const mockAssessment = assessMockRegistrationDisabled(env);
+  const mockRegistrationEnabled = isMockRegistrationEnabled(env);
+
+  // Strict compliance audit: fail closed if mock variables leak into production pipelines.
+  if (mockAssessment.failClosedImmediate) {
+    return {
+      status: "UNHEALTHY",
+      ready: false,
+      mockRegistrationDisabled: false,
+      mockRegistrationEnabled: false,
+      reason: MOCK_PRODUCTION_BLOCK_REASON,
+    };
+  }
+
+  // Explicit env bags (unit tests) evaluate the mock checkpoint only.
+  if (env !== process.env) {
+    if (!mockAssessment.mockRegistrationDisabled) {
+      return {
+        status: "UNHEALTHY",
+        ready: false,
+        mockRegistrationDisabled: false,
+        mockRegistrationEnabled,
+        reason:
+          "USE_MOCK_REGISTRATION is active; readiness stays not_ready until the flag is cleared.",
+      };
+    }
+    return {
+      status: "HEALTHY",
+      ready: true,
+      mockRegistrationDisabled: true,
+      mockRegistrationEnabled: false,
+    };
+  }
+
+  const readiness = getReadiness();
+  return {
+    status: readiness.status === "ready" ? "HEALTHY" : "UNHEALTHY",
+    ready: readiness.status === "ready",
+    mockRegistrationDisabled: readiness.mockRegistrationDisabled,
+    mockRegistrationEnabled,
+    reason: readiness.reason,
   };
 }

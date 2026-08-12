@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "My Trip | COGIC Travel",
-  description: "Manage your official COGIC hotel reservation and trip details.",
+  description:
+    "Track marketplace checkout, supplier confirmations, and official housing interest (browse-and-request).",
 };
 
 export default async function TravelTripPage() {
@@ -19,9 +20,11 @@ export default async function TravelTripPage() {
 
   return (
     <TravelShell back>
-      <h1 className="mt-8 text-5xl font-black">My Trip</h1>
-      <p className="mt-3 max-w-3xl text-xl text-white/70">
-        Add your real hotel confirmation after you book. Redirects never confirm a reservation.
+      <h1 className="mt-8 text-4xl font-black sm:text-5xl">My Trip</h1>
+      <p className="mt-3 max-w-3xl text-lg text-white/70 sm:text-xl">
+        Confirmed stays are populated via marketplace checkouts and housing-completed registration stays
+        only. Official COGIC hotel interest is browse-and-request — not confirmed in-app. Resume secure
+        marketplace checkout from a pending attempt without relying on browser session storage.
       </p>
       <MyTripClient />
     </TravelShell>

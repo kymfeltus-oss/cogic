@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import "server-only";
+import { travelDemoModeEnabled } from "./credentials";
 import type { MarketplaceFlightOffer } from "./types";
 
 function token() {
@@ -98,8 +99,169 @@ export async function searchDuffelFlights(input: {
       cabin: offer?.cabin_class || input.cabin || null,
       stops: Math.max(0, (slice?.segments?.length || 1) - 1),
       totalFareCents: moneyToCents(offer?.total_amount),
+      taxAmountCents: moneyToCents(offer?.tax_amount),
       currency: String(offer?.total_currency || "USD"),
       bookingUrl: null,
+      bookToken: String(offer.id),
     };
   });
+}
+
+/** Live order retrieve for operator sync / webhook reconciliation. */
+export async function retrieveDuffelOrder(orderIdOrReference: string): Promise<{
+  confirmationNumber: string;
+  orderId: string;
+  canceled: boolean;
+  departureAt: string | null;
+  arrivalAt: string | null;
+  raw: Record<string, unknown>;
+}> {
+  const key = String(orderIdOrReference || "").trim();
+  if (!key) throw new Error("Duffel order id or booking reference is required.");
+
+  let order: any = null;
+  try {
+    const byId = await duffelFetch(`/air/orders/${encodeURIComponent(key)}`);
+    order = byId?.data;
+  } catch {
+    const listed = await duffelFetch(
+      `/air/orders?booking_reference=${encodeURIComponent(key)}`,
+    );
+    order = Array.isArray(listed?.data) ? listed.data[0] : listed?.data;
+  }
+
+  if (!order?.id) throw new Error("Duffel order was not found at the supplier.");
+  const slice = order?.slices?.[0];
+  const segments = Array.isArray(slice?.segments) ? slice.segments : [];
+  const first = segments[0];
+  const last = segments[segments.length - 1];
+  const confirmationNumber = String(order.booking_reference || order.id).trim();
+  const canceled = Boolean(order.cancelled_at || /cancel/i.test(String(order?.status || "")));
+  return {
+    confirmationNumber,
+    orderId: String(order.id),
+    canceled,
+    departureAt: first?.departing_at || slice?.departure_datetime || null,
+    arrivalAt: last?.arriving_at || slice?.arrival_datetime || null,
+    raw: order as Record<string, unknown>,
+  };
+}
+
+/** Static sandbox flight offer id when USE_MOCK_TRAVEL=true (non-production only). */
+export const TRAVEL_DEMO_DUFFEL_OFFER_ID = "mock_sandbox_offer_flight_2201";
+export const TRAVEL_DEMO_DUFFEL_TOTAL_CENTS = 32050;
+
+export async function getDuffelOffer(offerId: string): Promise<{
+  id: string;
+  totalFareCents: number;
+  totalAmountCents?: number;
+  taxAmountCents: number | null;
+  currency: string;
+  passengerIds: string[];
+  raw: Record<string, unknown>;
+}> {
+  if (String(process.env.USE_MOCK_TRAVEL || "").trim() === "true") {
+    if (!travelDemoModeEnabled()) {
+      throw new Error(
+        "USE_MOCK_TRAVEL is set but travel demo mode is not allowed (disabled when VERCEL_ENV=production).",
+      );
+    }
+    const requestedOfferId = String(offerId || "").trim();
+    console.warn("[travel.demo] getDuffelOffer — USE_MOCK_TRAVEL interceptor (sandbox vault).");
+    return {
+      id: TRAVEL_DEMO_DUFFEL_OFFER_ID,
+      totalFareCents: TRAVEL_DEMO_DUFFEL_TOTAL_CENTS,
+      totalAmountCents: TRAVEL_DEMO_DUFFEL_TOTAL_CENTS,
+      taxAmountCents: 0,
+      currency: "USD",
+      passengerIds: ["pas_demo_1"],
+      raw: {
+        demo: true,
+        pricedBy: "USE_MOCK_TRAVEL",
+        totalAmountCents: TRAVEL_DEMO_DUFFEL_TOTAL_CENTS,
+        offerId: TRAVEL_DEMO_DUFFEL_OFFER_ID,
+        requestedOfferId,
+        provider: "duffel",
+      },
+    };
+  }
+
+  const id = String(offerId || "").trim();
+  if (!id) throw new Error("A live Duffel offer_id is required.");
+
+  const body = await duffelFetch(`/air/offers/${encodeURIComponent(id)}`);
+  const offer = body?.data;
+  if (!offer?.id) throw new Error("Duffel offer is no longer available.");
+  const totalFareCents = moneyToCents(offer.total_amount);
+  if (totalFareCents == null || totalFareCents <= 0) {
+    throw new Error("Duffel offer is missing a live fare.");
+  }
+  return {
+    id: String(offer.id),
+    totalFareCents,
+    taxAmountCents: moneyToCents(offer.tax_amount),
+    currency: String(offer.total_currency || "USD").toUpperCase(),
+    passengerIds: Array.isArray(offer.passengers)
+      ? offer.passengers.map((p: any) => String(p.id)).filter(Boolean)
+      : [],
+    raw: offer as Record<string, unknown>,
+  };
+}
+
+export type DuffelPassengerInput = {
+  id: string;
+  title?: string;
+  givenName: string;
+  familyName: string;
+  bornOn: string;
+  gender: "m" | "f";
+  email: string;
+  phoneNumber: string;
+};
+
+export async function createDuffelOrder(input: {
+  offerId: string;
+  amount: string;
+  currency: string;
+  passengers: DuffelPassengerInput[];
+}) {
+  const body = await duffelFetch("/air/orders", {
+    method: "POST",
+    body: JSON.stringify({
+      data: {
+        type: "instant",
+        selected_offers: [input.offerId],
+        passengers: input.passengers.map((passenger) => ({
+          id: passenger.id,
+          title: passenger.title || "mr",
+          given_name: passenger.givenName,
+          family_name: passenger.familyName,
+          born_on: passenger.bornOn,
+          gender: passenger.gender,
+          email: passenger.email,
+          phone_number: passenger.phoneNumber,
+        })),
+        payments: [
+          {
+            type: "balance",
+            amount: input.amount,
+            currency: input.currency,
+          },
+        ],
+      },
+    }),
+  });
+
+  const order = body?.data;
+  const confirmationNumber = String(
+    order?.booking_reference || order?.id || "",
+  ).trim();
+  if (confirmationNumber.length < 3) {
+    throw new Error("Duffel order completed without a booking reference.");
+  }
+  return {
+    confirmationNumber,
+    orderId: order?.id ? String(order.id) : confirmationNumber,
+    raw: (order && typeof order === "object" ? order : { order }) as Record<string, unknown>,
+  };
 }

@@ -32,6 +32,17 @@ export const DEFAULT_PROGRAM_KEY = "cogic-stream-2026";
 export const REGISTRATION_CHECKOUT_TYPE = "registration" as const;
 export const DEFAULT_REGISTRATION_CURRENCY = "usd";
 
+export const REGISTRATION_STEP_IDS = [
+  "attendee",
+  "product",
+  "group",
+  "policy",
+  "housing",
+  "review",
+  "payment",
+] as const;
+export type RegistrationStepId = (typeof REGISTRATION_STEP_IDS)[number];
+
 export type Registration = {
   id: string;
   programKey: string;
@@ -58,6 +69,8 @@ export type Registration = {
   updatedAt: string;
   createdBy: string | null;
   updatedBy: string | null;
+  draftLastStep: RegistrationStepId | null;
+  rowVersion: number;
 };
 
 export type RegistrationPayment = {
@@ -76,19 +89,176 @@ export type RegistrationPayment = {
 /** Partial draft fields — incomplete OK until submit. */
 export type RegistrationDraftInput = {
   programKey?: string;
+  salutation?: string | null;
   firstName?: string | null;
   lastName?: string | null;
+  suffix?: string | null;
   email?: string | null;
   mobilePhone?: string | null;
+  assistantEmail?: string | null;
   streetAddress?: string | null;
+  addressLine2?: string | null;
   city?: string | null;
   state?: string | null;
   postalCode?: string | null;
+  countryCode?: string | null;
+  gender?: string | null;
+  requiresInterpretation?: boolean;
+  preferredLanguage?: string | null;
   churchName?: string | null;
   pastorName?: string | null;
   jurisdiction?: string | null;
+  draftLastStep?: RegistrationStepId | null;
+  /** Legacy optional field — ignored by atomic draft RPC (server stamps amounts from products). */
   amountCents?: number | null;
+  /** Legacy optional field — ignored by atomic draft RPC. */
   currency?: string;
+};
+
+/**
+ * Identity-only primary draft payload for `save_primary_draft` /
+ * `save_registration_primary_draft`. Product, price, status, and ownership
+ * are never accepted from the client.
+ */
+export type RegistrationPrimaryDraftInput = {
+  salutation?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  suffix?: string | null;
+  email?: string | null;
+  mobilePhone?: string | null;
+  assistantEmail?: string | null;
+  streetAddress?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  countryCode?: string | null;
+  gender?: string | null;
+  requiresInterpretation?: boolean;
+  preferredLanguage?: string | null;
+  churchName?: string | null;
+  pastorName?: string | null;
+  jurisdiction?: string | null;
+  draftLastStep?: RegistrationStepId | null;
+};
+
+const PRIMARY_DRAFT_REJECTED_KEYS = [
+  "amountCents",
+  "amount_cents",
+  "currency",
+  "status",
+  "userId",
+  "user_id",
+  "ownerUserId",
+  "owner_user_id",
+  "registrationProductId",
+  "registration_product_id",
+  "productId",
+  "totalCents",
+  "total_cents",
+  "groupId",
+  "group_id",
+  "registrationId",
+  "registration_id",
+] as const;
+
+function asOptionalString(value: unknown): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== "string") return undefined;
+  return value;
+}
+
+function asOptionalBoolean(value: unknown): boolean | undefined {
+  if (typeof value !== "boolean") return undefined;
+  return value;
+}
+
+function asOptionalStepId(value: unknown): RegistrationStepId | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null) return null;
+  if (typeof value !== "string") return undefined;
+  if (
+    value === "attendee" ||
+    value === "product" ||
+    value === "group" ||
+    value === "policy" ||
+    value === "housing" ||
+    value === "review" ||
+    value === "payment"
+  ) {
+    return value;
+  }
+  return undefined;
+}
+
+/**
+ * Allowlist-only parser for `save_primary_draft`.
+ * Explicitly discards client-supplied pricing, status, product, and user identity.
+ */
+export function sanitizeRegistrationPrimaryDraftInput(
+  raw: unknown,
+): RegistrationPrimaryDraftInput {
+  const source =
+    raw && typeof raw === "object" && !Array.isArray(raw)
+      ? (raw as Record<string, unknown>)
+      : {};
+
+  for (const rejectedKey of PRIMARY_DRAFT_REJECTED_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(source, rejectedKey)) {
+      // Drop silently — never trust client authority fields.
+      delete source[rejectedKey];
+    }
+  }
+
+  return {
+    salutation: asOptionalString(source.salutation),
+    firstName: asOptionalString(source.firstName),
+    lastName: asOptionalString(source.lastName),
+    suffix: asOptionalString(source.suffix),
+    email: asOptionalString(source.email),
+    mobilePhone: asOptionalString(source.mobilePhone),
+    assistantEmail: asOptionalString(source.assistantEmail),
+    streetAddress: asOptionalString(source.streetAddress),
+    addressLine2: asOptionalString(source.addressLine2),
+    city: asOptionalString(source.city),
+    state: asOptionalString(source.state),
+    postalCode: asOptionalString(source.postalCode),
+    countryCode: asOptionalString(source.countryCode),
+    gender: asOptionalString(source.gender),
+    requiresInterpretation: asOptionalBoolean(source.requiresInterpretation),
+    preferredLanguage: asOptionalString(source.preferredLanguage),
+    churchName: asOptionalString(source.churchName),
+    pastorName: asOptionalString(source.pastorName),
+    jurisdiction: asOptionalString(source.jurisdiction),
+    draftLastStep: asOptionalStepId(source.draftLastStep),
+  };
+}
+
+export type RegistrationVersionContract = {
+  groupVersion?: number | null;
+  registrationVersion?: number | null;
+};
+
+export type RegistrationPrimaryDraftResult = {
+  groupId: string;
+  groupVersion: number;
+  registrationId: string;
+  registrationVersion: number;
+  status: "draft";
+  draftLastStep: RegistrationStepId | null;
+};
+
+export type RegistrationAtomicTransitionResult = {
+  groupId: string;
+  registrationId?: string;
+  status: RegistrationStatus;
+  groupVersion: number;
+  totalCents?: number;
+  currency?: string;
+  transitionedMembers?: number;
+  canceledMembers?: number;
 };
 
 /** All mandatory Convocation fields required to move to submitted. */
@@ -134,6 +304,8 @@ export type RegistrationRow = {
   updated_at: string;
   created_by: string | null;
   updated_by: string | null;
+  draft_last_step?: RegistrationStepId | null;
+  row_version?: number;
 };
 
 export type RegistrationPaymentRow = {
@@ -176,6 +348,8 @@ export function mapRegistrationRow(row: RegistrationRow): Registration {
     updatedAt: row.updated_at,
     createdBy: row.created_by,
     updatedBy: row.updated_by,
+    draftLastStep: row.draft_last_step ?? null,
+    rowVersion: Number(row.row_version ?? 1),
   };
 }
 

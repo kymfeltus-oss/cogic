@@ -1,12 +1,16 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { stashTravelCheckoutOffer } from "@/lib/travel/checkout/offer-session";
 
 type Props = {
   kind: "hotel" | "flight" | "car";
   offer: Record<string, unknown>;
   checkIn?: string;
   checkOut?: string;
+  pickupAt?: string;
+  dropoffAt?: string;
   label?: string;
 };
 
@@ -15,51 +19,55 @@ export default function MarketplaceOfferActions({
   offer,
   checkIn,
   checkOut,
-  label = "Continue booking",
+  pickupAt,
+  dropoffAt,
+  label = "Checkout securely",
 }: Props) {
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
-  async function startBooking() {
+  function startCheckout() {
     setBusy(true);
     setError("");
-    try {
-      const response = await fetch("/api/travel/marketplace/booking/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind, offer, checkIn, checkOut }),
-      });
-      const json = await response.json();
-      if (!response.ok) {
-        if (json.loginUrl) {
-          window.location.href = json.loginUrl;
-          return;
-        }
-        throw new Error(json.error || "Unable to start booking.");
-      }
-
-      if (json.openPartner && json.partnerUrl) {
-        await fetch("/api/travel/marketplace/booking/return", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ attemptId: json.attemptId, action: "redirected" }),
-        }).catch(() => undefined);
-        window.open(json.partnerUrl, "_blank", "noopener,noreferrer");
-        window.location.href = json.returnUrl || `/travel/marketplace/return?attempt=${json.attemptId}`;
-        return;
-      }
-
-      window.location.href = json.returnUrl || `/travel/marketplace/return?attempt=${json.attemptId}`;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to start booking.");
+    const offerId = String(offer.id || offer.bookToken || "").trim();
+    if (!offerId) {
+      setError("This offer is missing a live bookable id. Search again.");
       setBusy(false);
+      return;
     }
+
+    stashTravelCheckoutOffer(offerId, {
+      kind,
+      offer: {
+        ...offer,
+        checkIn: checkIn || offer.checkIn || null,
+        checkOut: checkOut || offer.checkOut || null,
+        pickupAt: pickupAt || offer.pickupAt || null,
+        dropoffAt: dropoffAt || offer.dropoffAt || null,
+      },
+      checkIn: checkIn || null,
+      checkOut: checkOut || null,
+      pickupAt: pickupAt || null,
+      dropoffAt: dropoffAt || null,
+      stashedAt: new Date().toISOString(),
+    });
+
+    const params = new URLSearchParams({ kind });
+    if (checkIn) params.set("checkIn", checkIn);
+    if (checkOut) params.set("checkOut", checkOut);
+    router.push(`/travel/checkout/${encodeURIComponent(offerId)}?${params.toString()}`);
   }
 
   return (
     <div className="ct-marketplace-offer__actions">
-      <button type="button" className="ct-neon-button" disabled={busy} onClick={() => void startBooking()}>
-        {busy ? "Starting…" : label}
+      <button
+        type="button"
+        className="ct-neon-button"
+        disabled={busy}
+        onClick={() => startCheckout()}
+      >
+        {busy ? "Opening checkout…" : label}
       </button>
       {error ? (
         <p role="alert" className="ct-honest-hint">

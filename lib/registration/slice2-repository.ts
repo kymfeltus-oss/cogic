@@ -3,8 +3,14 @@ import "server-only";
 import { createHash } from "node:crypto";
 
 import { attemptRegistrationCredentialIssuance } from "@/lib/registration/post-fulfillment";
-import { DEFAULT_PROGRAM_KEY } from "@/lib/registration/types";
-import { RegistrationError } from "@/lib/registration/errors";
+import {
+  DEFAULT_PROGRAM_KEY,
+  type RegistrationAtomicTransitionResult,
+  type RegistrationPrimaryDraftInput,
+  type RegistrationPrimaryDraftResult,
+  type RegistrationVersionContract,
+} from "@/lib/registration/types";
+import { mapDatabaseError, RegistrationError } from "@/lib/registration/errors";
 import {
   GROUP_RELATIONSHIPS,
   normalizeInterpretation,
@@ -13,6 +19,8 @@ import {
   validateSignature,
 } from "@/lib/registration/slice2-validation";
 import {
+  getGroupTotalCents,
+  getPrimaryRegistrant,
   isJuniorRegistrationProduct,
   type GroupRegistrant,
   type RegistrationExperience,
@@ -21,6 +29,7 @@ import {
   type RegistrationProduct,
 } from "@/lib/registration/group-experience";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { evaluateRegistrationRequirements } from "@/lib/registration/registration-requirements";
 
 export const PROGRAM_DATE_2026 = "2026-11-03";
 
@@ -59,6 +68,73 @@ export type RegistrantInput = {
   pastorName?: string | null;
   jurisdiction?: string | null;
 };
+
+function memberVersionContract(members: GroupRegistrant[]): Record<string, number> {
+  return Object.fromEntries(
+    members.map((member) => [member.id, Number(member.row_version ?? 1)]),
+  );
+}
+
+function primaryDraftPayload(input: RegistrationPrimaryDraftInput) {
+  return {
+    salutation: clean(input.salutation),
+    first_name: clean(input.firstName),
+    last_name: clean(input.lastName),
+    suffix: clean(input.suffix),
+    email: clean(input.email)?.toLowerCase() ?? null,
+    mobile_phone: clean(input.mobilePhone),
+    assistant_email: clean(input.assistantEmail)?.toLowerCase() ?? null,
+    street_address: clean(input.streetAddress),
+    address_line_2: clean(input.addressLine2),
+    city: clean(input.city),
+    state: clean(input.state),
+    postal_code: clean(input.postalCode),
+    country_code: clean(input.countryCode)?.toUpperCase() ?? null,
+    gender: clean(input.gender),
+    requires_interpretation: input.requiresInterpretation === true,
+    preferred_language:
+      input.requiresInterpretation === true ? clean(input.preferredLanguage) : null,
+    church_name: clean(input.churchName),
+    pastor_name: clean(input.pastorName),
+    jurisdiction: clean(input.jurisdiction),
+    draft_last_step: input.draftLastStep ?? "attendee",
+  };
+}
+
+/**
+ * Persist partial primary-attendee data. The authenticated user id is supplied
+ * by the server route; price, status, group ownership, and totals are not part
+ * of this contract and cannot be forwarded from the browser.
+ */
+export async function savePrimaryRegistrationDraft(
+  userId: string,
+  input: RegistrationPrimaryDraftInput,
+  versions: RegistrationVersionContract = {},
+): Promise<RegistrationPrimaryDraftResult> {
+  const authenticatedUserId = requireValue(userId, "Authenticated user");
+  const { data, error } = await getSupabaseAdmin().rpc("save_registration_primary_draft", {
+    p_user_id: authenticatedUserId,
+    p_program_key: DEFAULT_PROGRAM_KEY,
+    p_draft: primaryDraftPayload(input),
+    p_expected_group_version: versions.groupVersion ?? null,
+    p_expected_registration_version: versions.registrationVersion ?? null,
+  });
+  if (error) {
+    throw mapDatabaseError(error);
+  }
+  const payload = data as Record<string, unknown> | null;
+  if (!payload?.group_id || !payload.registration_id) {
+    throw new RegistrationError("unavailable", "Unable to persist registration draft.");
+  }
+  return {
+    groupId: String(payload.group_id),
+    groupVersion: Number(payload.group_version ?? 1),
+    registrationId: String(payload.registration_id),
+    registrationVersion: Number(payload.registration_version ?? 1),
+    status: "draft",
+    draftLastStep: (payload.draft_last_step as RegistrationPrimaryDraftResult["draftLastStep"]) ?? null,
+  };
+}
 
 function clean(value: string | null | undefined): string | null {
   const normalized = value?.trim() ?? "";
@@ -147,7 +223,7 @@ async function ensureGroup(userId: string): Promise<RegistrationGroup> {
       },
       { onConflict: "program_key,owner_user_id" },
     )
-    .select("id,status,registrations(*)")
+    .select("id,status,row_version,wizard_resume_step,wizard_metadata,registrations(*)")
     .single();
 
   if (error || !data) {
@@ -379,7 +455,7 @@ export async function loadRegistrationExperience(userId: string): Promise<Regist
         .order("sort_order"),
       db
         .from("registration_groups")
-        .select("id,status,registrations(*)")
+        .select("id,status,row_version,wizard_resume_step,wizard_metadata,registrations(*)")
         .eq("program_key", DEFAULT_PROGRAM_KEY)
         .eq("owner_user_id", userId)
         .maybeSingle(),
@@ -396,13 +472,48 @@ export async function loadRegistrationExperience(userId: string): Promise<Regist
   }
 
   const now = new Date();
-  return {
+  const base = {
     products: ((products ?? []) as RegistrationProductRow[]).filter((product) =>
       isProductSelectable(product, now),
     ),
     group: (group as RegistrationGroup | null) ?? null,
     policy: (policy as RegistrationPolicy | null) ?? null,
   };
+  const members = base.group?.registrations ?? [];
+  const primary = getPrimaryRegistrant(base.group);
+  const [{ data: acceptance }, { data: housing }, { data: payments }] = base.group
+    ? await Promise.all([
+        db.from("registration_policy_acceptances").select("id").eq("registration_group_id", base.group.id).limit(1),
+        db.from("housing_requests").select("preference").eq("registration_group_id", base.group.id).neq("status", "canceled").limit(1),
+        primary
+          ? db.from("registration_payments").select("status").eq("registration_id", primary.id).order("created_at", { ascending: false }).limit(1)
+          : Promise.resolve({ data: [] }),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }];
+  const requiredFields: Array<[string, string | null | undefined]> = [
+    ["First name", primary?.first_name], ["Last name", primary?.last_name], ["Email", primary?.email],
+    ["Mobile phone", primary?.mobile_phone], ["Address line 1", primary?.street_address],
+    ["City", primary?.city], ["State / Province", primary?.state], ["Postal code", primary?.postal_code],
+    ["Country", primary?.country_code], ["Church name", primary?.church_name],
+    ["Pastor name", primary?.pastor_name], ["Jurisdiction", primary?.jurisdiction],
+  ];
+  if (primary?.requires_interpretation) requiredFields.push(["Preferred language", primary.preferred_language]);
+  const totalCents = getGroupTotalCents(base.group);
+  const paymentStatus = (payments?.[0] as { status?: string } | undefined)?.status ?? null;
+  const requirements = evaluateRegistrationRequirements({
+    status: (base.group?.status ?? "none") as import("@/lib/registration/types").RegistrationStatus | "none",
+    hasProduct: Boolean(primary?.registration_product_id),
+    missingProfileFields: requiredFields.filter(([, value]) => !value?.trim()).map(([label]) => label),
+    groupMemberCount: members.length,
+    juniorMissingDob: members.some((member) => member.relationship_to_primary === "child" && !member.date_of_birth),
+    policyAccepted: Boolean(acceptance?.length), totalAmountCents: totalCents,
+    amountPaidCents: paymentStatus === "paid" ? totalCents : 0,
+    remainingBalanceCents: base.group?.status === "confirmed" ? 0 : totalCents,
+    paymentStatus, credentialReady: false, credentialMissingWhileConfirmed: false,
+    housingPreference: (housing?.[0] as { preference?: string } | undefined)?.preference ?? null,
+    housingStatus: null, hasTravelActivity: false, requiredProfileFieldCount: requiredFields.length,
+  });
+  return { ...base, requirements, paymentStatus };
 }
 
 export async function loadOrMigrateRegistrationExperience(userId: string): Promise<RegistrationExperience> {
@@ -416,6 +527,32 @@ export async function loadOrMigrateRegistrationExperience(userId: string): Promi
 }
 
 export async function saveRegistrant(userId: string, input: RegistrantInput) {
+  // Initialization path: attendee information must persist before product
+  // selection. The draft RPC deliberately excludes product, money and status.
+  if (input.isPrimary && !clean(input.productId)) {
+    return savePrimaryRegistrationDraft(userId, {
+      salutation: input.salutation,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      suffix: input.suffix,
+      email: input.email,
+      mobilePhone: input.mobilePhone,
+      assistantEmail: input.assistantEmail,
+      streetAddress: input.streetAddress,
+      addressLine2: input.addressLine2,
+      city: input.city,
+      state: input.state,
+      postalCode: input.postalCode,
+      countryCode: input.countryCode,
+      gender: input.gender,
+      requiresInterpretation: input.requiresInterpretation,
+      preferredLanguage: input.preferredLanguage,
+      churchName: input.churchName,
+      pastorName: input.pastorName,
+      jurisdiction: input.jurisdiction,
+      draftLastStep: "product",
+    });
+  }
   const group = await ensureDraftGroup(userId);
   const product = await getSelectableProduct(requireValue(input.productId, "Registration product"));
 
@@ -699,107 +836,163 @@ export async function submitGroup(userId: string) {
     const product = products.get(member.registration_product_id ?? "");
     return total + (product?.price_cents ?? 0);
   }, 0);
-  const nextStatus = totalCents === 0 ? "confirmed" : "submitted";
-  const now = new Date().toISOString();
-
-  for (const member of members) {
-    const product = products.get(member.registration_product_id ?? "");
-    const { error } = await db
-      .from("registrations")
-      .update({ amount_cents: product?.price_cents ?? 0, currency: product?.currency ?? "usd", updated_by: userId })
-      .eq("id", member.id)
-      .eq("registration_group_id", group.id)
-      .eq("status", "draft");
-    if (error) {
-      throw error;
-    }
+  const expectedMemberVersions = memberVersionContract(members);
+  if (Object.keys(expectedMemberVersions).length !== members.length) {
+    throw new RegistrationError(
+      "conflict",
+      "Registration member version snapshot is incomplete. Reload and try again.",
+    );
   }
 
-  const { data: transitioned, error: transitionError } = await db
-    .from("registrations")
-    .update({
-      status: nextStatus,
-      submitted_at: now,
-      confirmed_at: totalCents === 0 ? now : null,
-      updated_by: userId,
-    })
-    .eq("registration_group_id", group.id)
-    .eq("status", "draft")
-    .select("id");
+  const { data: transitionData, error: transitionError } = await db.rpc(
+    "submit_registration_group",
+    {
+      p_user_id: userId,
+      p_group_id: group.id,
+      p_expected_group_version: Number(group.row_version ?? 1),
+      p_expected_member_versions: expectedMemberVersions,
+    },
+  );
   if (transitionError) {
-    throw transitionError;
+    throw mapDatabaseError(transitionError);
   }
-  if ((transitioned ?? []).length !== members.length) {
-    throw new RegistrationError("conflict", "Registration changed while it was being submitted. Please review it again.");
+  const transition = transitionData as Record<string, unknown> | null;
+  if (!transition?.group_id || !transition.registration_id || !transition.status) {
+    throw new RegistrationError("unavailable", "Registration submission did not return its authoritative state.");
   }
+  const nextStatus = String(transition.status);
+  const memberIds = Array.isArray(transition.member_ids)
+    ? transition.member_ids.map((id) => String(id))
+    : members.map((member) => member.id);
 
-  const { error: primaryTotalError } = await db
-    .from("registrations")
-    .update({ amount_cents: totalCents, updated_by: userId })
-    .eq("id", primary.id)
-    .eq("registration_group_id", group.id);
-  if (primaryTotalError) {
-    throw primaryTotalError;
-  }
-
-  const { error: groupError } = await db
-    .from("registration_groups")
-    .update({ status: nextStatus })
-    .eq("id", group.id)
-    .eq("owner_user_id", userId)
-    .eq("status", "draft");
-  if (groupError) {
-    throw groupError;
-  }
-
-  if (totalCents === 0) {
-    for (const member of members) {
-      await attemptRegistrationCredentialIssuance({ registrationId: member.id, actorUserId: userId });
+  if (totalCents === 0 || nextStatus === "confirmed") {
+    for (const memberId of memberIds) {
+      await attemptRegistrationCredentialIssuance({ registrationId: memberId, actorUserId: userId });
     }
   }
 
   return {
-    registrationId: primary.id,
-    groupId: group.id,
+    registrationId: String(transition.registration_id),
+    groupId: String(transition.group_id),
     status: nextStatus,
-    totalCents,
+    totalCents: Number(transition.total_cents ?? totalCents),
+    groupVersion: Number(transition.group_version ?? group.row_version ?? 1),
+    memberIds,
   };
 }
 
-export async function confirmPaidGroup(registrationId: string, actorUserId: string | null): Promise<void> {
+export async function confirmPaidGroup(registrationId: string, actorUserId: string | null): Promise<boolean> {
   const db = getSupabaseAdmin();
-  const { data: primary, error: primaryError } = await db
+  const { data: primaryRow, error: primaryLookupError } = await db
     .from("registrations")
-    .select("registration_group_id")
+    .select("id,registration_group_id")
     .eq("id", registrationId)
     .maybeSingle();
-  if (primaryError) {
-    throw primaryError;
-  }
-  if (!primary?.registration_group_id) {
-    return;
+  if (primaryLookupError) {
+    throw mapDatabaseError(primaryLookupError);
   }
 
-  const now = new Date().toISOString();
-  const { data: members, error: membersError } = await db
-    .from("registrations")
-    .update({ status: "confirmed", confirmed_at: now, updated_by: actorUserId })
-    .eq("registration_group_id", primary.registration_group_id)
-    .in("status", ["submitted", "payment_pending"])
-    .select("id");
-  if (membersError) {
-    throw membersError;
+  let expectedGroupVersion: number | null = null;
+  let expectedMemberVersions: Record<string, number> | null = null;
+  if (primaryRow?.registration_group_id) {
+    const [{ data: groupRow, error: groupError }, { data: memberRows, error: membersLookupError }] =
+      await Promise.all([
+        db
+          .from("registration_groups")
+          .select("id,row_version")
+          .eq("id", primaryRow.registration_group_id)
+          .maybeSingle(),
+        db
+          .from("registrations")
+          .select("id,row_version")
+          .eq("registration_group_id", primaryRow.registration_group_id),
+      ]);
+    if (groupError) {
+      throw mapDatabaseError(groupError);
+    }
+    if (membersLookupError) {
+      throw mapDatabaseError(membersLookupError);
+    }
+    expectedGroupVersion = Number(groupRow?.row_version ?? 1);
+    expectedMemberVersions = Object.fromEntries(
+      (memberRows ?? []).map((member) => [String(member.id), Number(member.row_version ?? 1)]),
+    );
   }
 
-  const { error: groupError } = await db
-    .from("registration_groups")
-    .update({ status: "confirmed" })
-    .eq("id", primary.registration_group_id);
-  if (groupError) {
-    throw groupError;
+  const { data, error } = await db.rpc("confirm_paid_registration_group", {
+    p_registration_id: registrationId,
+    p_actor_user_id: actorUserId,
+    p_expected_group_version: expectedGroupVersion,
+    p_expected_member_versions: expectedMemberVersions,
+  });
+  if (error) {
+    throw mapDatabaseError(error);
   }
 
-  for (const member of members ?? []) {
-    await attemptRegistrationCredentialIssuance({ registrationId: member.id, actorUserId });
+  const payload = (data ?? {}) as {
+    ok?: boolean;
+    member_ids?: unknown;
+    group_id?: string | null;
+  };
+
+  let memberIds: string[] = [];
+  if (Array.isArray(payload.member_ids)) {
+    memberIds = payload.member_ids.map((id) => String(id));
+  } else if (!payload.group_id) {
+    memberIds = [registrationId];
+  } else {
+    const { data: members, error: membersError } = await db
+      .from("registrations")
+      .select("id")
+      .eq("registration_group_id", payload.group_id)
+      .eq("status", "confirmed");
+    if (membersError) {
+      throw mapDatabaseError(membersError);
+    }
+    memberIds = (members ?? []).map((member) => String(member.id));
   }
+
+  if (memberIds.length === 0) {
+    memberIds = [registrationId];
+  }
+
+  let allCredentialsIssued = true;
+  for (const memberId of memberIds) {
+    const issuance = await attemptRegistrationCredentialIssuance({
+      registrationId: memberId,
+      actorUserId,
+    });
+    allCredentialsIssued &&= issuance.issued || issuance.idempotent || issuance.retryQueued === true;
+  }
+  return allCredentialsIssued;
+}
+
+export async function cancelRegistrationGroup(input: {
+  groupId: string;
+  actorUserId: string;
+  reason: string;
+  groupVersion: number;
+  memberVersions: Record<string, number>;
+}): Promise<RegistrationAtomicTransitionResult> {
+  const { data, error } = await getSupabaseAdmin().rpc("cancel_registration_group", {
+    p_group_id: input.groupId,
+    p_actor_user_id: input.actorUserId,
+    p_reason: input.reason,
+    p_expected_group_version: input.groupVersion,
+    p_expected_member_versions: input.memberVersions,
+  });
+  if (error) {
+    throw mapDatabaseError(error);
+  }
+  const payload = data as Record<string, unknown> | null;
+  if (!payload?.group_id || payload.status !== "canceled") {
+    throw new RegistrationError("unavailable", "Registration group cancellation did not complete.");
+  }
+  return {
+    groupId: String(payload.group_id),
+    registrationId: payload.registration_id ? String(payload.registration_id) : undefined,
+    status: "canceled",
+    groupVersion: Number(payload.group_version ?? input.groupVersion),
+    canceledMembers: Number(payload.canceled_members ?? 0),
+  };
 }

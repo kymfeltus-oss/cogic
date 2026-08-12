@@ -25,6 +25,8 @@ export default function RentalCarSearchPanel() {
   const [reason, setReason] = useState("");
   const [provider, setProvider] = useState<string | null>(null);
   const [offers, setOffers] = useState<MarketplaceCarOffer[] | null>(null);
+  const pickupAt = `${pickupDate}T${pickupTime}`;
+  const dropoffAt = `${dropoffDate}T${dropoffTime}`;
 
   async function onSearch(e: FormEvent) {
     e.preventDefault();
@@ -152,8 +154,8 @@ export default function RentalCarSearchPanel() {
         <div className="ct-marketplace-results">
           <p className="ct-honest-hint">
             Showing {offers.length} live offer{offers.length === 1 ? "" : "s"}
-            {provider ? ` via ${provider}` : ""}. Complete booking with the partner, then save confirmation on My
-            Trip.
+            {provider ? ` via ${provider}` : ""}. Checkout securely in-app — supplier confirmation is captured
+            automatically after payment.
           </p>
           <ul className="ct-marketplace-offer-list">
             {offers.map((offer) => (
@@ -171,7 +173,9 @@ export default function RentalCarSearchPanel() {
                 <MarketplaceOfferActions
                   kind="car"
                   offer={offer as unknown as Record<string, unknown>}
-                  label={offer.bookingUrl ? "Continue booking" : "Start booking on My Trip"}
+                  pickupAt={pickupAt}
+                  dropoffAt={dropoffAt}
+                  label="Checkout securely"
                 />
               </li>
             ))}
@@ -181,8 +185,8 @@ export default function RentalCarSearchPanel() {
         <MarketplaceSearchOutcome code={code} reason={reason} />
       ) : (
         <p className="ct-honest-hint">
-          Enter a US pick-up location and search. Live inventory appears only when Expedia Rapid or Enterprise Amadeus
-          cars are connected.
+          Enter a US pick-up location and search. Live inventory appears only when Expedia Rapid is connected for
+          checkout.
         </p>
       )}
     </div>

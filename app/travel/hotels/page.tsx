@@ -1,6 +1,6 @@
 import { TravelShell } from "@/components/travel/TravelShell";
 import { publishedHotels } from "@/lib/travel/repository";
-import OfficialHotelsClient from "@/components/travel/OfficialHotelsClient";
+import HotelSearchClient from "@/components/travel/HotelSearchClient";
 import "../travel-home.css";
 
 export const dynamic = "force-dynamic";
@@ -13,10 +13,12 @@ export default async function Page() {
       <p className="mt-8 font-bold tracking-[.2em] text-[#efbbff]">LATEST COGIC HOUSING AVAILABILITY</p>
       <h1 className="mt-3 text-5xl font-black">Official COGIC Hotels</h1>
       <p className="mt-4 max-w-3xl text-xl leading-8 text-white/70">
-        These are the remaining available hotels in the current official 118th Holy Convocation housing listing.
-        Availability is manually published by COGIC and may change.
+        Expedia-style split view: scroll hotel cards on the left while the live Leaflet map on the right stays
+        sticky. Pins use real <code>latitude</code>/<code>longitude</code> from official inventory and marketplace
+        search. Pan or zoom to pass <code>northEast</code>/<code>southWest</code> bounds into search and re-rank
+        the sidebar instantly.
       </p>
-      <OfficialHotelsClient hotels={hotels} />
+      <HotelSearchClient hotels={hotels} />
       <section className="mt-12 rounded-3xl border border-[#e4b938]/30 bg-[#e4b938]/10 p-6">
         <h2 className="text-2xl font-bold">Need Housing Help?</h2>
         <p className="mt-2 text-lg">

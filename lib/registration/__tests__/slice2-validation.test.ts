@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";import test from "node:test";import {ageOn,normalizeInterpretation,validateAddress,validateJunior,validateSignature} from "../slice2-validation.ts";
+import assert from "node:assert/strict";import test from "node:test";import {ageOn,normalizeInterpretation,validateAddress,validateJunior,validateSignature} from "../slice2-validation";
 test("junior age is server-calculable for ages 5 through 17",()=>{assert.equal(ageOn("2010-11-03","2026-11-03"),16);assert.equal(validateJunior("2010-11-03","2026-11-03","guardian"),null);assert.match(validateJunior("2022-01-01","2026-11-03","guardian")!,/5 through 17/);});
 test("junior requires a guardian",()=>assert.match(validateJunior("2010-01-01","2026-11-03",null)!,/guardian/));
 test("international address validation is country-aware",()=>{assert.match(validateAddress({countryCode:"US",state:"",city:"Memphis",postalCode:"38103"})!,/State/);assert.equal(validateAddress({countryCode:"GB",state:"",city:"London",postalCode:"SW1A"}),null);});

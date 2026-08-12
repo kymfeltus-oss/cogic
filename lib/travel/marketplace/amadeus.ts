@@ -93,6 +93,13 @@ export async function searchAmadeusHotels(input: {
 
   return (offers?.data || []).slice(0, 40).map((row: any): MarketplaceHotelOffer => {
     const offer = row?.offers?.[0];
+    const bookToken = offer?.id ? String(offer.id) : null;
+    const latitude = Number(
+      row?.hotel?.latitude ?? row?.hotel?.geoCode?.latitude ?? NaN,
+    );
+    const longitude = Number(
+      row?.hotel?.longitude ?? row?.hotel?.geoCode?.longitude ?? NaN,
+    );
     return {
       id: String(offer?.id || row?.hotel?.hotelId),
       provider: "amadeus",
@@ -102,13 +109,19 @@ export async function searchAmadeusHotels(input: {
       state: row?.hotel?.address?.stateCode || null,
       country: row?.hotel?.address?.countryCode || "US",
       starRating: Number(row?.hotel?.rating || NaN) || null,
+      latitude: Number.isFinite(latitude) ? latitude : null,
+      longitude: Number.isFinite(longitude) ? longitude : null,
       nightlyRateCents: null,
       totalRateCents: moneyToCents(offer?.price?.total),
+      taxAmountCents: moneyToCents(offer?.price?.taxes?.[0]?.amount || offer?.price?.tax),
       currency: String(offer?.price?.currency || "USD"),
       roomName: offer?.room?.description?.text || offer?.room?.typeEstimated?.category || null,
       cancelPolicy: offer?.policies?.cancellation?.description?.text || null,
       bookingUrl: null,
       imageUrl: null,
+      propertyId: row?.hotel?.hotelId ? String(row.hotel.hotelId) : null,
+      bookToken,
+      bedGroupId: null,
     };
   });
 }
@@ -149,8 +162,10 @@ export async function searchAmadeusFlights(input: {
       cabin: offer?.travelerPricings?.[0]?.fareDetailsBySegment?.[0]?.cabin || input.cabin || null,
       stops: Math.max(0, (itinerary?.segments?.length || 1) - 1),
       totalFareCents: moneyToCents(offer?.price?.grandTotal || offer?.price?.total),
+      taxAmountCents: moneyToCents(offer?.price?.taxes?.[0]?.amount || null),
       currency: String(offer?.price?.currency || "USD"),
       bookingUrl: null,
+      bookToken: String(offer.id),
     };
   });
 }
@@ -169,18 +184,23 @@ export async function searchAmadeusCars(input: {
     passengers: "1",
   });
 
-  return (body?.data || []).slice(0, 40).map((row: any, index: number): MarketplaceCarOffer => ({
-    id: String(row?.id || `amadeus-car-${index}`),
-    provider: "amadeus",
-    company: row?.serviceProvider?.name || row?.vendor?.name || null,
-    vehicleName: row?.vehicle?.description || row?.vehicle?.code || null,
-    vehicleClass: row?.vehicle?.category || null,
-    pickupLocation: input.pickupLocation,
-    dropoffLocation: input.dropoffLocation || input.pickupLocation,
-    pickupAt: input.pickupAt,
-    dropoffAt: input.dropoffAt,
-    totalRateCents: moneyToCents(row?.quotation?.monetaryAmount || row?.price?.total),
-    currency: String(row?.quotation?.currencyCode || row?.price?.currency || "USD"),
-    bookingUrl: null,
-  }));
+  return (body?.data || []).slice(0, 40).map((row: any, index: number): MarketplaceCarOffer => {
+    const bookToken = String(row?.id || `amadeus-car-${index}`);
+    return {
+      id: bookToken,
+      provider: "amadeus",
+      company: row?.serviceProvider?.name || row?.vendor?.name || null,
+      vehicleName: row?.vehicle?.description || row?.vehicle?.code || null,
+      vehicleClass: row?.vehicle?.category || null,
+      pickupLocation: input.pickupLocation,
+      dropoffLocation: input.dropoffLocation || input.pickupLocation,
+      pickupAt: input.pickupAt,
+      dropoffAt: input.dropoffAt,
+      totalRateCents: moneyToCents(row?.quotation?.monetaryAmount || row?.price?.total),
+      taxAmountCents: null,
+      currency: String(row?.quotation?.currencyCode || row?.price?.currency || "USD"),
+      bookingUrl: null,
+      bookToken,
+    };
+  });
 }

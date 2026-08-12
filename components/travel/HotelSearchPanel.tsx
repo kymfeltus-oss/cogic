@@ -1,8 +1,7 @@
 "use client";
 
 import { Headphones, Mail, Phone, ShieldCheck } from "lucide-react";
-import OfficialHotelsClient from "@/components/travel/OfficialHotelsClient";
-import MarketplaceHotelSearch from "@/components/travel/MarketplaceHotelSearch";
+import HotelSearchClient from "@/components/travel/HotelSearchClient";
 import type { TravelHotel } from "@/lib/travel/types";
 
 export default function HotelSearchPanel({ hotels }: { hotels: TravelHotel[] }) {
@@ -10,13 +9,13 @@ export default function HotelSearchPanel({ hotels }: { hotels: TravelHotel[] }) 
     <div className="ct-tab-panel-inner">
       <div className="ct-section-head">
         <div>
-          <h2>Official COGIC Hotels</h2>
+          <h2>Official COGIC Hotels &amp; US Marketplace</h2>
           <p>
-            <ShieldCheck aria-hidden="true" /> Negotiated rates. Preferred locations. Support the mission.
+            <ShieldCheck aria-hidden="true" /> Negotiated rates, live partner inventory, and a synchronized map.
           </p>
         </div>
       </div>
-      <OfficialHotelsClient hotels={hotels} />
+      <HotelSearchClient hotels={hotels} />
       <section className="ct-housing-help">
         <span className="ct-housing-help__icon" aria-hidden="true">
           <Headphones />
@@ -34,8 +33,6 @@ export default function HotelSearchPanel({ hotels }: { hotels: TravelHotel[] }) 
           </a>
         </div>
       </section>
-
-      <MarketplaceHotelSearch />
     </div>
   );
 }

@@ -6,6 +6,11 @@ import { useEffect } from "react";
 
 import RegistrationCheckoutButton from "@/components/registration/RegistrationCheckoutButton";
 import {
+  canShowRegistrationCheckoutResume,
+  deriveRegistrationCheckoutResumeMode,
+  registrationCheckoutResumeCopy,
+} from "@/lib/registration/checkout-resume";
+import {
   formatRegistrationAmount,
   getGroupTotalCents,
   getPrimaryRegistrant,
@@ -49,6 +54,14 @@ export default function RegistrationGroupStatus({
   const totalCents = getGroupTotalCents(group);
   const isConfirmed = group?.status === "confirmed";
   const isProcessing = group?.status === "payment_pending";
+  const checkoutResumeMode = deriveRegistrationCheckoutResumeMode({
+    groupStatus: group?.status,
+    paymentStatus: experience.paymentStatus,
+    paymentComplete,
+  });
+  const checkoutResumeCopy = registrationCheckoutResumeCopy(checkoutResumeMode);
+  const showCheckoutResume = canShowRegistrationCheckoutResume(checkoutResumeMode);
+  const isWebhookProcessing = checkoutResumeMode === "webhook_processing";
 
   useEffect(() => {
     if (!isProcessing || isConfirmed) {
@@ -88,8 +101,8 @@ export default function RegistrationGroupStatus({
           Checkout was canceled. Your registration is still saved and ready when you are.
         </p>
       ) : null}
-      {isProcessing ? (
-        <p className="registration-lead">
+      {isWebhookProcessing ? (
+        <p className="registration-lead" role="status">
           We are waiting for Stripe&apos;s secure payment confirmation. This page refreshes automatically.
         </p>
       ) : null}
@@ -157,15 +170,30 @@ export default function RegistrationGroupStatus({
       {group.status === "submitted" ? (
         <div className="registration-actions">
           <RegistrationCheckoutButton label={`Pay ${formatRegistrationAmount(totalCents, primary.currency ?? "usd")}`} />
+          {checkoutResumeCopy ? <p className="registration-lead">{checkoutResumeCopy}</p> : null}
           <Link href="/register" className="registration-btn registration-btn-secondary">
             Back to registration
           </Link>
         </div>
       ) : null}
 
-      {isProcessing ? (
+      {isProcessing && showCheckoutResume ? (
         <div className="registration-actions">
-          <RegistrationCheckoutButton label="Resume payment" />
+          <RegistrationCheckoutButton label="Resume secure payment" />
+          {checkoutResumeCopy ? <p className="registration-lead">{checkoutResumeCopy}</p> : null}
+          <button type="button" className="registration-btn registration-btn-secondary" onClick={() => router.refresh()}>
+            Check payment status
+          </button>
+        </div>
+      ) : null}
+
+      {isWebhookProcessing ? (
+        <div className="registration-actions">
+          {checkoutResumeCopy ? (
+            <p className="registration-lead" role="status">
+              {checkoutResumeCopy}
+            </p>
+          ) : null}
           <button type="button" className="registration-btn registration-btn-secondary" onClick={() => router.refresh()}>
             Check payment status
           </button>

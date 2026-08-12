@@ -38,6 +38,46 @@ export type MyRegistrationStateInput = {
   hasTravelActivity: boolean;
 };
 
+export type RegistrationProgressInput = Pick<
+  MyRegistrationStateInput,
+  | "status"
+  | "hasProduct"
+  | "missingProfileFields"
+  | "groupMemberCount"
+  | "juniorMissingDob"
+  | "policyAccepted"
+  | "remainingBalanceCents"
+  | "housingPreference"
+> & {
+  requiredProfileFieldCount: number;
+};
+
+/**
+ * Completion of the seven persisted registration stages. Profile completion is
+ * proportional to its required fields; every other stage is backed by saved
+ * registration, policy, housing, submission, or payment state.
+ */
+export function calculateRegistrationProgress(input: RegistrationProgressInput) {
+  if (input.status === "none") return 0;
+
+  const requiredFields = Math.max(input.requiredProfileFieldCount, 1);
+  const completedFields = Math.max(0, requiredFields - input.missingProfileFields.length);
+  const profileStage = completedFields / requiredFields;
+  const groupStage = input.groupMemberCount > 0 && !input.juniorMissingDob ? 1 : 0;
+  const submitted = ["submitted", "payment_pending", "confirmed"].includes(input.status);
+  const paymentComplete = input.status === "confirmed" && input.remainingBalanceCents === 0;
+  const completedStages =
+    profileStage +
+    Number(input.hasProduct) +
+    groupStage +
+    Number(input.policyAccepted) +
+    Number(Boolean(input.housingPreference)) +
+    Number(submitted) +
+    Number(paymentComplete);
+
+  return Math.max(0, Math.min(100, Math.round((completedStages / 7) * 100)));
+}
+
 const JOURNEY: MyRegistrationJourneyStepId[] = [
   "draft",
   "submitted",
@@ -126,7 +166,7 @@ export function buildRegistrationNextActions(
     return [
       {
         id: "register",
-        label: "Register for Holy Convocation",
+        label: "Begin Registration",
         href: "/register",
         priority: 1,
         reason: "No registration exists for this program.",

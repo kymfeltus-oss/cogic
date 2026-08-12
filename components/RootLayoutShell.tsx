@@ -22,16 +22,29 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
   const isMyRegistration =
     pathname === "/my-convocation/registration" ||
     pathname.startsWith("/my-convocation/registration/");
+  const isRegisterFlow = pathname === "/register" || pathname.startsWith("/register/");
+  const isGiving =
+    pathname === "/giving" || pathname.startsWith("/giving/");
   const isTravelShell =
     pathname === "/travel" || pathname.startsWith("/travel/");
+  const isIntro = pathname === "/intro" || pathname.startsWith("/intro/");
   const isArtboardTab = isMobileArtboardTabRoute(pathname);
   const isFullHeightArtboard = isFullHeightArtboardRoute(pathname);
   const useFlexViewportShell = isArtboardTab || isFullHeightArtboard;
   // Dashboards / travel mount their own mobile chrome — no shared attendee nav.
-  // My Registration keeps the dock, but uses a solid scrolling page (no fixed backdrop).
-  const hasSharedNavigation = !hideNav && !isCogicDashboard && !isTravelShell;
-  const useSolidScrollingSurface = isCogicDashboard || isTravelShell || isMyRegistration;
+  // Registration + Giving keep the dock, but drop the shared logo topbar.
+  const hasSharedDock = !hideNav && !isCogicDashboard && !isTravelShell;
+  const hasSharedTopBar =
+    hasSharedDock && !isMyRegistration && !isRegisterFlow && !isGiving;
+  const useSolidScrollingSurface =
+    isCogicDashboard ||
+    isTravelShell ||
+    isMyRegistration ||
+    isRegisterFlow ||
+    isGiving;
   const atmosphereVariant = brandVariantFromPath(pathname);
+  // Full-bleed intro owns the first paint — skip global watermark so it cannot steal LCP.
+  const showBrandBackdrop = !useSolidScrollingSurface && !isIntro;
 
   if (isCredentialRoute) {
     return (
@@ -49,16 +62,16 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
         useSolidScrollingSurface ? "bg-[#07040f]" : "bg-transparent",
       )}
     >
-      {!useSolidScrollingSurface && <BrandBackdrop variant={atmosphereVariant} />}
-      {hasSharedNavigation && <AttendeeSharedTopBar />}
-      {hasSharedNavigation && <BottomNavigation />}
+      {showBrandBackdrop && <BrandBackdrop variant={atmosphereVariant} />}
+      {hasSharedTopBar && <AttendeeSharedTopBar />}
+      {hasSharedDock && <BottomNavigation />}
       <div
         className={cn(
           "relative z-[1] w-full",
           useFlexViewportShell
             ? "flex h-dvh max-h-dvh min-h-0 flex-col overflow-hidden"
             : "min-h-dvh",
-          hasSharedNavigation && "cl-global-stage",
+          hasSharedDock && "cl-global-stage",
           !hideNav &&
             !isExperienceDashboard &&
             !isCogicDashboard &&

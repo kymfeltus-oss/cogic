@@ -15,7 +15,7 @@ export default function BrandWatermark({
         alt=""
         width={720}
         height={720}
-        priority={false}
+        loading="eager"
       />
     </div>
   );

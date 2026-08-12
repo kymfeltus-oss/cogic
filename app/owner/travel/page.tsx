@@ -9,12 +9,13 @@ export default function OwnerTravelPage() {
       <div className="mx-auto grid max-w-[112rem] gap-3 xl:grid-cols-[12rem_1fr]">
         <OwnerProductionSideMenu active="travel" />
         <div>
-          <h1 className="text-3xl font-bold">COGIC Travel</h1>
+          <h1 className="text-3xl font-bold">COGIC Travel Operations</h1>
           <p className="mt-2 text-white/60">
-            Manage official COGIC hotel availability, attendee reservations, Getting Around
-            guidance, and marketplace provider status. US-wide hotel/flight/car search stays
-            unavailable until Expedia Rapid and/or Duffel (or Enterprise Amadeus) credentials
-            are configured on the server.
+            Live Transactional Ledger over <code>travel_marketplace_booking_attempts</code> and{" "}
+            <code>travel_booking_transactions</code>. Supplier webhooks at{" "}
+            <code>/api/travel/webhooks/supplier</code> validate/decrypt partner payloads, write{" "}
+            <code>travel_booking_transaction_events</code>, and update My Trip. Row actions: partner
+            status sync, Stripe reversal, and override comments.
           </p>
           <TravelManagementClient />
         </div>

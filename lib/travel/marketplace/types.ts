@@ -16,13 +16,22 @@ export type MarketplaceHotelOffer = {
   state: string | null;
   country: string | null;
   starRating: number | null;
+  /** WGS84 from live provider payload when present; never invented. */
+  latitude: number | null;
+  longitude: number | null;
   nightlyRateCents: number | null;
   totalRateCents: number | null;
+  taxAmountCents: number | null;
   currency: string;
   roomName: string | null;
   cancelPolicy: string | null;
   bookingUrl: string | null;
   imageUrl: string | null;
+  /** Expedia Rapid property id (or provider property key). */
+  propertyId: string | null;
+  /** Bookable room/rate package token from the live provider. */
+  bookToken: string | null;
+  bedGroupId: string | null;
 };
 
 export type MarketplaceFlightOffer = {
@@ -37,8 +46,11 @@ export type MarketplaceFlightOffer = {
   cabin: string | null;
   stops: number;
   totalFareCents: number | null;
+  taxAmountCents: number | null;
   currency: string;
   bookingUrl: string | null;
+  /** Duffel offer id / Amadeus offer id used for order create. */
+  bookToken: string | null;
 };
 
 export type MarketplaceCarOffer = {
@@ -52,8 +64,10 @@ export type MarketplaceCarOffer = {
   pickupAt: string | null;
   dropoffAt: string | null;
   totalRateCents: number | null;
+  taxAmountCents: number | null;
   currency: string;
   bookingUrl: string | null;
+  bookToken: string | null;
 };
 
 export type MarketplaceSearchResponse<T> = {

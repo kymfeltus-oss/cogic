@@ -19,7 +19,7 @@ test("My Sanctuary reuses the real attendee dashboard loader and universal portr
   assert.match(page, /dashboardPath="\/my-sanctuary"/);
   assert.match(page, /DashboardLoading/);
   assert.match(shell, /AttendeeDashboardHome/);
-  assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png"/);
+  assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png(?:\?[^"]*)?"/);
   assert.doesNotMatch(shell, /bishops-hc-2026-final\.png/);
   assert.doesNotMatch(shell, /<video|mobile_dashboard\.mp4/);
   assert.doesNotMatch(shell, /DesktopDashboardHome|MobileDashboardHome|useDesktopDashboard/);
@@ -27,7 +27,7 @@ test("My Sanctuary reuses the real attendee dashboard loader and universal portr
   assert.match(home, /DashboardLiveStage/);
   assert.match(home, /DASHBOARD_UTILITIES/);
   assert.match(home, /StayConnectedPrompt/);
-  assert.match(home, /MyConvocationCard/);
+  assert.doesNotMatch(home, /MyConvocationCard/);
 });
 
 test("My Sanctuary uses the integrated portrait artwork and controls-only dashboard layer", async () => {
@@ -37,7 +37,7 @@ test("My Sanctuary uses the integrated portrait artwork and controls-only dashbo
     source("components/dashboard/DashboardTopBar.tsx"),
   ]);
   assert.doesNotMatch(page, /banner\.png|MySanctuaryHero/);
-  assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png"/);
+  assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png(?:\?[^"]*)?"/);
   assert.doesNotMatch(shell, /bishops-hc-2026-final\.png/);
   assert.match(topBar, /cl-dashboard-controls/);
   assert.doesNotMatch(topBar, /<video|header\.mp4|cogic-live-logo-purple\.png|cogic-phrase\.png|DashboardSearch/);
@@ -63,7 +63,7 @@ test("attendee universal utilities use approved feature suite presentation", asy
     source("components/dashboard/MyConvocationCard.tsx"),
   ]);
   assert.match(home, /cl-dashboard-feature-suite/);
-  assert.match(home, /MyConvocationCard/);
+  assert.doesNotMatch(home, /MyConvocationCard/);
   assert.doesNotMatch(home, /cl-action-grid--features|cl-desktop-utilities|GivingCard|AnnouncementsCard/);
   assert.match(utilities, /My Registration/);
   assert.match(utilities, /href:\s*"\/my-convocation\/registration"/);

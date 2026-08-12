@@ -4,8 +4,8 @@ import {
   filterPublishedOccurrenceCandidates,
   sortPublishedOccurrences,
   type OccurrenceJoinRow,
-} from "../published-query.ts";
-import type { PublishedOccurrence } from "../types.ts";
+} from "../published-query";
+import type { PublishedOccurrence } from "../types";
 
 function row(partial: {
   id: string;

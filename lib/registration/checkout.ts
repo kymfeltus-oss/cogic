@@ -25,6 +25,7 @@ import {
   rateLimitResponseHeaders,
 } from "@/lib/rate-limit";
 import { redactForLog, safeErrorMessage } from "@/lib/security/redact";
+import { interceptRegistrationCheckout } from "@/lib/registration/sandbox-interceptors";
 
 function formatRegistrationCheckoutError(error: unknown): string {
   if (error instanceof RegistrationError) {
@@ -56,6 +57,11 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
     if (registration.amountCents === null || registration.amountCents <= 0) {
       return { ok: false as const, status: 400, error: "This registration does not require paid checkout." };
     }
+    const appUrl = getAppUrl(request);
+    const sandboxSession = interceptRegistrationCheckout({ registrationId: registration.id, appUrl });
+    if (sandboxSession) {
+      return { ok: true as const, url: sandboxSession.url, withSessionCookies, sandboxSession };
+    }
     const stripeSecretKey = getStripeSecretKey();
 
     if (!stripeSecretKey) {
@@ -67,7 +73,6 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
     }
 
     const stripe = new Stripe(stripeSecretKey);
-    const appUrl = getAppUrl(request);
     const pendingPayment = await getLatestPendingRegistrationPayment(registration.id);
 
     if (pendingPayment?.stripeSessionId) {

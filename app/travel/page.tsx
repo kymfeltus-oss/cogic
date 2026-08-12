@@ -103,10 +103,6 @@ export default async function TravelPage() {
                 Your Convocation journey <em>starts here.</em>
               </p>
             </div>
-
-            <div className="ct-hero__seal" aria-hidden="true">
-              <Image src="/branding/cogic-seal.png" fill sizes="144px" alt="" priority />
-            </div>
           </div>
         </section>
 
@@ -172,6 +168,16 @@ export default async function TravelPage() {
               <div>
                 <strong>My Trip</strong>
                 <small>Save hotel, flight, and transportation details</small>
+              </div>
+              <ChevronRight />
+            </Link>
+            <Link href="/travel/group">
+              <span>
+                <Building2 />
+              </span>
+              <div>
+                <strong>Group Travel (10+)</strong>
+                <small>Church corporate quote requests for Pastors &amp; Overseers</small>
               </div>
               <ChevronRight />
             </Link>

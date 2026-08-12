@@ -6,6 +6,11 @@ import { TRAVEL_PROGRAM_KEY } from "@/lib/travel/types";
 const safeDate = (v: unknown) =>
   /^2026-(10|11)-\d{2}$/.test(String(v ?? "")) ? String(v) : null;
 
+/**
+ * Official COGIC hotels are browse-and-request only until a live housing CRS is connected.
+ * This records interest as a DRAFT journey for My Trip / owner visibility — it does not
+ * create a PaymentIntent, ledger charge, or supplier confirmation.
+ */
 export async function POST(request: Request) {
   const user = await getUserFromSession();
   const body = await request.json().catch(() => null);
@@ -43,8 +48,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Journey stays in Travel: attendee confirms with a real confirmation number on My Trip.
-  const destination = "/travel/trip";
   const { data, error } = await db
     .from("travel_hotel_booking_journeys")
     .insert({
@@ -54,52 +57,44 @@ export async function POST(request: Request) {
       room_type_id: roomTypeId,
       selected_check_in: checkIn,
       selected_check_out: checkOut,
-      redirect_destination: destination,
-      reservation_status: "booking_started",
+      // Stored for My Trip deep-link context only — the API response does not auto-redirect.
+      redirect_destination: "/travel/trip",
+      status: "DRAFT",
     })
     .select("id")
     .single();
 
   if (error) {
     return NextResponse.json(
-      { error: "Unable to start hotel booking journey." },
+      { error: "Unable to save official housing interest." },
       { status: 400 },
     );
   }
 
-  await db.from("travel_analytics_events").insert([
-    {
-      program_key: TRAVEL_PROGRAM_KEY,
-      user_id: user.id,
-      event_name: "hotel_booking_started",
-      properties: {
-        hotel_id: hotelId,
-        room_type_id: roomTypeId,
-        arrival_date: checkIn,
-        departure_date: checkOut,
-        booking_source: "cogic_travel",
-      },
+  await db.from("travel_analytics_events").insert({
+    program_key: TRAVEL_PROGRAM_KEY,
+    user_id: user.id,
+    event_name: "hotel_booking_started",
+    properties: {
+      hotel_id: hotelId,
+      room_type_id: roomTypeId,
+      arrival_date: checkIn,
+      departure_date: checkOut,
+      booking_source: "cogic_travel_interest",
+      mode: "browse_and_request",
     },
-    {
-      program_key: TRAVEL_PROGRAM_KEY,
-      user_id: user.id,
-      event_name: "travel_booking_redirected",
-      properties: {
-        hotel_id: hotelId,
-        room_type_id: roomTypeId,
-        arrival_date: checkIn,
-        departure_date: checkOut,
-        booking_source: "cogic_travel",
-        redirect_to: destination,
-      },
-    },
-  ]);
+  });
 
+  // Stay on the hotel page — UI must not auto-navigate after interest save.
   return NextResponse.json(
     {
       journeyId: data.id,
-      redirectTo: destination,
-      status: "booking_started",
+      status: "DRAFT",
+      mode: "browse_and_request",
+      message:
+        "Housing interest saved. Contact COGIC Housing to complete an official stay — this app does not charge or confirm negotiated housing.",
+      contactEmail: "housing@cogic.org",
+      tripPath: "/travel/trip",
     },
     { status: 201 },
   );

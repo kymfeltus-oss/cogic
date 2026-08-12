@@ -41,7 +41,6 @@ export default function DashboardTopBar({
               aria-label={`Open profile for ${profileLabel}`}
             >
               {avatar}
-              <span className="cl-topbar__name">{profileLabel}</span>
             </button>
           ) : (
             <a
@@ -50,7 +49,6 @@ export default function DashboardTopBar({
               aria-label="Sign in to access your profile"
             >
               {avatar}
-              <span className="cl-topbar__name">{profileLabel}</span>
             </a>
           )}
         </div>

@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const statusParam = new URL(request.url).searchParams.get("status");
   const statuses = statusParam
     ? (statusParam.split(",").filter(Boolean) as MarketplaceAttemptStatus[])
-    : (["booking_started", "pending_confirmation"] as MarketplaceAttemptStatus[]);
+    : (["DRAFT", "PAYMENT_PENDING", "SUPPLIER_SUBMITTED"] as MarketplaceAttemptStatus[]);
 
   try {
     const attempts = await listUserMarketplaceAttempts(user.id, statuses);

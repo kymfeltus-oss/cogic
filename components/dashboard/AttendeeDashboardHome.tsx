@@ -1,7 +1,6 @@
 ﻿import Link from "next/link";
 import { ArrowRight, Building2, Ticket } from "lucide-react";
 import DashboardLiveStage from "@/components/dashboard/DashboardLiveStage";
-import MyConvocationCard from "@/components/dashboard/MyConvocationCard";
 import TodayScheduleCard from "@/components/dashboard/TodayScheduleCard";
 import StayConnectedPrompt from "@/components/notifications/StayConnectedPrompt";
 import { DASHBOARD_UTILITIES } from "@/lib/dashboard/dashboard-utilities";
@@ -80,14 +79,6 @@ export default function AttendeeDashboardHome({
           );
         })}
       </nav>
-
-      {data.registrationError ? (
-        <p className="cl-module-error" role="alert">
-          Unable to load registration. Try again.
-        </p>
-      ) : (
-        <MyConvocationCard registration={data.registration} signedIn={signedIn} />
-      )}
 
       {data.scheduleError ? (
         <p className="cl-module-error" role="alert">

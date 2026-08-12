@@ -2,15 +2,24 @@ import "server-only";
 
 import { getUserFromSession } from "@/lib/auth/session";
 import { loadDashboardHousingSummary } from "@/lib/dashboard/load-dashboard-housing";
+import { loadDashboardTicketsSummary } from "@/lib/dashboard/load-dashboard-tickets";
 import { getRegistrationForUser } from "@/lib/registration/repository";
 import {
-  buildRegistrationBlockers,
   buildRegistrationNextActions,
   maskBadgeCode,
   moneyLabel,
   registrationJourneySteps,
+  type MyRegistrationBlocker,
 } from "@/lib/registration/my-registration-state";
-import { DEFAULT_PROGRAM_KEY, type RegistrationStatus } from "@/lib/registration/types";
+import {
+  evaluateRegistrationRequirements,
+  type RegistrationCompletedRequirement,
+} from "@/lib/registration/registration-requirements";
+import {
+  DEFAULT_PROGRAM_KEY,
+  type RegistrationStatus,
+  type RegistrationStepId,
+} from "@/lib/registration/types";
 import { TRAVEL_PROGRAM_KEY } from "@/lib/travel/types";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
@@ -23,6 +32,10 @@ const REQUIRED_PROFILE = [
   ["city", "City"],
   ["postal_code", "Postal code"],
   ["country_code", "Country"],
+  ["state", "State / Province"],
+  ["church_name", "Church name"],
+  ["pastor_name", "Pastor name"],
+  ["jurisdiction", "Jurisdiction"],
 ] as const;
 
 export type MyRegistrationDashboard = {
@@ -39,6 +52,10 @@ export type MyRegistrationDashboard = {
     | "refunded"
     | "error";
   error: string | null;
+  progress: number;
+  resumeStep: number;
+  resumeStepId: RegistrationStepId | "complete";
+  completedRequirements: RegistrationCompletedRequirement[];
   summary: {
     status: RegistrationStatus | "none";
     productName: string | null;
@@ -60,7 +77,7 @@ export type MyRegistrationDashboard = {
   };
   journey: ReturnType<typeof registrationJourneySteps>;
   nextActions: ReturnType<typeof buildRegistrationNextActions>;
-  blockers: ReturnType<typeof buildRegistrationBlockers>;
+  blockers: MyRegistrationBlocker[];
   profile: Record<string, string | null>;
   editable: boolean;
   members: Array<{
@@ -110,6 +127,11 @@ export type MyRegistrationDashboard = {
     summary: string;
     href: string;
   };
+  addOns: {
+    issuedTicketCount: number;
+    summary: string;
+    href: string;
+  };
   travel: {
     hasActivity: boolean;
     href: string;
@@ -132,6 +154,10 @@ function emptyDashboard(
   return {
     programKey: DEFAULT_PROGRAM_KEY,
     error: null,
+    progress: 0,
+    resumeStep: 1,
+    resumeStepId: "attendee",
+    completedRequirements: [],
     summary: {
       status: "none",
       productName: null,
@@ -193,6 +219,11 @@ function emptyDashboard(
       departure: null,
       summary: "No housing preference submitted.",
       href: "/housing",
+    },
+    addOns: {
+      issuedTicketCount: 0,
+      summary: "No issued event tickets.",
+      href: "/tickets",
     },
     travel: { hasActivity: false, href: "/travel/trip" },
     credentials: [],
@@ -273,6 +304,7 @@ export async function loadMyRegistrationDashboard(
       acceptanceResult,
       publishedPolicyResult,
       housing,
+      tickets,
       travelActive,
     ] = await Promise.all([
       groupId
@@ -300,6 +332,7 @@ export async function loadMyRegistrationDashboard(
         .eq("status", "published")
         .maybeSingle(),
       loadDashboardHousingSummary(sessionUser.id),
+      loadDashboardTicketsSummary(sessionUser.id),
       hasTravelActivity(sessionUser.id),
     ]);
 
@@ -414,10 +447,17 @@ export async function loadMyRegistrationDashboard(
     }).map(([, label]) => label);
 
     // country_code may be absent on older rows — don't block if address exists
-    const filteredMissing = missingProfileFields.filter((label) => {
+    const filteredMissing: string[] = missingProfileFields.filter((label) => {
       if (label !== "Country") return true;
       return !primaryRow.street_address;
     });
+
+    if (
+      primaryRow.requires_interpretation &&
+      !String(primaryRow.preferred_language ?? "").trim()
+    ) {
+      filteredMissing.push("Preferred interpretation language");
+    }
 
     const juniorMissingDob = members.some((m) => m.isJunior && !m.dateOfBirth);
     const credentialReady = members.some(
@@ -446,6 +486,11 @@ export async function loadMyRegistrationDashboard(
       housingStatus: housing.status,
       hasTravelActivity: travelActive,
     };
+    const requirements = evaluateRegistrationRequirements({
+      ...stateInput,
+      requiredProfileFieldCount:
+        REQUIRED_PROFILE.length + (primaryRow.requires_interpretation ? 1 : 0),
+    });
 
     const profile = {
       salutation: (primaryRow.salutation as string | null) ?? null,
@@ -480,6 +525,10 @@ export async function loadMyRegistrationDashboard(
       programKey: DEFAULT_PROGRAM_KEY,
       state: status,
       error: null,
+      progress: requirements.totalCompletionPercent,
+      resumeStep: requirements.resumeStep,
+      resumeStepId: requirements.resumeStepId,
+      completedRequirements: requirements.completedRequirements,
       summary: {
         status,
         productName,
@@ -499,9 +548,9 @@ export async function loadMyRegistrationDashboard(
         housingPreference: housing.preference,
         currency,
       },
-      journey: registrationJourneySteps(status, credentialReady),
-      nextActions: buildRegistrationNextActions(stateInput),
-      blockers: buildRegistrationBlockers(stateInput),
+      journey: requirements.journey,
+      nextActions: requirements.nextActions,
+      blockers: requirements.blockers,
       profile,
       editable: status === "draft",
       members,
@@ -525,6 +574,11 @@ export async function loadMyRegistrationDashboard(
         departure: housing.departure,
         summary: housing.summary,
         href: "/housing",
+      },
+      addOns: {
+        issuedTicketCount: tickets.validCount,
+        summary: tickets.summary,
+        href: "/tickets",
       },
       travel: {
         hasActivity: travelActive,

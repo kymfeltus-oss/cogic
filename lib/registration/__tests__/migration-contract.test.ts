@@ -43,7 +43,7 @@ describe("registrations migration contract (Gate A)", () => {
     assert.match(sql, /normalize_registration_row/);
     assert.match(sql, /invalid registration status transition/);
     assert.match(sql, /may only be inserted with status draft/);
-    assert.match(sql, /confirmed.*refunded/s);
+    assert.match(sql, /confirmed[\s\S]*refunded/);
   });
 
   it("encodes partial unique indexes for active duplicates", () => {

@@ -39,7 +39,7 @@ export default function DashboardShell({
       <div className="cl-dashboard-media" aria-hidden="true">
         <Image
           className="cl-dashboard-media__artwork"
-          src="/my-sanctuary/header-backgroung.png"
+          src="/my-sanctuary/header-backgroung.png?v=20260811-strip-chrome"
           alt=""
           fill
           priority

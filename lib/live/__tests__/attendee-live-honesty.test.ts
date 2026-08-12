@@ -5,12 +5,12 @@ import {
   isKnownAttendeeStreamId,
   mapBroadcastStateToAttendeeStatus,
   shouldDisplayViewerCount,
-} from "../attendee-live-honesty.ts";
+} from "../attendee-live-honesty";
 import {
   applyLiveViewerDisplayBuffer,
   LIVE_VIEWER_DISPLAY_BUFFER,
-} from "../../experience/live-viewer-count.ts";
-import { liveChatStore } from "../../liveChatStore.ts";
+} from "../../experience/live-viewer-count";
+import { liveChatStore } from "../../liveChatStore";
 
 describe("attendee live honesty", () => {
   it("accepts known singleton stream ids only", () => {

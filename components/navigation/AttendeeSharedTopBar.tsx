@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { UserRound } from "lucide-react";
+import "./attendee-shared-topbar.css";
 
 /** Universal attendee top chrome — same mobile header structure as the dashboard. */
 export default function AttendeeSharedTopBar() {

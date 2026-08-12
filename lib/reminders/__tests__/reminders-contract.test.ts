@@ -85,7 +85,7 @@ describe("schedule reminder contracts", () => {
     const sql = read("supabase/migrations/20260806200000_schedule_reminders.sql");
     assert.match(sql, /CREATE TABLE IF NOT EXISTS public\.schedule_reminders/);
     assert.match(sql, /reminder_offset_minutes IN \(0, 15, 30\)/);
-    assert.match(sql, /pending.*processing.*sent.*failed.*canceled/s);
+    assert.match(sql, /pending[\s\S]*processing[\s\S]*sent[\s\S]*failed[\s\S]*canceled/);
     assert.match(sql, /UNIQUE \(user_id, event_occurrence_id\)/);
   });
 

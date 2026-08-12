@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import HousingExperience from "@/components/housing/HousingExperience";
@@ -10,11 +10,26 @@ import {
   getGroupTotalCents,
   getPrimaryRegistrant,
   isJuniorRegistrationProduct,
+  REGISTRATION_WIZARD_STEPS,
   type RegistrationExperience,
   type RegistrationProduct,
+  type RegistrationWizardDestination,
 } from "@/lib/registration/group-experience";
 import { SALUTATIONS } from "@/lib/registration/slice2-validation";
 import type { RegistrantInput } from "@/lib/registration/slice2-repository";
+
+const TOTAL_WIZARD_STEPS = REGISTRATION_WIZARD_STEPS.length;
+
+function wizardStepNumberFromId(stepId: string | undefined, fallbackStep: number): number {
+  if (!stepId) {
+    return Math.min(TOTAL_WIZARD_STEPS, Math.max(1, fallbackStep));
+  }
+  const index = REGISTRATION_WIZARD_STEPS.findIndex((milestone) => milestone.id === stepId);
+  if (index < 0) {
+    return Math.min(TOTAL_WIZARD_STEPS, Math.max(1, fallbackStep));
+  }
+  return index + 1;
+}
 
 type PrimaryForm = Omit<RegistrantInput, "isPrimary"> & {
   id?: string;
@@ -39,17 +54,6 @@ type MemberForm = {
   productId: string;
   dateOfBirth: string;
 };
-
-const STEPS = [
-  "",
-  "Attendee information",
-  "Registration type",
-  "Group / Junior registrants",
-  "Policy agreement",
-  "Housing",
-  "Review",
-  "Payment / Submit",
-];
 
 const BLANK_PRIMARY: PrimaryForm = {
   productId: "",
@@ -152,10 +156,34 @@ async function responseJson<T>(response: Response): Promise<T> {
   return (await response.json().catch(() => ({}))) as T;
 }
 
-export default function RegistrationSlice2Experience({ initial }: { initial: RegistrationExperience }) {
+type RegistrationSlice2ExperienceProps = {
+  initial: RegistrationExperience;
+  /** Server-clamped wizard index (1..TOTAL_WIZARD_STEPS). Intent may come from `?step=` but never from client trust. */
+  initialStep: number;
+  /** Destination id matching REGISTRATION_WIZARD_STEPS (e.g. "attendee"). */
+  activeStepId?: RegistrationWizardDestination | string;
+  /** Server-derived resume index from the evaluator. */
+  resumeStep?: number;
+};
+
+export default function RegistrationSlice2Experience({
+  initial,
+  initialStep,
+  activeStepId,
+  resumeStep,
+}: RegistrationSlice2ExperienceProps) {
   const router = useRouter();
+  const [isDraftPending, startDraftTransition] = useTransition();
   const [data, setData] = useState(initial);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(() => {
+    const resumeFallback = resumeStep ?? initial.requirements.resumeStep;
+    const fromActiveId = wizardStepNumberFromId(activeStepId, resumeFallback);
+    if (activeStepId) {
+      return fromActiveId;
+    }
+    const candidate = Number.isFinite(initialStep) ? initialStep : resumeFallback;
+    return Math.min(TOTAL_WIZARD_STEPS, Math.max(1, candidate));
+  });
   const [form, setForm] = useState(() => primaryFormFromExperience(initial));
   const [member, setMember] = useState<MemberForm>(BLANK_MEMBER);
   const [error, setError] = useState("");
@@ -169,6 +197,23 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
     () => eligibleProducts(data.products, member.relationship),
     [data.products, member.relationship],
   );
+  const currentMilestone = REGISTRATION_WIZARD_STEPS[step - 1] ?? REGISTRATION_WIZARD_STEPS[0];
+  const stepDisplayNumber = wizardStepNumberFromId(currentMilestone.id, step);
+
+  function applyExperience(experience: RegistrationExperience) {
+    setData(experience);
+    setForm(primaryFormFromExperience(experience));
+  }
+
+  function navigateStep(nextStep: number, experience = data) {
+    const allowed = new Set(
+      experience.requirements.allowedStepDestinations.map(({ step: allowedStep }) => allowedStep),
+    );
+    const clamped = allowed.has(nextStep) ? nextStep : experience.requirements.resumeStep;
+    const safeStep = Math.min(TOTAL_WIZARD_STEPS, Math.max(1, clamped));
+    setStep(safeStep);
+    router.replace(`/register?step=${REGISTRATION_WIZARD_STEPS[safeStep - 1].id}`, { scroll: false });
+  }
 
   async function reload(): Promise<RegistrationExperience> {
     const response = await fetch("/api/registration/experience", { cache: "no-store" });
@@ -176,7 +221,7 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
     if (!response.ok) {
       throw new Error(refreshed.error ?? "Unable to refresh registration.");
     }
-    setData(refreshed);
+    applyExperience(refreshed);
     return refreshed;
   }
 
@@ -197,8 +242,8 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
     setBusy(true);
     setError("");
     try {
-      await request({ action: "save_registrant", registrant });
-      await reload();
+      const result = await request<{ experience: RegistrationExperience }>({ action: "save_registrant", registrant });
+      applyExperience(result.experience);
       return true;
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "Unable to save registration.");
@@ -223,15 +268,63 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
       setError(message);
       return;
     }
-    setError("");
-    setStep(2);
+
+    // Step 1 persists identity immediately (product remains null until step 2).
+    startDraftTransition(() => {
+      void (async () => {
+        setError("");
+        try {
+          const result = await request<{ experience: RegistrationExperience }>({
+            action: "save_primary_draft",
+            draft: {
+              salutation: form.salutation,
+              firstName: form.firstName,
+              lastName: form.lastName,
+              suffix: form.suffix,
+              email: form.email,
+              mobilePhone: form.mobilePhone,
+              assistantEmail: form.assistantEmail,
+              streetAddress: form.streetAddress,
+              addressLine2: form.addressLine2,
+              city: form.city,
+              state: form.state,
+              postalCode: form.postalCode,
+              countryCode: form.countryCode,
+              gender: form.gender,
+              requiresInterpretation: form.requiresInterpretation,
+              preferredLanguage: form.preferredLanguage,
+              churchName: form.churchName,
+              pastorName: form.pastorName,
+              jurisdiction: form.jurisdiction,
+              draftLastStep: "product",
+            },
+            versions: {
+              groupVersion: data.group?.row_version ?? null,
+              registrationVersion: getPrimaryRegistrant(data.group)?.row_version ?? null,
+            },
+          });
+          applyExperience(result.experience);
+          // Prefer server evaluator resume; fall back to product step.
+          const nextStep =
+            result.experience.requirements.resumeStep > 1
+              ? result.experience.requirements.resumeStep
+              : 2;
+          navigateStep(nextStep, result.experience);
+          router.refresh();
+        } catch (saveError) {
+          setError(
+            saveError instanceof Error ? saveError.message : "Unable to save attendee information.",
+          );
+        }
+      })();
+    });
   }
 
   async function savePrimaryAndContinue() {
     const message = requiredPrimaryMessage(form);
     if (message) {
       setError(message);
-      setStep(1);
+      navigateStep(1);
       return;
     }
     if (!form.productId) {
@@ -240,7 +333,8 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
     }
     const saved = await saveRegistrant({ ...form, isPrimary: true });
     if (saved) {
-      setStep(3);
+      const refreshed = await reload();
+      navigateStep(3, refreshed);
     }
   }
 
@@ -295,13 +389,14 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
     setBusy(true);
     setError("");
     try {
-      await request({
+      const result = await request<{ experience: RegistrationExperience }>({
         action: "accept_policy",
         policyId: data.policy.id,
         authorizedSignerName: values.get("authorized"),
         agreementSignerName: values.get("agreement"),
       });
-      setStep(5);
+      applyExperience(result.experience);
+      navigateStep(5, result.experience);
     } catch (acceptanceError) {
       setError(acceptanceError instanceof Error ? acceptanceError.message : "Unable to accept policy.");
     } finally {
@@ -326,9 +421,11 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
     <section className="registration-shell" aria-labelledby="registration-title">
       <p className="registration-kicker">Holy Convocation registration</p>
       <h1 id="registration-title" className="registration-title">
-        {STEPS[step]}
+        {currentMilestone.label}
       </h1>
-      <p className="registration-progress">Step {step} of 8</p>
+      <p className="registration-progress">
+        Step {stepDisplayNumber} of {TOTAL_WIZARD_STEPS}
+      </p>
       {error ? (
         <p role="alert" className="registration-error-summary">
           {error}
@@ -366,7 +463,13 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
           <label className="registration-field"><span className="registration-label">Jurisdiction</span><input required className="registration-input" value={form.jurisdiction} onChange={(event) => updatePrimary("jurisdiction", event.target.value)} /></label>
           <label className="flex items-center gap-2"><input type="checkbox" checked={form.requiresInterpretation} onChange={(event) => updatePrimary("requiresInterpretation", event.target.checked)} />I require language interpretation</label>
           {form.requiresInterpretation ? <label className="registration-field"><span className="registration-label">Preferred interpretation language</span><input required className="registration-input" value={form.preferredLanguage ?? ""} onChange={(event) => updatePrimary("preferredLanguage", event.target.value)} /></label> : null}
-          <button type="submit" className="registration-btn registration-btn-primary">Continue</button>
+          <button
+            type="submit"
+            disabled={isDraftPending}
+            className="registration-btn registration-btn-primary"
+          >
+            {isDraftPending ? "Saving draft…" : "Continue to registration type"}
+          </button>
         </form>
       ) : null}
 
@@ -384,7 +487,7 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
             )) : <p>No public primary-attendee registration products are currently available.</p>}
           </div>
           <div className="registration-actions">
-            <button type="button" className="registration-btn registration-btn-secondary" onClick={() => setStep(1)}>Back</button>
+            <button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(1)}>Back</button>
             <button type="button" disabled={!form.productId || busy} className="registration-btn registration-btn-primary" onClick={() => void savePrimaryAndContinue()}>Save and continue</button>
           </div>
         </div>
@@ -409,15 +512,15 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
             {!memberProducts.length ? <p className="registration-field-error">No registration products are currently available for this relationship.</p> : null}
             <button disabled={busy || !memberProducts.length} className="registration-btn registration-btn-secondary">{member.id ? "Update registrant" : "Add registrant"}</button>
           </form>
-          <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => setStep(2)}>Back</button><button type="button" className="registration-btn registration-btn-primary" onClick={() => setStep(4)}>Continue</button></div>
+          <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(2)}>Back</button><button type="button" className="registration-btn registration-btn-primary" onClick={() => navigateStep(4)}>Continue</button></div>
         </div>
       ) : null}
 
       {step === 4 ? (
-        data.policy ? <form onSubmit={acceptPolicy} className="grid gap-4"><RegistrationPolicyDocument className="max-h-80 overflow-auto rounded border border-yellow-500/30 p-4" title={data.policy.title} version={data.policy.version} content={data.policy.content} effectiveAt={data.policy.effective_at} /><label className="registration-field"><span className="registration-label">Authorized/responsible person full name</span><input required name="authorized" className="registration-input" /></label><label className="registration-field"><span className="registration-label">Agreement full name</span><input required name="agreement" className="registration-input" /></label><div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => setStep(3)}>Back</button><button disabled={busy} className="registration-btn registration-btn-primary">Accept policy</button></div></form> : <div><p>No published registration policy is available. Submission is disabled until an owner publishes the current policy.</p><button type="button" className="registration-btn registration-btn-secondary" onClick={() => setStep(3)}>Back</button></div>
+        data.policy ? <form onSubmit={acceptPolicy} className="grid gap-4"><RegistrationPolicyDocument className="max-h-80 overflow-auto rounded border border-yellow-500/30 p-4" title={data.policy.title} version={data.policy.version} content={data.policy.content} effectiveAt={data.policy.effective_at} /><label className="registration-field"><span className="registration-label">Authorized/responsible person full name</span><input required name="authorized" className="registration-input" /></label><label className="registration-field"><span className="registration-label">Agreement full name</span><input required name="agreement" className="registration-input" /></label><div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(3)}>Back</button><button disabled={busy} className="registration-btn registration-btn-primary">Accept policy</button></div></form> : <div><p>No published registration policy is available. Submission is disabled until an owner publishes the current policy.</p><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(3)}>Back</button></div>
       ) : null}
 
-      {step === 5 ? <HousingExperience onComplete={() => setStep(6)} /> : null}
+      {step === 5 ? <HousingExperience onComplete={() => void reload().then((refreshed) => navigateStep(6, refreshed)).catch((cause) => setError(cause instanceof Error ? cause.message : "Unable to refresh housing status."))} /> : null}
 
       {step === 6 ? (
         <div>
@@ -428,11 +531,11 @@ export default function RegistrationSlice2Experience({ initial }: { initial: Reg
             <div><dt>Registration total due</dt><dd>{formatRegistrationAmount(totalCents, primary?.currency ?? "usd")}</dd></div>
           </dl>
           <p>Housing deposits are separate from registration payment and are never included in this total.</p>
-          <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => setStep(5)}>Back</button><button type="button" className="registration-btn registration-btn-primary" onClick={() => setStep(7)}>Proceed</button></div>
+          <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(5)}>Back</button><button type="button" className="registration-btn registration-btn-primary" onClick={() => navigateStep(7)}>Proceed</button></div>
         </div>
       ) : null}
 
-      {step === 7 ? <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => setStep(6)}>Back</button><button disabled={busy} type="button" className="registration-btn registration-btn-primary" onClick={() => void submitGroup()}>{totalCents > 0 ? `Submit and pay ${formatRegistrationAmount(totalCents, primary?.currency ?? "usd")}` : "Complete free registration"}</button></div> : null}
+      {step === 7 ? <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(6)}>Back</button><button disabled={busy} type="button" className="registration-btn registration-btn-primary" onClick={() => void submitGroup()}>{totalCents > 0 ? `Submit and pay ${formatRegistrationAmount(totalCents, primary?.currency ?? "usd")}` : "Complete free registration"}</button></div> : null}
     </section>
   );
 }

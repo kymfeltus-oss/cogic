@@ -1,4 +1,92 @@
-import{NextResponse}from"next/server";import{getUserFromSession}from"@/lib/auth/session";import{getSupabaseAdmin}from"@/lib/supabase/server";import{TRAVEL_PROGRAM_KEY}from"@/lib/travel/types";import{userHotelState}from"@/lib/travel/reservations";const text=(v:unknown,n=500)=>String(v??"").trim().slice(0,n)||null;const date=(v:unknown)=>/^\d{4}-\d{2}-\d{2}$/.test(String(v??""))?String(v):null;
-export async function GET(){const u=await getUserFromSession();if(!u?.id)return NextResponse.json({error:"Sign in required."},{status:401});return NextResponse.json(await userHotelState(u.id),{headers:{"Cache-Control":"private, no-store"}})}
-export async function POST(r:Request){const u=await getUserFromSession();if(!u?.id)return NextResponse.json({error:"Sign in required."},{status:401});const b=await r.json().catch(()=>null),db=getSupabaseAdmin(),hotelId=text(b?.hotelId,64),checkIn=date(b?.checkIn),checkOut=date(b?.checkOut),confirmation=text(b?.confirmationNumber,120),hotelName=text(b?.hotelName,200),roomType=text(b?.roomType,120);if(!hotelName||!roomType||!checkIn||!checkOut||!confirmation||checkOut<=checkIn)return NextResponse.json({error:"Hotel, room type, dates, and actual confirmation number are required."},{status:400});let verifiedName=hotelName;if(hotelId){const{data:h}=await db.from("travel_hotels").select("name").eq("id",hotelId).eq("program_key",TRAVEL_PROGRAM_KEY).maybeSingle();if(h)verifiedName=h.name}const{count}=await db.from("travel_hotel_reservations").select("id",{count:"exact",head:true}).eq("user_id",u.id).eq("program_key",TRAVEL_PROGRAM_KEY).eq("reservation_status","confirmed");const payload={program_key:TRAVEL_PROGRAM_KEY,user_id:u.id,journey_id:text(b?.journeyId,64),hotel_id:hotelId,room_type_id:text(b?.roomTypeId,64),hotel_name_snapshot:verifiedName,room_type:roomType,check_in:checkIn,check_out:checkOut,confirmation_number:confirmation,guest_count:b?.guestCount?Number(b.guestCount):null,nightly_rate_cents:b?.nightlyRate?Math.round(Number(b.nightlyRate)*100):null,notes:text(b?.notes),booking_source:"attendee_manual",reservation_status:"confirmed",primary_stay:(count??0)===0,confirmed_at:new Date().toISOString()};const{data,error}=await db.from("travel_hotel_reservations").insert(payload).select("id").single();if(error)return NextResponse.json({error:error.message},{status:400});if(payload.journey_id)await db.from("travel_hotel_booking_journeys").update({reservation_status:"confirmed",updated_at:new Date().toISOString()}).eq("id",payload.journey_id).eq("user_id",u.id);await db.from("travel_hotel_reservation_audit").insert({reservation_id:data.id,actor_user_id:u.id,action:"attendee_confirmation_added",details:{booking_source:"attendee_manual"}});await db.from("travel_analytics_events").insert([{program_key:TRAVEL_PROGRAM_KEY,user_id:u.id,event_name:"hotel_reservation_added",properties:{hotel_id:hotelId,room_type:roomType,arrival_date:checkIn,departure_date:checkOut,booking_source:"attendee_manual"}},{program_key:TRAVEL_PROGRAM_KEY,user_id:u.id,event_name:"hotel_reservation_confirmed",properties:{hotel_id:hotelId,room_type:roomType,arrival_date:checkIn,departure_date:checkOut,booking_source:"attendee_manual"}}]);return NextResponse.json({id:data.id,status:"confirmed"},{status:201})}
-export async function PATCH(r:Request){const u=await getUserFromSession();if(!u?.id)return NextResponse.json({error:"Sign in required."},{status:401});const b=await r.json().catch(()=>null),id=text(b?.id,64),action=String(b?.action??""),db=getSupabaseAdmin();if(action==="cancel"){const{data,error}=await db.from("travel_hotel_reservations").update({reservation_status:"canceled",primary_stay:false,canceled_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",id).eq("user_id",u.id).select("hotel_id,room_type,check_in,check_out").maybeSingle();if(error||!data)return NextResponse.json({error:"Reservation not found."},{status:404});await db.from("travel_hotel_reservation_audit").insert({reservation_id:id,actor_user_id:u.id,action:"attendee_canceled",details:{}});await db.from("travel_analytics_events").insert({program_key:TRAVEL_PROGRAM_KEY,user_id:u.id,event_name:"hotel_reservation_canceled",properties:{hotel_id:data.hotel_id,room_type:data.room_type,arrival_date:data.check_in,departure_date:data.check_out}});return NextResponse.json({ok:true,status:"canceled"})}return NextResponse.json({error:"Unsupported action."},{status:400})}
+import { NextResponse } from "next/server";
+import { getUserFromSession } from "@/lib/auth/session";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { TRAVEL_PROGRAM_KEY } from "@/lib/travel/types";
+import { userHotelState } from "@/lib/travel/reservations";
+
+const text = (v: unknown, n = 500) => String(v ?? "").trim().slice(0, n) || null;
+
+const ATTENDEE_MANUAL_RETIRED = {
+  error:
+    "Typing a hotel confirmation number is retired. Official COGIC hotels are browse-and-request via COGIC Housing; marketplace hotels confirm only after paid in-app checkout.",
+  code: "attendee_manual_retired",
+  officialContactEmail: "housing@cogic.org",
+  marketplacePath: "/travel",
+} as const;
+
+export async function GET() {
+  const u = await getUserFromSession();
+  if (!u?.id) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  return NextResponse.json(await userHotelState(u.id), {
+    headers: { "Cache-Control": "private, no-store" },
+  });
+}
+
+/**
+ * Immutable retirement: attendee-typed confirmation numbers are never accepted.
+ * Confirmed stays are written only by marketplace checkout fulfillment / supplier paths.
+ */
+export async function POST() {
+  return NextResponse.json(ATTENDEE_MANUAL_RETIRED, {
+    status: 410,
+    headers: {
+      "Cache-Control": "no-store",
+      "X-Travel-Reservation-Create": "retired",
+    },
+  });
+}
+
+export async function PUT() {
+  return NextResponse.json(ATTENDEE_MANUAL_RETIRED, {
+    status: 410,
+    headers: {
+      "Cache-Control": "no-store",
+      "X-Travel-Reservation-Create": "retired",
+    },
+  });
+}
+
+export async function PATCH(r: Request) {
+  const u = await getUserFromSession();
+  if (!u?.id) return NextResponse.json({ error: "Sign in required." }, { status: 401 });
+  const b = await r.json().catch(() => null);
+  const id = text(b?.id, 64);
+  const action = String(b?.action ?? "");
+  const db = getSupabaseAdmin();
+  if (action === "cancel") {
+    const { data, error } = await db
+      .from("travel_hotel_reservations")
+      .update({
+        reservation_status: "canceled",
+        primary_stay: false,
+        canceled_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("user_id", u.id)
+      .select("hotel_id,room_type,check_in,check_out")
+      .maybeSingle();
+    if (error || !data) {
+      return NextResponse.json({ error: "Reservation not found." }, { status: 404 });
+    }
+    await db.from("travel_hotel_reservation_audit").insert({
+      reservation_id: id,
+      actor_user_id: u.id,
+      action: "attendee_canceled",
+      details: {},
+    });
+    await db.from("travel_analytics_events").insert({
+      program_key: TRAVEL_PROGRAM_KEY,
+      user_id: u.id,
+      event_name: "hotel_reservation_canceled",
+      properties: {
+        hotel_id: data.hotel_id,
+        room_type: data.room_type,
+        arrival_date: data.check_in,
+        departure_date: data.check_out,
+      },
+    });
+    return NextResponse.json({ ok: true, status: "canceled" });
+  }
+  return NextResponse.json({ error: "Unsupported action." }, { status: 400 });
+}

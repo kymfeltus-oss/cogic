@@ -8,7 +8,13 @@ import { DEFAULT_PROGRAM_KEY, REGISTRATION_CHECKOUT_TYPE } from "@/lib/registrat
 import { confirmPaidGroup } from "@/lib/registration/slice2-repository";
 
 export type RegistrationWebhookFulfillmentResult =
-  | { ok: true; idempotent: boolean; registrationId: string; credentialIssued: boolean }
+  | {
+      ok: true;
+      idempotent: boolean;
+      registrationId: string;
+      credentialIssued: boolean;
+      credentialJobEnqueued?: boolean;
+    }
   | { ok: false; status: number; error: string };
 
 function readRegistrationMetadata(session: Stripe.Checkout.Session): {
@@ -57,6 +63,8 @@ export async function fulfillRegistrationCheckoutFromWebhook(input: {
       ? input.session.payment_intent
       : input.session.payment_intent?.id ?? null;
 
+  const actorUserId = input.session.client_reference_id ?? null;
+
   const { data, error } = await input.supabaseAdmin.rpc("fulfill_registration_checkout", {
     p_stripe_session_id: input.session.id,
     p_stripe_payment_intent_id: paymentIntentId,
@@ -65,11 +73,14 @@ export async function fulfillRegistrationCheckoutFromWebhook(input: {
   if (error) {
     const message = error.message.toLowerCase();
     if (error.code === "23505" || message.includes("duplicate")) {
+      // Idempotent payment path still recovers group sync + credential queue.
+      const credentialIssued = await confirmPaidGroup(metadata.registrationId, actorUserId);
       return {
         ok: true,
         idempotent: true,
         registrationId: metadata.registrationId,
-        credentialIssued: false,
+        credentialIssued,
+        credentialJobEnqueued: !credentialIssued,
       };
     }
 
@@ -83,17 +94,24 @@ export async function fulfillRegistrationCheckoutFromWebhook(input: {
   const payload = (data ?? {}) as { idempotent?: boolean; registration_id?: string };
   const registrationId = payload.registration_id ?? metadata.registrationId;
 
-  const credential = await attemptRegistrationCredentialIssuance({
+  // Primary may already be confirmed by fulfill RPC; sync siblings atomically then issue/queue.
+  const groupCredentialsReady = await confirmPaidGroup(registrationId, actorUserId);
+
+  // Ensure the paid primary itself is covered even if group RPC returned no members.
+  const primaryCredential = await attemptRegistrationCredentialIssuance({
     registrationId,
-    actorUserId: input.session.client_reference_id ?? null,
+    actorUserId,
   });
-  await confirmPaidGroup(registrationId, input.session.client_reference_id ?? null);
+
+  const credentialIssued =
+    groupCredentialsReady || primaryCredential.issued || primaryCredential.idempotent;
+  const credentialJobEnqueued = primaryCredential.retryQueued === true || !credentialIssued;
 
   return {
     ok: true,
     idempotent: payload.idempotent === true,
     registrationId,
-    credentialIssued: credential.issued || credential.idempotent,
+    credentialIssued,
+    credentialJobEnqueued,
   };
 }
-

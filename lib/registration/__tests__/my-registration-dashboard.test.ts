@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import fs from "node:fs";
 import path from "node:path";
 import {
+  calculateRegistrationProgress,
   buildRegistrationBlockers,
   buildRegistrationNextActions,
   maskBadgeCode,
@@ -31,6 +32,36 @@ const baseInput = {
 };
 
 describe("attendee My Registration dashboard", () => {
+  it("calculates progress from persisted required stages", () => {
+    assert.equal(
+      calculateRegistrationProgress({
+        ...baseInput,
+        status: "none",
+        requiredProfileFieldCount: 12,
+      }),
+      0,
+    );
+    assert.equal(
+      calculateRegistrationProgress({
+        ...baseInput,
+        missingProfileFields: ["Email", "Mobile phone"],
+        requiredProfileFieldCount: 12,
+      }),
+      40,
+    );
+    assert.equal(
+      calculateRegistrationProgress({
+        ...baseInput,
+        status: "confirmed",
+        policyAccepted: true,
+        housingPreference: "own_accommodations",
+        remainingBalanceCents: 0,
+        requiredProfileFieldCount: 12,
+      }),
+      100,
+    );
+  });
+
   it("exposes /my-convocation/registration as the single attendee registration surface", () => {
     assert.match(read("app/my-convocation/registration/page.tsx"), /MyRegistrationDashboard/);
     assert.match(read("app/my-convocation/registration/page.tsx"), /loadMyRegistrationDashboard/);
@@ -45,7 +76,7 @@ describe("attendee My Registration dashboard", () => {
 
   it("handles no-registration and terminal states truthfully", () => {
     const none = buildRegistrationNextActions({ ...baseInput, status: "none" });
-    assert.equal(none[0]?.label, "Register for Holy Convocation");
+    assert.equal(none[0]?.label, "Begin Registration");
     assert.equal(none[0]?.href, "/register");
 
     const canceled = buildRegistrationNextActions({ ...baseInput, status: "canceled" });
@@ -136,14 +167,29 @@ describe("attendee My Registration dashboard", () => {
     assert.match(ui, /Open housing|\/housing/);
     assert.match(ui, /View My Trip|\/travel\/trip/);
     assert.match(loader, /loadDashboardHousingSummary/);
+    assert.match(loader, /loadDashboardTicketsSummary/);
+    assert.match(ui, /data\.addOns\.issuedTicketCount/);
+    assert.match(ui, /housingState[\s\S]*?"complete"/);
     assert.match(ui, /financially separate/);
+  });
+
+  it("keeps overview cards readable in the mobile-width horizontal rail", () => {
+    const css = read("app/my-convocation/registration/registration-dashboard.css");
+    assert.match(css, /grid-auto-flow:\s*column/);
+    assert.match(css, /overflow-x:\s*auto/);
+    assert.match(css, /scroll-snap-type:\s*inline mandatory/);
+    assert.match(css, /word-break:\s*normal/);
+    assert.doesNotMatch(css, /grid-template-columns:\s*repeat\(5/);
   });
 
   it("documents owner parity for operational registration states", () => {
     const ownerApi = read("app/api/owner/registrations/route.ts");
     const ownerUi = read("components/owner/RegistrationManagementClient.tsx");
     assert.match(ownerApi, /cancel_registration|requireOwnerUser|registrations/);
+    assert.match(ownerApi, /groupId is required/);
+    assert.match(ownerApi, /pagination/);
     assert.match(ownerUi, /credential|policy|status/i);
+    assert.match(ownerUi, /Load more|Audited profile correction/);
   });
 
   it("supports group/junior management rules in UI and experience API", () => {

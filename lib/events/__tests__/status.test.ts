@@ -5,7 +5,7 @@ import {
   assertOccurrenceStatusTransition,
   canTransitionEventStatus,
   canTransitionOccurrenceStatus,
-} from "../status.ts";
+} from "../status";
 
 describe("event status lifecycle", () => {
   it("allows draft → published → archived → published", () => {

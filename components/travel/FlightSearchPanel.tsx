@@ -171,8 +171,8 @@ export default function FlightSearchPanel() {
         <div className="ct-marketplace-results">
           <p className="ct-honest-hint">
             Showing {offers.length} live offer{offers.length === 1 ? "" : "s"}
-            {provider ? ` via ${provider}` : ""}. Booking is completed with the travel partner; save your
-            confirmation on My Trip afterward.
+            {provider ? ` via ${provider}` : ""}. Checkout securely in-app — supplier booking references are
+            written automatically after payment.
           </p>
           <ul className="ct-marketplace-offer-list">
             {offers.map((offer) => (
@@ -194,7 +194,7 @@ export default function FlightSearchPanel() {
                 <MarketplaceOfferActions
                   kind="flight"
                   offer={offer as unknown as Record<string, unknown>}
-                  label={offer.bookingUrl ? "Continue booking" : "Start booking on My Trip"}
+                  label="Checkout securely"
                 />
               </li>
             ))}
@@ -204,7 +204,7 @@ export default function FlightSearchPanel() {
         <MarketplaceSearchOutcome code={code} reason={reason} />
       ) : (
         <p className="ct-honest-hint">
-          Enter US airport codes and search. Live fares appear only when Duffel or Enterprise Amadeus is connected.
+          Enter US airport codes and search. Live fares appear only when Duffel is connected for checkout.
         </p>
       )}
     </div>

@@ -2,10 +2,10 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import GivingAmountInput from "@/components/giving/GivingAmountInput";
-import GivingBrandHeader from "@/components/giving/GivingBrandHeader";
 import GivingFundSelector from "@/components/giving/GivingFundSelector";
 import GivingNoteField from "@/components/giving/GivingNoteField";
 import GivingOrganizationCard from "@/components/giving/GivingOrganizationCard";
@@ -31,6 +31,32 @@ function parseDraftToCents(draft: string): number {
   const dollars = parseAmountDollars(sanitizeAmountInput(draft));
   if (dollars == null) return 0;
   return amountToCents(dollars);
+}
+
+function GivingArtwork() {
+  return (
+    <aside className="cogic-giving-artwork">
+      <div className="cogic-giving-artwork__image">
+        <Image
+          src="/giving/giving_input.png"
+          alt="COGIC Giving artwork: Honor God Through Giving, 2 Corinthians 9:7."
+          fill
+          priority
+          sizes="(min-width: 56rem) 50vw, 100vw"
+        />
+      </div>
+    </aside>
+  );
+}
+
+function GivingFormIntro() {
+  return (
+    <header className="cogic-giving-form-intro">
+      <p className="cogic-giving-form-intro__eyebrow">COGIC GIVING</p>
+      <h1>Make a secure gift</h1>
+      <p>Select a fund, enter your amount, and continue to secure checkout.</p>
+    </header>
+  );
 }
 
 export default function CogicGivingExperience({
@@ -182,9 +208,11 @@ export default function CogicGivingExperience({
           <ChevronLeft className="size-4" aria-hidden="true" />
           Back
         </Link>
-        <div className="cogic-giving-card cogic-giving-status">
-          <GivingBrandHeader />
-          <h2>Thank you</h2>
+        <div className="cogic-giving-layout">
+          <GivingArtwork />
+          <div className="cogic-giving-card cogic-giving-status">
+          <p className="cogic-giving-form-intro__eyebrow">COGIC GIVING</p>
+          <h1>Thank you</h1>
           <p>
             If your payment completed, Stripe has confirmed your gift
             {amountCents > 0 ? ` of ${formatUsdFromCents(amountCents)}` : ""}
@@ -201,6 +229,7 @@ export default function CogicGivingExperience({
           >
             Give again
           </button>
+          </div>
         </div>
       </div>
     );
@@ -213,9 +242,11 @@ export default function CogicGivingExperience({
           <ChevronLeft className="size-4" aria-hidden="true" />
           Back
         </Link>
-        <div className="cogic-giving-card cogic-giving-status">
-          <GivingBrandHeader />
-          <h2>Checkout canceled</h2>
+        <div className="cogic-giving-layout">
+          <GivingArtwork />
+          <div className="cogic-giving-card cogic-giving-status">
+          <p className="cogic-giving-form-intro__eyebrow">COGIC GIVING</p>
+          <h1>Checkout canceled</h1>
           <p>No payment was completed. You can return and try again when ready.</p>
           <button
             type="button"
@@ -224,6 +255,7 @@ export default function CogicGivingExperience({
           >
             Return to giving
           </button>
+          </div>
         </div>
       </div>
     );
@@ -235,8 +267,10 @@ export default function CogicGivingExperience({
         <ChevronLeft className="size-4" aria-hidden="true" />
         Back
       </Link>
-      <form className="cogic-giving-card" onSubmit={onSubmit} noValidate>
-        <GivingBrandHeader />
+      <div className="cogic-giving-layout">
+        <GivingArtwork />
+        <form className="cogic-giving-card" onSubmit={onSubmit} noValidate>
+        <GivingFormIntro />
         <GivingOrganizationCard />
         <GivingAmountInput cents={amountCents} draft={amountDraft} onDraftChange={handleDraftChange} />
         <GivingQuickAmounts selectedCents={activePreset} onSelect={handleQuickSelect} />
@@ -257,7 +291,8 @@ export default function CogicGivingExperience({
         {error ? <p className="cogic-giving-error" role="alert">{error}</p> : null}
         <GivingSubmitButton disabled={!canSubmit} loading={loading} />
         <GivingSecurityFooter />
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

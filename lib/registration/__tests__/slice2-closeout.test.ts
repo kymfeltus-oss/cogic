@@ -16,13 +16,13 @@ const flow=read("components/registration/RegistrationSlice2Experience.tsx");
 const credentialState=read("lib/registration/credential-presentation-state.ts");
 
 test("1 owner creates policy draft",()=>assert.match(api,/create_policy/));
-test("2 owner edits draft",()=>assert.match(api,/edit_policy[\s\S]*eq\("status","draft"\)/));
+test("2 owner edits draft",()=>assert.match(api,/edit_policy[\s\S]*eq\("status",\s*"draft"\)/));
 test("3 unauthorized attendee cannot edit",()=>assert.match(api,/requireOwnerUser/));
-test("4 preview renders draft",()=>{assert.match(owner,/setPreview\(p\)/);assert.match(owner,/RegistrationPolicyDocument/);});
+test("4 preview renders draft",()=>{assert.match(owner,/setPreview\(/);assert.match(owner,/RegistrationPolicyDocument/);});
 test("5 publish succeeds through explicit action",()=>{assert.match(api,/publish_policy/);assert.match(api,/acknowledgeSupersede/);assert.match(owner,/Publish & supersede active/);});
 test("6 published policy cannot be silently edited",()=>assert.match(migration,/prevent_published_policy_mutation/));
-test("7 new version preserves prior version",()=>{assert.match(api,/status:"superseded"/);assert.doesNotMatch(api,/delete\(\)/);});
-test("8 retire or supersede works",()=>assert.match(api,/retire_policy[\s\S]*status:"retired"/));
+test("7 new version preserves prior version",()=>{assert.match(api,/status:\s*"superseded"/);assert.doesNotMatch(api,/delete\(\)/);});
+test("8 retire or supersede works",()=>assert.match(api,/retire_policy[\s\S]*status:\s*"retired"/));
 test("9 accepted historical policy cannot be deleted",()=>assert.match(migration,/policy_id uuid NOT NULL REFERENCES public\.registration_policies\(id\) ON DELETE RESTRICT/));
 test("10 acceptance remains linked to original version",()=>assert.match(migration,/policy_snapshot text NOT NULL/));
 test("11 primary registration appears",()=>{assert.match(attendeeCard,/My Registration|registrationHeadline/);assert.match(attendee,/Registration summary|My registration information/);});
@@ -37,4 +37,4 @@ test("19 pending credential has no fake QR",()=>{assert.match(loader,/Credential
 test("20 revoked credential is truthful",()=>{assert.match(qr,/credential\?\.status==="revoked"/);assert.match(credentialState,/case "revoked"/);assert.match(loader,/Credential revoked/);});
 test("21 group members have individual credentials",()=>{assert.match(attendee,/registrationId: m\.registrationId|item\.registrationId/);assert.match(loader,/registration_credentials\(status,badge_code/);assert.match(dashboardLoader,/registration_credentials\(status\)/);});
 test("22 attendee cannot access another credential",()=>assert.match(qr,/registration_groups\.owner_user_id",user\.id/));
-test("23 owner sees individual credential statuses",()=>{assert.match(owner,/registration_credentials\?\.at\(-1\)\?\.status/);assert.match(flow,/RegistrationPolicyDocument/);assert.match(shared,/registration-policy-document/);});
+test("23 owner sees individual credential statuses",()=>{assert.match(owner,/registration_credentials\?\.at\(-1\)/);assert.match(owner,/credential\?\.status|Credential:/);assert.match(flow,/RegistrationPolicyDocument/);assert.match(shared,/registration-policy-document/);});

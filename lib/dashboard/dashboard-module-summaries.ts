@@ -42,7 +42,7 @@ export function registrationHeadline(registration: DashboardRegistrationState, s
       summary: signedIn
         ? "Start registration for the 118th Holy Convocation."
         : "Sign in to register or view your registration.",
-      cta: signedIn ? "Register for Holy Convocation" : "Sign In",
+      cta: signedIn ? "Begin Registration" : "Sign In",
       href: signedIn ? "/register" : "/login?next=%2Fmy-convocation%2Fregistration",
     };
   }

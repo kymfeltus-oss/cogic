@@ -2,10 +2,8 @@ import "server-only";
 
 import { createHash } from "node:crypto";
 import { hashRateLimitIdentifier } from "@/lib/rate-limit/hash";
-import {
-  isDistributedRateLimitConfigured,
-  RedisRateLimitStore,
-} from "@/lib/rate-limit/redis-store";
+import { isDistributedRateLimitConfigured } from "@/lib/rate-limit/config";
+import { RedisRateLimitStore } from "@/lib/rate-limit/redis-store";
 import type { RateLimitDecision } from "@/lib/rate-limit/types";
 
 const store = new RedisRateLimitStore();

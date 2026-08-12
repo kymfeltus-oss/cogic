@@ -15,6 +15,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  return result.withSessionCookies(NextResponse.json({ url: result.url }));
+  return result.withSessionCookies(NextResponse.json({
+    url: result.url,
+    sandboxSession: "sandboxSession" in result ? result.sandboxSession : undefined,
+  }));
 }
 

@@ -1,17 +1,9 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond } from "next/font/google";
 import { Suspense } from "react";
 import CogicGivingExperience from "@/components/giving/CogicGivingExperience";
 import { COGIC_GIVING_PUBLIC_NAME } from "@/lib/brand/public-display";
 import { listActiveGivingFunds } from "@/lib/giving/repository";
 import "./giving.css";
-
-const givingDisplay = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-giving-display",
-  display: "swap",
-});
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +25,7 @@ async function GivingPageBody() {
 
 export default function GivingPage() {
   return (
-    <main id="main-content" className={`cogic-giving-page ${givingDisplay.variable}`}>
+    <main id="main-content" className="cogic-giving-page">
       <Suspense fallback={<div className="cogic-giving-shell" aria-busy="true" />}>
         <GivingPageBody />
       </Suspense>

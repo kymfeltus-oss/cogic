@@ -39,6 +39,8 @@ function baseRegistration(
     updatedAt: "2026-08-01T00:00:00Z",
     createdBy: null,
     updatedBy: null,
+    draftLastStep: null,
+    rowVersion: 1,
     ...overrides,
   };
 }

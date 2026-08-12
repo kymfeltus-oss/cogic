@@ -1,19 +1,21 @@
 export type MarketplaceAttemptStatus =
-  | "booking_started"
-  | "pending_confirmation"
-  | "confirmed"
-  | "canceled"
-  | "failed";
+  | "DRAFT"
+  | "PAYMENT_PENDING"
+  | "SUPPLIER_SUBMITTED"
+  | "CONFIRMED"
+  | "FAILED"
+  | "REFUNDED";
 
-/** Attempts left open without return/confirm longer than this are operationally stale. */
+/** Attempts left open without payment/supplier progress longer than this are operationally stale. */
 export const MARKETPLACE_STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 
 const ALLOWED_TRANSITIONS: Record<MarketplaceAttemptStatus, MarketplaceAttemptStatus[]> = {
-  booking_started: ["pending_confirmation", "confirmed", "canceled", "failed"],
-  pending_confirmation: ["confirmed", "canceled", "failed", "pending_confirmation"],
-  confirmed: [],
-  canceled: [],
-  failed: [],
+  DRAFT: ["PAYMENT_PENDING", "SUPPLIER_SUBMITTED", "CONFIRMED", "FAILED"],
+  PAYMENT_PENDING: ["SUPPLIER_SUBMITTED", "CONFIRMED", "FAILED", "REFUNDED"],
+  SUPPLIER_SUBMITTED: ["CONFIRMED", "FAILED", "REFUNDED"],
+  CONFIRMED: ["REFUNDED", "FAILED"],
+  FAILED: ["DRAFT"],
+  REFUNDED: [],
 };
 
 export function assertMarketplaceTransition(
@@ -30,7 +32,11 @@ export function isStaleMarketplaceAttempt(
   attempt: { status: MarketplaceAttemptStatus; started_at: string; updated_at: string },
   now = Date.now(),
 ) {
-  if (attempt.status !== "booking_started" && attempt.status !== "pending_confirmation") {
+  if (
+    attempt.status !== "DRAFT" &&
+    attempt.status !== "PAYMENT_PENDING" &&
+    attempt.status !== "SUPPLIER_SUBMITTED"
+  ) {
     return false;
   }
   const anchor = new Date(attempt.updated_at || attempt.started_at).getTime();

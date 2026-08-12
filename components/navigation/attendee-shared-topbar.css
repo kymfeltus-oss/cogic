@@ -1,0 +1,105 @@
+/* Compact shared attendee chrome for non-dashboard routes (/social, /updates, etc.). */
+
+.cl-topbar.cl-topbar--shared {
+  position: sticky;
+  z-index: 40;
+  top: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "phrase phrase"
+    "brand tools";
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  width: 100%;
+  max-width: 100vw;
+  margin: 0;
+  padding:
+    max(0.45rem, env(safe-area-inset-top))
+    max(0.75rem, env(safe-area-inset-right))
+    0.55rem
+    max(0.75rem, env(safe-area-inset-left));
+  border: 0;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+  background: linear-gradient(180deg, rgb(5 8 16 / 92%), rgb(5 8 16 / 72%));
+  backdrop-filter: blur(14px);
+  box-shadow: none;
+}
+
+.cl-topbar--shared .cl-topbar__phrase-wrap {
+  grid-area: phrase;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  max-height: 2.4rem;
+  overflow: hidden;
+}
+
+.cl-topbar--shared .cl-topbar__phrase {
+  display: block;
+  width: min(82vw, 20rem) !important;
+  height: auto !important;
+  max-width: min(82vw, 20rem);
+  max-height: 2.4rem;
+  object-fit: contain;
+}
+
+.cl-topbar--shared .cl-topbar__brand {
+  grid-area: brand;
+  min-width: 0;
+  justify-self: start;
+}
+
+.cl-topbar--shared .cl-topbar__brand-link {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+}
+
+.cl-topbar--shared .cl-topbar__logo {
+  display: block;
+  width: 7.25rem !important;
+  height: auto !important;
+  max-width: 7.25rem;
+  max-height: 2rem;
+  object-fit: contain;
+}
+
+.cl-topbar--shared .cl-topbar__tools--shared {
+  grid-area: tools;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cl-topbar--shared .cl-topbar__profile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.cl-topbar--shared .cl-topbar__avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(rgb(4 6 14 / 82%), rgb(4 6 14 / 82%)) padding-box,
+    linear-gradient(135deg, #33c7ff, #8247ff 55%, #e83dce) border-box;
+  box-shadow: 0 0 18px rgb(63 123 255 / 32%);
+}
+
+.cl-topbar--shared .cl-topbar__avatar svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}

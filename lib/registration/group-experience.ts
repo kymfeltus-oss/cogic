@@ -1,5 +1,20 @@
 export const JUNIOR_REGISTRATION_PRODUCT_KEY = "JUNIOR_REGISTRATION_GUEST_2026";
 
+export const REGISTRATION_WIZARD_MILESTONES = [
+  { id: "attendee", label: "Attendee information" },
+  { id: "product", label: "Registration type" },
+  { id: "group", label: "Group / Junior registrants" },
+  { id: "policy", label: "Policy agreement" },
+  { id: "housing", label: "Housing" },
+  { id: "review", label: "Review" },
+  { id: "payment", label: "Payment / Submit" },
+] as const;
+
+/** Authoritative wizard step array — progress copy must derive length from this only. */
+export const REGISTRATION_WIZARD_STEPS = REGISTRATION_WIZARD_MILESTONES;
+
+export type RegistrationWizardDestination = (typeof REGISTRATION_WIZARD_MILESTONES)[number]["id"];
+
 export type RegistrationProduct = {
   id: string;
   product_key: string;
@@ -44,11 +59,16 @@ export type GroupRegistrant = {
   currency: string | null;
   status: string;
   confirmation_reference: string | null;
+  draft_last_step?: import("@/lib/registration/types").RegistrationStepId | null;
+  row_version?: number;
 };
 
 export type RegistrationGroup = {
   id: string;
   status: string;
+  row_version?: number;
+  wizard_resume_step?: number;
+  wizard_metadata?: Record<string, unknown>;
   registrations: GroupRegistrant[];
 };
 
@@ -65,6 +85,8 @@ export type RegistrationExperience = {
   products: RegistrationProduct[];
   group: RegistrationGroup | null;
   policy: RegistrationPolicy | null;
+  requirements: import("@/lib/registration/registration-requirements").RegistrationRequirementsResult;
+  paymentStatus: string | null;
 };
 
 export function getPrimaryRegistrant(group: RegistrationGroup | null): GroupRegistrant | null {

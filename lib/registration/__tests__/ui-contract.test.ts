@@ -37,19 +37,34 @@ describe("registration UI / security contracts", () => {
     const checkoutButton = read("components/registration/RegistrationCheckoutButton.tsx");
 
     assert.match(flow, /save_registrant/);
+    assert.match(flow, /save_primary_draft/);
     assert.match(flow, /submit_group/);
     assert.match(flow, /RegistrationPolicyDocument/);
     assert.match(flow, /HousingExperience/);
     assert.match(flow, /getGroupTotalCents/);
     assert.match(flow, /isJuniorRegistrationProduct/);
+    assert.match(flow, /REGISTRATION_WIZARD_STEPS/);
+    assert.match(flow, /TOTAL_WIZARD_STEPS/);
+    assert.match(flow, /Step \{stepDisplayNumber\} of \{TOTAL_WIZARD_STEPS\}/);
+    assert.doesNotMatch(flow, /of 8/);
     assert.doesNotMatch(flow, /href="#"/);
     assert.doesNotMatch(flow, /console\.log/);
 
     assert.match(status, /RegistrationCheckoutButton/);
+    assert.match(status, /deriveRegistrationCheckoutResumeMode/);
+    assert.match(status, /canShowRegistrationCheckoutResume/);
+    assert.match(status, /Resume secure payment/);
     assert.match(status, /router\.refresh/);
     assert.match(status, /Plan My Trip/);
     assert.match(status, /Go to My Convocation/);
     assert.doesNotMatch(status, /fake|demo/i);
+    assert.doesNotMatch(status, /duplicating charges/);
+
+    const checkoutResume = read("lib/registration/checkout-resume.ts");
+    assert.match(checkoutResume, /pending_session/);
+    assert.match(checkoutResume, /stale_replace/);
+    assert.match(checkoutResume, /webhook_processing/);
+    assert.match(checkoutResume, /not payment authority/);
 
     assert.match(repository, /registration_group_id/);
     assert.match(repository, /isJuniorRegistrationProduct/);
@@ -84,6 +99,11 @@ describe("registration UI / security contracts", () => {
     assert.match(page, /buildAttendeeGateUrl\("\/register"\)/);
     assert.match(page, /loadOrMigrateRegistrationExperience/);
     assert.match(page, /initial\.group\?\.status === "confirmed"/);
+    assert.match(page, /resolveRegisterWizardIntent/);
+    assert.match(page, /resolved\.clampedFromIllegalIntent/);
+    assert.match(page, /redirect\(`\/register\?step=\$\{resolved\.activeStepId\}`\)/);
+    assert.match(page, /clampedFromIllegalIntent/);
+    assert.match(page, /intent signal, not a permission/);
     assert.match(review, /buildAttendeeGateUrl\("\/register\/review"\)/);
     assert.match(review, /RegistrationGroupStatus/);
     assert.match(review, /loadOrMigrateRegistrationExperience/);

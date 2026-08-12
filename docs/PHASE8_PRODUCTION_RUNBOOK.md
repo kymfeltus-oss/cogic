@@ -226,6 +226,8 @@ Operator-controlled end-to-end (live charge only when intentionally approved):
 1. In Vercel → Deployments, promote the last known-good Production deployment.
 2. Confirm `/api/health` readiness.
 3. Confirm `/program`, `/live`, `/c`, registration review still load.
+
+Registration Phase 4 note: production requires `USE_MOCK_REGISTRATION=false`. Preview/Development may return explicit `sandbox:true` checkout/credential structures, but these are non-persisted test artifacts and never satisfy readiness. Registration settlement is driven by signed Checkout Session events; `payment_intent.succeeded` is retained for the travel PaymentIntent flow. See `docs/REGISTRATION_OPERATIONS_RUNBOOK.md` for the current RPC, reconciliation, refund, queue, and HTTP 410 retirement map.
 4. If env vars caused the failure, restore prior env values and redeploy.
 
 ---

@@ -1,29 +1,23 @@
 import { redirect } from "next/navigation";
-import { getUserFromSession } from "@/lib/auth/session";
-import { markMarketplaceAttemptReturned } from "@/lib/travel/marketplace/booking";
 
 export const dynamic = "force-dynamic";
 
-export default async function MarketplaceReturnPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ attempt?: string }>;
-}) {
-  const user = await getUserFromSession();
-  const { attempt } = await searchParams;
-  if (!user?.id) {
-    redirect(`/login?next=${encodeURIComponent(`/travel/marketplace/return?attempt=${attempt || ""}`)}`);
-  }
-  if (!attempt) {
-    redirect("/travel/trip");
-  }
+type MarketplaceReturnPageProps = {
+  searchParams: Promise<{
+    attemptId?: string;
+    attempt_id?: string;
+  }>;
+};
 
-  try {
-    await markMarketplaceAttemptReturned(attempt, user.id);
-  } catch {
-    redirect("/travel/trip?marketplace=error");
+/**
+ * Legacy partner-return landing. Partner handoff APIs are deleted.
+ * Soft-land attendees into the live in-app Elements checkout path.
+ */
+export default async function MarketplaceReturnPage({ searchParams }: MarketplaceReturnPageProps) {
+  const params = await searchParams;
+  const attemptId = String(params.attemptId || params.attempt_id || "").trim();
+  if (attemptId) {
+    redirect(`/travel/checkout/continue?attemptId=${encodeURIComponent(attemptId)}`);
   }
-
-  // Redirect alone never confirms a reservation.
-  redirect("/travel/trip?marketplace=pending");
+  redirect("/travel");
 }

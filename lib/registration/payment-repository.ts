@@ -3,15 +3,16 @@
 import { mapDatabaseError, RegistrationError } from "@/lib/registration/errors";
 import {
   DEFAULT_PROGRAM_KEY,
+  DEFAULT_REGISTRATION_CURRENCY,
   mapRegistrationPaymentRow,
   mapRegistrationRow,
-  REGISTRATION_CHECKOUT_TYPE,
   type Registration,
   type RegistrationPayment,
   type RegistrationPaymentRow,
+  type RegistrationPaymentStatus,
   type RegistrationRow,
+  type RegistrationStatus,
 } from "@/lib/registration/types";
-import { writeRegistrationAuditEvent } from "@/lib/registration/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 const CHECKOUT_ELIGIBLE_STATUSES = ["submitted", "payment_pending"] as const;
@@ -97,9 +98,62 @@ export async function getCheckoutEligibleRegistration(userId: string): Promise<R
   return registration;
 }
 
+function mapCheckoutRpcRegistration(payload: Record<string, unknown>, fallback: Registration): Registration {
+  return {
+    ...fallback,
+    id: String(payload.registration_id ?? fallback.id),
+    status: String(payload.registration_status ?? fallback.status) as RegistrationStatus,
+    amountCents:
+      typeof payload.registration_amount_cents === "number"
+        ? payload.registration_amount_cents
+        : fallback.amountCents,
+    currency:
+      typeof payload.registration_currency === "string" && payload.registration_currency.trim()
+        ? payload.registration_currency
+        : fallback.currency || DEFAULT_REGISTRATION_CURRENCY,
+    email:
+      typeof payload.registration_email === "string"
+        ? payload.registration_email
+        : fallback.email,
+    rowVersion:
+      typeof payload.registration_row_version === "number"
+        ? payload.registration_row_version
+        : fallback.rowVersion,
+  };
+}
+
+function mapCheckoutRpcPayment(payload: Record<string, unknown>): RegistrationPayment {
+  const paymentId = payload.payment_id;
+  if (typeof paymentId !== "string" || !paymentId.trim()) {
+    throw new RegistrationError("unavailable", "Checkout did not return a payment id.");
+  }
+
+  const amountCents = payload.payment_amount_cents;
+  if (typeof amountCents !== "number" || amountCents <= 0) {
+    throw new RegistrationError("unavailable", "Checkout did not return an authoritative amount.");
+  }
+
+  return {
+    id: paymentId,
+    registrationId: String(payload.registration_id),
+    status: String(payload.payment_status ?? "pending") as RegistrationPaymentStatus,
+    amountCents,
+    currency:
+      typeof payload.payment_currency === "string" && payload.payment_currency.trim()
+        ? payload.payment_currency
+        : DEFAULT_REGISTRATION_CURRENCY,
+    stripeSessionId:
+      typeof payload.stripe_session_id === "string" ? payload.stripe_session_id : null,
+    stripePaymentIntentId: null,
+    checkoutType: "registration",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
 /**
  * Transition registration to payment_pending and stage a pending payment row.
- * Called only after Stripe Checkout Session id is known.
+ * Amounts/status are stamped inside begin_registration_checkout from locked rows.
  */
 export async function beginRegistrationCheckout(
   input: BeginRegistrationCheckoutInput,
@@ -115,87 +169,31 @@ export async function beginRegistrationCheckout(
   if (registration.amountCents === null || registration.amountCents <= 0) {
     throw new RegistrationError("validation", "This registration does not require payment.");
   }
-  const admin = getSupabaseAdmin();
 
-  const { data: paymentRow, error: paymentError } = await admin
-    .from("registration_payments")
-    .insert({
-      registration_id: registration.id,
-      status: "pending",
-      amount_cents: registration.amountCents,
-      currency: registration.currency,
-      stripe_session_id: stripeSessionId,
-      checkout_type: REGISTRATION_CHECKOUT_TYPE,
-    })
-    .select("*")
-    .single();
+  const { data, error } = await getSupabaseAdmin().rpc("begin_registration_checkout", {
+    p_user_id: userId,
+    p_stripe_session_id: stripeSessionId,
+  });
 
-  if (paymentError) {
-    if (paymentError.code === "23505") {
+  if (error) {
+    if (error.code === "23505") {
       throw new RegistrationError(
         "conflict",
         "A checkout session is already in progress for this registration.",
       );
     }
-    throw mapDatabaseError(paymentError);
+    throw mapDatabaseError(error);
   }
 
-  const { data: updatedRegistration, error: registrationError } = await admin
-    .from("registrations")
-    .update({
-      status: "payment_pending",
-      amount_cents: registration.amountCents,
-      currency: registration.currency,
-      updated_by: userId,
-    })
-    .eq("id", registration.id)
-    .eq("user_id", userId)
-    .in("status", [...CHECKOUT_ELIGIBLE_STATUSES])
-    .select("*")
-    .single();
-
-  if (registrationError || !updatedRegistration) {
-    throw mapDatabaseError(
-      registrationError ?? { message: "registration payment transition failed" },
-    );
+  const payload = (data ?? {}) as Record<string, unknown>;
+  if (payload.ok !== true || !payload.registration_id || !payload.payment_id) {
+    throw new RegistrationError("unavailable", "Unable to start registration checkout.");
   }
 
-  const payment = mapRegistrationPaymentRow(paymentRow as RegistrationPaymentRow);
-  const updated = mapRegistrationRow(updatedRegistration as RegistrationRow);
-
-  const { data: registrationGroup, error: registrationGroupError } = await admin
-    .from("registrations")
-    .select("registration_group_id")
-    .eq("id", updated.id)
-    .maybeSingle();
-  if (registrationGroupError) {
-    throw mapDatabaseError(registrationGroupError);
-  }
-  if (registrationGroup?.registration_group_id) {
-    const { error: groupError } = await admin
-      .from("registration_groups")
-      .update({ status: "payment_pending" })
-      .eq("id", registrationGroup.registration_group_id)
-      .in("status", ["submitted", "payment_pending"]);
-    if (groupError) {
-      throw mapDatabaseError(groupError);
-    }
-  }
-
-  await writeRegistrationAuditEvent({
-    action: "registration.checkout_started",
-    registrationId: updated.id,
-    userId,
-    userEmail: updated.email,
-    metadata: {
-      stripe_session_id: stripeSessionId,
-      registration_payment_id: payment.id,
-      amount_cents: registration.amountCents,
-      currency: registration.currency,
-    },
-  });
-
-  return { registration: updated, payment };
+  return {
+    registration: mapCheckoutRpcRegistration(payload, registration),
+    payment: mapCheckoutRpcPayment(payload),
+  };
 }
 
 export async function getLatestPendingRegistrationPayment(
@@ -233,38 +231,18 @@ export async function cancelPendingRegistrationCheckout(input: {
     throw new RegistrationError("validation", "Checkout session id is required.");
   }
 
-  const admin = getSupabaseAdmin();
-  const { error: paymentError } = await admin
-    .from("registration_payments")
-    .update({ status: "canceled" })
-    .eq("registration_id", registration.id)
-    .eq("stripe_session_id", stripeSessionId)
-    .eq("status", "pending");
-  if (paymentError) {
-    throw mapDatabaseError(paymentError);
+  const { data, error } = await getSupabaseAdmin().rpc("cancel_pending_registration_checkout", {
+    p_user_id: userId,
+    p_registration_id: registration.id,
+    p_stripe_session_id: stripeSessionId,
+  });
+
+  if (error) {
+    throw mapDatabaseError(error);
   }
 
-  const { data: registrationRow, error: registrationError } = await admin
-    .from("registrations")
-    .update({ status: "submitted", updated_by: userId })
-    .eq("id", registration.id)
-    .eq("user_id", userId)
-    .eq("status", "payment_pending")
-    .select("registration_group_id")
-    .maybeSingle();
-  if (registrationError) {
-    throw mapDatabaseError(registrationError);
-  }
-
-  if (registrationRow?.registration_group_id) {
-    const { error: groupError } = await admin
-      .from("registration_groups")
-      .update({ status: "submitted" })
-      .eq("id", registrationRow.registration_group_id)
-      .eq("status", "payment_pending");
-    if (groupError) {
-      throw mapDatabaseError(groupError);
-    }
+  const payload = (data ?? {}) as { ok?: boolean };
+  if (payload.ok !== true) {
+    throw new RegistrationError("unavailable", "Unable to cancel pending registration checkout.");
   }
 }
-

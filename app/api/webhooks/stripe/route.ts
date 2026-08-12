@@ -10,6 +10,8 @@ import {
 } from "@/lib/billing-config";
 import { fulfillRegistrationCheckoutFromWebhook } from "@/lib/registration/stripe-webhook";
 import { REGISTRATION_CHECKOUT_TYPE } from "@/lib/registration/types";
+import { fulfillPaidTravelCheckout } from "@/lib/travel/checkout/fulfill";
+import { TRAVEL_CHECKOUT_TYPE } from "@/lib/travel/checkout/constants";
 import { getSupabaseServiceRoleKey, getSupabaseUrl } from "@/lib/supabase/env";
 import { redactForLog, safeErrorMessage } from "@/lib/security/redact";
 import { failTicketCheckout, fulfillTicketCheckout } from "@/lib/tickets/stripe-webhook";
@@ -387,6 +389,81 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
+  }
+
+  if (event.type === "payment_intent.succeeded") {
+    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+    if (paymentIntent.metadata?.checkout_type !== TRAVEL_CHECKOUT_TYPE) {
+      return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });
+    }
+
+    try {
+      const result = await fulfillPaidTravelCheckout({
+        paymentIntentId: paymentIntent.id,
+        userId: paymentIntent.metadata?.user_id || null,
+        email: paymentIntent.metadata?.email || paymentIntent.receipt_email || null,
+      });
+
+      if (!result.ok) {
+        console.error("❌ [TRAVEL_SUPPLIER_FULFILL_FAIL]:", {
+          attemptId: result.attemptId,
+          status: result.status,
+          error: result.error,
+          refundId: "refundId" in result ? result.refundId : null,
+        });
+        return NextResponse.json(
+          {
+            received: true,
+            eventId: event.id,
+            travelStatus: result.status,
+            refunded: Boolean("refundId" in result && result.refundId),
+          },
+          { status: 200 },
+        );
+      }
+
+      console.info("✅ [TRAVEL_FULFILLMENT_SUCCESS]:", {
+        attemptId: result.attemptId,
+        confirmationNumber: result.confirmationNumber,
+        idempotent: result.idempotent,
+      });
+      return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });
+    } catch (error) {
+      console.error("❌ [TRAVEL_WEBHOOK_CRASH]:", redactForLog(error));
+      return NextResponse.json(
+        { error: "Travel marketplace fulfillment failed." },
+        { status: 500 },
+      );
+    }
+  }
+
+  if (event.type === "payment_intent.payment_failed") {
+    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+    if (paymentIntent.metadata?.checkout_type === TRAVEL_CHECKOUT_TYPE) {
+      const attemptId = paymentIntent.metadata?.attempt_id?.trim();
+      if (attemptId) {
+        await supabaseAdmin
+          .from("travel_marketplace_booking_attempts")
+          .update({
+            status: "FAILED",
+            failure_reason: "Stripe PaymentIntent payment_failed.",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", attemptId)
+          .in("status", ["DRAFT", "PAYMENT_PENDING"]);
+        await supabaseAdmin
+          .from("travel_booking_transactions")
+          .update({
+            status: "FAILED",
+            failure_reason: "Stripe PaymentIntent payment_failed.",
+            failed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("marketplace_attempt_id", attemptId)
+          .in("status", ["DRAFT", "PAYMENT_PENDING"]);
+      }
+    }
+    return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });
   }
 
   return NextResponse.json({ received: true, eventId: event.id }, { status: 200 });

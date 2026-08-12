@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { resolveAttendeeAccess, type OwnedEntitlement } from "../entitlements.ts";
+import { resolveAttendeeAccess, type OwnedEntitlement } from "../entitlements";
 
 const occurrence = { id:"occ-worship", eventId:"event-worship", eventType:"evening_worship", venueKey:"main", startsAt:"2026-11-03T19:00:00.000Z" };
 function entitlement(partial:Partial<OwnedEntitlement>):OwnedEntitlement{return { id:"entitlement",key:"GENERAL_ENTRY",name:"General entry",type:"event_access",active:true,eventType:"evening_worship",eventId:null,eventOccurrenceId:null,venueKey:null,accessZone:"general",validFrom:null,validUntil:null,preferredHoldMinutes:null,usageLimit:null,singleUse:false,guardianRequired:false,status:"active",quantity:1,usesConsumed:0,guardianRegistrationId:null,...partial };}

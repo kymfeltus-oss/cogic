@@ -14,7 +14,6 @@ import {
   RefreshCw,
   Send,
   ShieldCheck,
-  UsersRound,
   X,
 } from "lucide-react";
 import DMOverlayPopup from "@/components/social/DMOverlayPopup";
@@ -301,9 +300,6 @@ export default function SocialCommunityClient() {
   return (
     <main id="main-content" className="cogic-social">
       <section className="cogic-social__hero">
-        <div className="cogic-social__hero-icon" aria-hidden="true">
-          <UsersRound />
-        </div>
         <div>
           <p>COGIC community</p>
           <h1>COGIC Connect</h1>

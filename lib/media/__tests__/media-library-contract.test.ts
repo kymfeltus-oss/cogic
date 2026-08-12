@@ -8,7 +8,7 @@ const upload=read("app/api/owner/media/upload-session/route.ts");
 const edit=read("app/api/owner/replays/[recordingId]/route.ts");
 const page=read("app/owner/media/page.tsx");
 for(const [name,pattern,source] of [
-  ["owner media library exists",/Media.*Library/s,page],
+  ["owner media library exists",/Media[\s\S]*Library/,page],
   ["source and content types are separate",/content_type[\s\S]*media_source_type/,migration],
   ["pre-production classification exists",/PRE_PRODUCTION/,migration],
   ["promo classification exists",/PROMO/,migration],

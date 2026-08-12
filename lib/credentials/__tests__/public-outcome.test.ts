@@ -48,7 +48,12 @@ describe("public credential outcome collapsing", () => {
       "jurisdiction",
       "programKey",
     ]);
-    const payload = toSessionPayload(resolved);
+    const payload = toSessionPayload(
+      resolved as SafeCredentialResolution & {
+        outcome: "resolved";
+        status: "issued" | "active";
+      },
+    );
     assert.deepEqual(Object.keys(payload).sort(), resolvedPublicFieldAllowlist().slice().sort());
   });
 });

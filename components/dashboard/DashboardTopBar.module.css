@@ -37,9 +37,7 @@
 
 .root :global(.cl-topbar__account) {
   right: 3.45rem;
-  flex-direction: column;
   align-items: center;
-  max-width: 5.5rem;
 }
 
 .root :global(.cl-topbar__bell-wrap) {
@@ -51,9 +49,8 @@
   min-width: 2.5rem;
   height: auto;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: .28rem;
+  justify-content: center;
   margin: 0;
   padding: 0;
   border: 0;
@@ -79,20 +76,6 @@
     linear-gradient(135deg, #33c7ff, #8247ff 55%, #e83dce) border-box;
   box-shadow: 0 0 18px rgb(63 123 255 / 32%);
   backdrop-filter: blur(12px);
-}
-
-.root :global(.cl-topbar__name) {
-  max-width: 5.25rem;
-  overflow: hidden;
-  color: #f7f8ff;
-  font-size: .58rem;
-  font-weight: 700;
-  letter-spacing: .03em;
-  line-height: 1.1;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 70%);
 }
 
 .root :global(.cl-topbar__avatar) {

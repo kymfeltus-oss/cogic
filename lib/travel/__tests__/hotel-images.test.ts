@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { HOTEL_IMAGE_BY_SLUG, resolveHotelImage } from "../hotel-images.ts";
+import { HOTEL_IMAGE_BY_SLUG, resolveHotelImage } from "../hotel-images";
 
 describe("hotel images", () => {
   it("maps verified hotel slugs to saved public photos", () => {

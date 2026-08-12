@@ -78,7 +78,7 @@ test("dashboard uses a transparent controls-only layer ready for full-screen med
   assert.match(topbar, /cl-dashboard-controls/);
   assert.match(topbar, /AnnouncementBell/);
   assert.match(topbar, /cl-topbar__profile/);
-  assert.match(topbar, /cl-topbar__name/);
+  assert.doesNotMatch(topbar, /cl-topbar__name/);
   assert.doesNotMatch(topbar, /<video|header\.mp4|DashboardSearch|cogic-live-logo-purple\.png|cogic-phrase\.png|cl-topbar--video/);
   assert.doesNotMatch(topbar, /AttendeeDesktopNav|cl-topnav/);
   assert.doesNotMatch(topbar, /<span>COGIC<\/span>/);
@@ -87,13 +87,13 @@ test("dashboard uses a transparent controls-only layer ready for full-screen med
   assert.match(controlsCss, /\.tools[\s\S]*position:\s*relative[\s\S]*justify-content:\s*flex-end/);
   assert.match(controlsCss, /cl-topbar__account[\s\S]*right:\s*3\.45rem/);
   assert.match(controlsCss, /cl-topbar__profile[\s\S]*margin:\s*0[\s\S]*padding:\s*0/);
-  assert.match(controlsCss, /cl-topbar__name[\s\S]*text-overflow:\s*ellipsis/);
+  assert.doesNotMatch(controlsCss, /cl-topbar__name/);
   assert.match(controlsCss, /cl-topbar__avatar[\s\S]*align-items:\s*center[\s\S]*justify-content:\s*center/);
   assert.doesNotMatch(controlsCss, /content:\s*"Alerts"/);
   assert.match(css, /\.cl-dash\s*\{[\s\S]*background-color:\s*#03040a/);
   assert.match(css, /\.cl-dash\s*\{[\s\S]*background-image:\s*none/);
   assert.doesNotMatch(css, /cl-sidebar|cl-topnav|cl-desktop|@media\s*\(min-width/);
-  assert.match(rootShell, /!useSolidScrollingSurface && <BrandBackdrop/);
+  assert.match(rootShell, /showBrandBackdrop && <BrandBackdrop/);
   assert.match(rootShell, /isMyRegistration/);
 });
 
@@ -108,7 +108,7 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   ]);
   assert.match(shell, /AttendeeDashboardHome/);
   assert.match(shell, /DashboardMobileNav/);
-  assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png"/);
+  assert.match(shell, /src="\/my-sanctuary\/header-backgroung\.png(?:\?[^"]*)?"/);
   assert.doesNotMatch(shell, /bishops-hc-2026-final\.png/);
   assert.doesNotMatch(shell, /<video|mobile_dashboard\.mp4/);
   assert.doesNotMatch(shell, /dashboard-welcome-background\.png/);
@@ -119,7 +119,7 @@ test("dashboard uses one universal attendee shell without desktop XOR mount", as
   assert.match(home, /DashboardLiveStage/);
   assert.match(home, /DASHBOARD_UTILITIES/);
   assert.match(home, /StayConnectedPrompt/);
-  assert.match(home, /MyConvocationCard/);
+  assert.doesNotMatch(home, /MyConvocationCard/);
   assert.match(home, /TodayScheduleCard/);
   assert.match(home, /My Tickets/);
   assert.match(home, /My Housing/);

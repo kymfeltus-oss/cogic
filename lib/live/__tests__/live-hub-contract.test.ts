@@ -68,7 +68,7 @@ test("isolated attendee live page is removed from normal flow", async () => {
   // /live must not be locked into the fixed mobile artboard tab shell.
   assert.doesNotMatch(
     routes,
-    /MOBILE_ARTBOARD_TAB_EXACT\s*=\s*\[[^\]]*"\/live"/s,
+    /MOBILE_ARTBOARD_TAB_EXACT\s*=\s*\[[\s\S]*?"\/live"/,
   );
 });
 

@@ -6,6 +6,8 @@ export type RegistrationAuditAction =
   | "registration.draft_created"
   | "registration.draft_updated"
   | "registration.submitted"
+  | "registration.confirmed"
+  | "registration.canceled"
   | "registration.checkout_started";
 
 export async function writeRegistrationAuditEvent(input: {

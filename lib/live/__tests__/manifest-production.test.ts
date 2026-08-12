@@ -13,9 +13,21 @@ describe("production manifest honesty", () => {
 
   it("requires a published live occurrence and active provider state", () => {
     const occurrence = { status: "live" } as never;
-    const stream = { is_live: true, active_source: "primary", playback_url: "https://live.example/stream.m3u8" } as never;
+    const stream = {
+      is_live: true,
+      active_source: "primary",
+      playback_url: "https://live.example/stream.m3u8",
+    } as never;
+    const streamOffline = {
+      is_live: false,
+      active_source: "primary",
+      playback_url: "https://live.example/stream.m3u8",
+    } as never;
     assert.equal(resolveAuthoritativeLiveState(occurrence, stream), "live");
-    assert.equal(resolveAuthoritativeLiveState(occurrence, { ...stream, is_live: false }), "stream_unavailable");
+    assert.equal(
+      resolveAuthoritativeLiveState(occurrence, streamOffline),
+      "stream_unavailable",
+    );
     assert.equal(resolveAuthoritativeLiveState(null, stream), "offline");
   });
 });

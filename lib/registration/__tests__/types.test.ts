@@ -7,6 +7,7 @@ import {
   REGISTRATION_CHECKOUT_TYPE,
   REGISTRATION_PAYMENT_STATUSES,
   REGISTRATION_STATUSES,
+  sanitizeRegistrationPrimaryDraftInput,
   type RegistrationRow,
 } from "@/lib/registration/types";
 
@@ -70,5 +71,27 @@ describe("registration types", () => {
     assert.equal(mapped.firstName, "Ada");
     assert.equal(mapped.programKey, "cogic-stream-2026");
     assert.equal(mapped.amountCents, null);
+  });
+
+  it("strips client price, status, and identity authority from the primary draft", () => {
+    const sanitized = sanitizeRegistrationPrimaryDraftInput({
+      firstName: "Ada",
+      lastName: "Lovelace",
+      email: "ada@example.com",
+      price_cents: 0,
+      amountCents: 0,
+      status: "CONFIRMED",
+      userId: "attacker-controlled-user",
+      user_id: "attacker-controlled-user",
+    });
+
+    assert.equal(sanitized.firstName, "Ada");
+    assert.equal(sanitized.lastName, "Lovelace");
+    assert.equal(sanitized.email, "ada@example.com");
+    assert.equal("price_cents" in sanitized, false);
+    assert.equal("amountCents" in sanitized, false);
+    assert.equal("status" in sanitized, false);
+    assert.equal("userId" in sanitized, false);
+    assert.equal("user_id" in sanitized, false);
   });
 });

@@ -16,6 +16,14 @@ export async function POST(request: Request) {
       checkIn: String(body?.checkIn ?? ""),
       checkOut: String(body?.checkOut ?? ""),
       adults: body?.adults ? Number(body.adults) : 2,
+      bounds: body?.bounds ?? {
+        north: body?.north,
+        south: body?.south,
+        east: body?.east,
+        west: body?.west,
+        northEast: body?.northEast,
+        southWest: body?.southWest,
+      },
     });
 
     const user = await getUserFromSession();
@@ -29,6 +37,7 @@ export async function POST(request: Request) {
         code: result.code,
         provider: result.provider,
         result_count: result.offers.length,
+        bounds_applied: Boolean(result.bounds),
       },
     });
 

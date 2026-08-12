@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { credentialPresentationCopy, normalizeCredentialPresentationState } from "../credential-presentation-state.ts";
+import { credentialPresentationCopy, normalizeCredentialPresentationState } from "../credential-presentation-state";
 
 test("credential presentation exposes every required truthful state", () => {
   assert.deepEqual(credentialPresentationCopy("issued"), { label: "Issued", message: "Credential issued.", canPresent: true });

@@ -32,7 +32,7 @@ const baseRegistration = (
 test("1 no-registration dashboard state", () => {
   const state = registrationHeadline(baseRegistration(), true);
   assert.equal(state.title, "No Registration");
-  assert.equal(state.cta, "Register for Holy Convocation");
+  assert.equal(state.cta, "Begin Registration");
   assert.equal(state.href, "/register");
 });
 

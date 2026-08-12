@@ -209,15 +209,31 @@ CREATE TABLE public.direct_messages (
   ),
   CONSTRAINT direct_messages_media_limit CHECK (
     coalesce(array_length(media_urls, 1), 0) <= 4
-  ),
-  CONSTRAINT direct_messages_media_https CHECK (
-    coalesce(array_length(media_urls, 1), 0) = 0
-    OR (
-      SELECT bool_and(u ~* '^https://')
-      FROM unnest(media_urls) AS u
-    )
   )
 );
+
+-- Postgres disallows subqueries in CHECK; enforce HTTPS media URLs via trigger.
+CREATE OR REPLACE FUNCTION public.direct_messages_validate_media_urls()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM unnest(COALESCE(NEW.media_urls, '{}'::text[])) AS u
+    WHERE u IS NULL OR u !~* '^https://'
+  ) THEN
+    RAISE EXCEPTION 'direct_messages.media_urls must be HTTPS URLs';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS direct_messages_validate_media_urls ON public.direct_messages;
+CREATE TRIGGER direct_messages_validate_media_urls
+  BEFORE INSERT OR UPDATE OF media_urls ON public.direct_messages
+  FOR EACH ROW
+  EXECUTE FUNCTION public.direct_messages_validate_media_urls();
 
 CREATE INDEX direct_messages_recipient_created_idx
   ON public.direct_messages (recipient_id, created_at DESC)

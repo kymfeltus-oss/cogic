@@ -1,6 +1,12 @@
 import "server-only";
 
+import {
+  distributedRateLimitRedisUrl,
+  isDistributedRateLimitConfigured,
+} from "@/lib/rate-limit/config";
 import type { RateLimitBucket, RateLimitDecision, RateLimitStore } from "@/lib/rate-limit/types";
+
+export { isDistributedRateLimitConfigured };
 
 type RedisClientLike = {
   incr(key: string): Promise<number>;
@@ -12,12 +18,7 @@ type RedisClientLike = {
 let redisClientPromise: Promise<RedisClientLike | null> | null = null;
 
 function redisUrl(): string {
-  return (
-    process.env.REDIS_URL?.trim() ||
-    process.env.UPSTASH_REDIS_URL?.trim() ||
-    process.env.RATE_LIMIT_REDIS_URL?.trim() ||
-    ""
-  );
+  return distributedRateLimitRedisUrl(process.env);
 }
 
 async function getRedisClient(): Promise<RedisClientLike | null> {
@@ -44,10 +45,6 @@ async function getRedisClient(): Promise<RedisClientLike | null> {
   }
 
   return redisClientPromise;
-}
-
-export function isDistributedRateLimitConfigured(): boolean {
-  return redisUrl().length > 0;
 }
 
 export class RedisRateLimitStore implements RateLimitStore {

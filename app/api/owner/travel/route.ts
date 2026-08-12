@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
+import { retiredOwnerActionDisposition } from "@/lib/owner/retired-actions";
 import { requireOwnerUser } from "@/lib/owner/auth";
 import { isOwnerAuthed, ownerAuthFailureResponse } from "@/lib/owner/api-response";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -9,6 +10,10 @@ import {
   listOwnerMarketplaceAttempts,
   marketplaceExceptionQueues,
 } from "@/lib/travel/marketplace/booking";
+import {
+  listOwnerBookingTransactions,
+  listRecentTransactionEvents,
+} from "@/lib/travel/ops/ledger";
 import { TRAVEL_PROGRAM_KEY } from "@/lib/travel/types";
 
 const clean = (v: unknown, n = 1000) => String(v ?? "").trim().slice(0, n) || null;
@@ -19,16 +24,36 @@ export async function GET(request: Request) {
   const db = getSupabaseAdmin();
   const params = new URL(request.url).searchParams;
   const q = params.get("q")?.trim().toLowerCase() || "";
+  const marketplaceUserId = params.get("marketplaceUserId")?.trim() || "";
   const marketplaceProvider = params.get("marketplaceProvider") || "";
   const marketplaceKind = params.get("marketplaceKind") || "";
   const marketplaceBookingStatus = params.get("marketplaceStatus") || "";
   const marketplaceDateFrom = params.get("marketplaceDateFrom") || "";
   const marketplaceDateTo = params.get("marketplaceDateTo") || "";
   const marketplaceStaleOnly = params.get("marketplaceStaleOnly") === "1";
+  const marketplaceSort = params.get("marketplaceSort") || "started_at_desc";
+  const amountMinRaw = params.get("marketplaceAmountMinCents");
+  const amountMaxRaw = params.get("marketplaceAmountMaxCents");
+  const marketplaceAmountMinCents =
+    amountMinRaw != null && amountMinRaw !== "" && Number.isFinite(Number(amountMinRaw))
+      ? Math.round(Number(amountMinRaw))
+      : null;
+  const marketplaceAmountMaxCents =
+    amountMaxRaw != null && amountMaxRaw !== "" && Number.isFinite(Number(amountMaxRaw))
+      ? Math.round(Number(amountMaxRaw))
+      : null;
   const readiness = marketplaceStatus();
 
-  const [hotels, events, res, airports, transport, announcements, marketplaceAttempts] =
-    await Promise.all([
+  const [
+    hotels,
+    events,
+    res,
+    airports,
+    transport,
+    announcements,
+    marketplaceAttempts,
+    bookingTransactions,
+  ] = await Promise.all([
       db
         .from("travel_hotels")
         .select("*,travel_hotel_room_types(*,travel_hotel_nightly_availability(*))")
@@ -59,13 +84,28 @@ export async function GET(request: Request) {
         .eq("program_key", TRAVEL_PROGRAM_KEY)
         .order("published_at", { ascending: false }),
       listOwnerMarketplaceAttempts({
-        q,
+        // Apply free-text `q` after email enrichment so attendee email search works.
+        userId: marketplaceUserId || undefined,
         provider: marketplaceProvider || undefined,
         kind: marketplaceKind || undefined,
         status: marketplaceBookingStatus || undefined,
         dateFrom: marketplaceDateFrom || undefined,
         dateTo: marketplaceDateTo || undefined,
+        amountMinCents: marketplaceAmountMinCents,
+        amountMaxCents: marketplaceAmountMaxCents,
         staleOnly: marketplaceStaleOnly || undefined,
+        sort: marketplaceSort || undefined,
+      }),
+      listOwnerBookingTransactions({
+        userId: marketplaceUserId || undefined,
+        provider: marketplaceProvider || undefined,
+        kind: marketplaceKind || undefined,
+        status: marketplaceBookingStatus || undefined,
+        dateFrom: marketplaceDateFrom || undefined,
+        dateTo: marketplaceDateTo || undefined,
+        amountMinCents: marketplaceAmountMinCents,
+        amountMaxCents: marketplaceAmountMaxCents,
+        sort: marketplaceSort || undefined,
       }),
     ]);
 
@@ -80,7 +120,7 @@ export async function GET(request: Request) {
     : enriched;
 
   const now = Date.now();
-  const marketplaceWithEmail = await Promise.all(
+  const marketplaceWithEmailRaw = await Promise.all(
     marketplaceAttempts.map(async (attempt) => {
       const { data } = await db.auth.admin.getUserById(attempt.user_id);
       return {
@@ -96,9 +136,15 @@ export async function GET(request: Request) {
         start_at: attempt.start_at,
         end_at: attempt.end_at,
         quoted_amount_cents: attempt.quoted_amount_cents,
+        total_amount_cents: attempt.total_amount_cents ?? attempt.quoted_amount_cents,
+        tax_amount_cents: attempt.tax_amount_cents ?? null,
         currency: attempt.currency,
-        confirmation_number: attempt.confirmation_number
-          ? `••••${attempt.confirmation_number.slice(-4)}`
+        payment_intent_id: attempt.payment_intent_id
+          ? `••••${String(attempt.payment_intent_id).slice(-6)}`
+          : null,
+        has_payment_intent: Boolean(attempt.payment_intent_id),
+        confirmation_number: (attempt.supplier_confirmation_number || attempt.confirmation_number)
+          ? `••••${String(attempt.supplier_confirmation_number || attempt.confirmation_number).slice(-4)}`
           : null,
         failure_reason: attempt.failure_reason,
         started_at: attempt.started_at,
@@ -111,6 +157,35 @@ export async function GET(request: Request) {
         attendee_email: data.user?.email ?? null,
       };
     }),
+  );
+  const marketplaceWithEmail = q
+    ? marketplaceWithEmailRaw.filter((row) => JSON.stringify(row).toLowerCase().includes(q))
+    : marketplaceWithEmailRaw;
+
+  const bookingTransactionsWithEmailRaw = await Promise.all(
+    bookingTransactions.map(async (txn) => {
+      const { data } = await db.auth.admin.getUserById(txn.user_id);
+      return {
+        ...txn,
+        payment_intent_id: txn.payment_intent_id
+          ? `••••${String(txn.payment_intent_id).slice(-6)}`
+          : null,
+        has_payment_intent: Boolean(txn.payment_intent_id),
+        confirmation_number: txn.supplier_confirmation_number
+          ? `••••${String(txn.supplier_confirmation_number).slice(-4)}`
+          : null,
+        attendee_email: data.user?.email ?? null,
+      };
+    }),
+  );
+  const bookingTransactionsWithEmail = q
+    ? bookingTransactionsWithEmailRaw.filter((row) =>
+        JSON.stringify(row).toLowerCase().includes(q),
+      )
+    : bookingTransactionsWithEmailRaw;
+
+  const transactionEvents = await listRecentTransactionEvents(
+    bookingTransactionsWithEmail.map((row) => row.id),
   );
 
   const queues = marketplaceExceptionQueues(marketplaceAttempts, now);
@@ -141,7 +216,7 @@ export async function GET(request: Request) {
         hotelsSearchOperational: readiness.hotels.searchOperational,
         flightsSearchOperational: readiness.flights.searchOperational,
         carsSearchOperational: readiness.cars.searchOperational,
-        bookingHandoffOperational: readiness.bookingHandoffOperational,
+        checkoutFulfillmentOperational: readiness.checkoutFulfillmentOperational,
       },
       analytics: { total: events.count ?? 0 },
       reservations,
@@ -149,6 +224,8 @@ export async function GET(request: Request) {
       transport: transport.data ?? [],
       announcements: announcements.data ?? [],
       marketplaceAttempts: marketplaceWithEmail,
+      bookingTransactions: bookingTransactionsWithEmail,
+      transactionEvents,
       marketplaceQueues: queues,
       marketplaceProviderExceptions: providerExceptions,
     },
@@ -283,6 +360,16 @@ export async function PATCH(request: Request) {
   const id = clean(body?.id, 64);
   const action = String(body?.action ?? "");
 
+  // owner_verify_retired: Owner verify/confirm is retired (verify, confirm, mark_verified).
+  // Fail closed before DB access: manual verification never alters transaction state.
+  const retiredAction = retiredOwnerActionDisposition("travel", action);
+  if (retiredAction) {
+    return NextResponse.json(
+      { error: retiredAction.error, code: retiredAction.code },
+      { status: 410 },
+    );
+  }
+
   if (body?.kind === "airport" || body?.kind === "transport" || body?.kind === "announcement") {
     if (!id) return NextResponse.json({ error: "Id required." }, { status: 400 });
     const table =
@@ -317,22 +404,27 @@ export async function PATCH(request: Request) {
       : NextResponse.json({ ok: true });
   }
 
-  if (!id || !["verify","cancel"].includes(action)) {
-    return NextResponse.json({ error: "Unsupported action." }, { status: 400 });
+  // Reservation mutations: cancel only (ledger / supplier sync live elsewhere).
+  if (!id || action !== "cancel") {
+    return NextResponse.json({ error: "Unsupported action. Allowed: cancel." }, { status: 400 });
   }
 
-  const status = action === "verify" ? "confirmed" : "canceled";
-  const changes: any = {
-    reservation_status: status,
-    updated_at: new Date().toISOString(),
-  };
-  if (action === "verify") {
-    changes.verified_by = auth.userId;
-    changes.confirmed_at = new Date().toISOString();
-  } else {
-    changes.primary_stay = false;
-    changes.canceled_at = new Date().toISOString();
+  const { data: existing, error: existingError } = await db
+    .from("travel_hotel_reservations")
+    .select("id,confirmation_number,reservation_status")
+    .eq("id", id)
+    .eq("program_key", TRAVEL_PROGRAM_KEY)
+    .maybeSingle();
+  if (existingError || !existing) {
+    return NextResponse.json({ error: "Reservation not found." }, { status: 404 });
   }
+
+  const changes: Record<string, unknown> = {
+    reservation_status: "canceled",
+    updated_at: new Date().toISOString(),
+    primary_stay: false,
+    canceled_at: new Date().toISOString(),
+  };
 
   const { data, error } = await db
     .from("travel_hotel_reservations")
@@ -347,8 +439,11 @@ export async function PATCH(request: Request) {
   await db.from("travel_hotel_reservation_audit").insert({
     reservation_id: id,
     actor_user_id: auth.userId,
-    action: `admin_${action}`,
-    details: {},
+    action: "admin_cancel",
+    details: {
+      previous_status: existing.reservation_status,
+      had_confirmation: Boolean(String(existing.confirmation_number || "").trim()),
+    },
   });
-  return NextResponse.json({ ok: true, status });
+  return NextResponse.json({ ok: true, status: "canceled" });
 }

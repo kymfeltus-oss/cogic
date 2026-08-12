@@ -8,8 +8,8 @@ const read = (file: string) => readFile(path.join(root, file), "utf8");
 
 describe("COGIC Giving UI and checkout contract", () => {
   it("uses official branding and semantic interactive controls", async () => {
-    const [brand, amount, quick, funds, note, methods, submit] = await Promise.all([
-      read("components/giving/GivingBrandHeader.tsx"),
+    const [experience, amount, quick, funds, note, methods, submit] = await Promise.all([
+      read("components/giving/CogicGivingExperience.tsx"),
       read("components/giving/GivingAmountInput.tsx"),
       read("components/giving/GivingQuickAmounts.tsx"),
       read("components/giving/GivingFundSelector.tsx"),
@@ -17,7 +17,8 @@ describe("COGIC Giving UI and checkout contract", () => {
       read("components/giving/GivingPaymentMethods.tsx"),
       read("components/giving/GivingSubmitButton.tsx"),
     ]);
-    assert.match(brand, /COGIC_GIVING_SEAL_SRC/);
+    assert.match(experience, /\/giving\/giving_input\.png/);
+    assert.doesNotMatch(experience, /GivingBrandHeader/);
     assert.match(amount, /inputMode="decimal"/);
     assert.match(amount, /htmlFor="cogic-giving-amount-input"/);
     assert.match(quick, /aria-pressed=\{pressed\}/);

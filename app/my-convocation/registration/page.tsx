@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import MyRegistrationDashboard from "@/components/registration/MyRegistrationDashboard";
 import { getUserFromSession } from "@/lib/auth/session";
 import { COGIC_LIVE_PUBLIC_NAME } from "@/lib/brand/public-display";
 import { loadMyRegistrationDashboard } from "@/lib/registration/load-my-registration";
-import MyRegistrationDashboard from "@/components/registration/MyRegistrationDashboard";
 import "./registration-dashboard.css";
 
 export const dynamic = "force-dynamic";
@@ -25,13 +25,19 @@ export default async function MyRegistrationPage() {
 
   return (
     <main id="main-content" className="mr-page">
-      <header className="mr-page__header">
-        <Link href="/my-convocation" className="mr-back">
-          ← My Convocation
-        </Link>
-        <h1>My Registration</h1>
-        <p>Your Holy Convocation registration status, group, payments, policies, and credential.</p>
+      <header className="mr-artwork-controls">
+        <Link
+          href="/my-convocation"
+          className="mr-artwork-control mr-artwork-control--back"
+          aria-label="Back to My Convocation"
+        />
+        <Link
+          href="/my-convocation"
+          className="mr-artwork-control mr-artwork-control--home"
+          aria-label="COGIC LIVE home"
+        />
       </header>
+      <h1 className="mr-sr-only">Registration Hub</h1>
       <MyRegistrationDashboard initialData={data} />
     </main>
   );

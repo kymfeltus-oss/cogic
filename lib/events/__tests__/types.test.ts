@@ -4,7 +4,7 @@ import {
   isEventType,
   parseEventType,
   DEFAULT_PROGRAM_KEY,
-} from "../types.ts";
+} from "../types";
 
 describe("event type validation", () => {
   it("accepts 2026 event types and rejects unknown", () => {
