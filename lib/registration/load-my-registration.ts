@@ -264,11 +264,11 @@ export async function loadMyRegistrationDashboard(
         state: "unauthorized",
         nextActions: [
           {
-            id: "sign_in",
-            label: "Sign in",
-            href: "/login?next=%2Fmy-convocation%2Fregistration",
+            id: "open_dashboard",
+            label: "Open My Convocation",
+            href: "/my-convocation",
             priority: 1,
-            reason: "Sign in to view My Registration.",
+            reason: "Open My Convocation to continue.",
           },
         ],
       });

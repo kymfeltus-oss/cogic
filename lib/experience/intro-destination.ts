@@ -1,8 +1,4 @@
-import { isAttendeeAuthOpen } from "@/lib/auth/attendee-auth-open";
-import {
-  buildAttendeeGateUrl,
-  DEFAULT_ATTENDEE_NEXT,
-} from "@/lib/auth/routing";
+import { DEFAULT_ATTENDEE_NEXT } from "@/lib/auth/routing";
 
 export type IntroEnterReason =
   | "anonymous"
@@ -16,60 +12,27 @@ export type IntroEnterDestination = {
 };
 
 /**
- * Resolve where Enter should go based on session + registration.
- * Pure — server route supplies auth/registration facts.
- *
- * When ATTENDEE_AUTH_OPEN is on, everyone goes straight to the dashboard.
- * Otherwise anonymous attendees go to `/login` (hard navigation from intro)
- * to avoid soft RSC hops through `/email-gate` → `/login`.
+ * Enter always goes to the attendee dashboard.
+ * Attendee login is not part of the public entry path.
  */
 export function resolveIntroEnterDestination(input: {
   userId: string | null;
   isGuest: boolean;
   hasActiveRegistration: boolean;
 }): IntroEnterDestination {
-  if (isAttendeeAuthOpen()) {
-    return {
-      destination: DEFAULT_ATTENDEE_NEXT,
-      reason: input.userId
-        ? input.isGuest
-          ? "guest"
-          : input.hasActiveRegistration
-            ? "registered"
-            : "unregistered"
-        : "anonymous",
-    };
-  }
-
-  if (!input.userId) {
-    return {
-      destination: buildAttendeeGateUrl(DEFAULT_ATTENDEE_NEXT),
-      reason: "anonymous",
-    };
-  }
-
-  if (input.isGuest) {
-    return {
-      destination: DEFAULT_ATTENDEE_NEXT,
-      reason: "guest",
-    };
-  }
-
-  if (!input.hasActiveRegistration) {
-    return {
-      destination: "/register",
-      reason: "unregistered",
-    };
-  }
-
   return {
     destination: DEFAULT_ATTENDEE_NEXT,
-    reason: "registered",
+    reason: input.userId
+      ? input.isGuest
+        ? "guest"
+        : input.hasActiveRegistration
+          ? "registered"
+          : "unregistered"
+      : "anonymous",
   };
 }
 
 /** Fallback when the destination API is unavailable. */
 export function introEnterAnonymousFallback(): string {
-  if (isAttendeeAuthOpen()) return DEFAULT_ATTENDEE_NEXT;
-  return buildAttendeeGateUrl(DEFAULT_ATTENDEE_NEXT);
+  return DEFAULT_ATTENDEE_NEXT;
 }

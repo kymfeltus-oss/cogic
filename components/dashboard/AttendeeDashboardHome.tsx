@@ -40,16 +40,8 @@ export default function AttendeeDashboardHome({
           },
         ];
 
-  const ticketsHref = !signedIn
-    ? "/login?next=%2Ftickets"
-    : data.tickets.error
-      ? "/my-convocation"
-      : "/tickets";
-  const housingHref = !signedIn
-    ? "/login?next=%2Fhousing"
-    : data.housing.error
-      ? "/my-convocation"
-      : "/housing";
+  const ticketsHref = data.tickets.error ? "/my-convocation" : "/tickets";
+  const housingHref = data.housing.error ? "/my-convocation" : "/housing";
 
   return (
     <main id="main-content" className="cl-mobile-home">

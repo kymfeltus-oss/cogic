@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import RegistrationGroupStatus from "@/components/registration/RegistrationGroupStatus";
 import { parseAccessContext } from "@/lib/access";
-import { buildAttendeeGateUrl, CREATE_ACCOUNT_PATH } from "@/lib/auth/routing";
+import { DEFAULT_ATTENDEE_NEXT, CREATE_ACCOUNT_PATH } from "@/lib/auth/routing";
 import { getUserFromSession } from "@/lib/auth/session";
 import { loadOrMigrateRegistrationExperience } from "@/lib/registration/slice2-repository";
 
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function RegisterPaymentCompletePage() {
   const user = await getUserFromSession();
   if (!user) {
-    redirect(buildAttendeeGateUrl("/register/payment/complete"));
+    redirect(DEFAULT_ATTENDEE_NEXT);
   }
   if (parseAccessContext(user).isGuest) {
     redirect(`${CREATE_ACCOUNT_PATH}?next=${encodeURIComponent("/register/payment/complete")}`);

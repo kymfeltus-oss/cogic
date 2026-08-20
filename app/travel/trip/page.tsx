@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default async function TravelTripPage() {
   const user = await getUserFromSession();
   if (!user?.id) {
-    redirect("/login?next=%2Ftravel%2Ftrip");
+    redirect("/travel");
   }
 
   return (

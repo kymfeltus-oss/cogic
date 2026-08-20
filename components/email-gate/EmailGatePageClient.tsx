@@ -3,11 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import EmailGatePersonaPlate from "@/components/email-gate/EmailGatePersonaPlate";
 import {
-  buildAttendeeGateUrl,
   buildTeamGateUrl,
   resolveAttendeeDestination,
   sanitizeNextPath,
-  setAuthNextCookie,
   DEFAULT_ATTENDEE_NEXT,
 } from "@/lib/auth/routing";
 
@@ -20,9 +18,8 @@ export default function EmailGatePageClient() {
 
   return (
     <EmailGatePersonaPlate
-      attendeeHref={buildAttendeeGateUrl(attendeeNext)}
+      attendeeHref={attendeeNext}
       teamHref={buildTeamGateUrl(rawNext)}
-      onAttendeeSelect={() => setAuthNextCookie(attendeeNext)}
     />
   );
 }

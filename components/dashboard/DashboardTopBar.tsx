@@ -9,7 +9,6 @@ import styles from "./DashboardTopBar.module.css";
 /** Persistent dashboard controls, intentionally independent of decorative header media. */
 export default function DashboardTopBar({
   profile,
-  profileReturnPath = "/my-convocation",
   onProfile,
 }: {
   profile: AttendeeProfileSnapshot;
@@ -43,13 +42,9 @@ export default function DashboardTopBar({
               {avatar}
             </button>
           ) : (
-            <a
-              href={`/login?next=${encodeURIComponent(profileReturnPath)}`}
-              className="cl-topbar__profile"
-              aria-label="Sign in to access your profile"
-            >
+            <span className="cl-topbar__profile" aria-label="Guest profile">
               {avatar}
-            </a>
+            </span>
           )}
         </div>
 

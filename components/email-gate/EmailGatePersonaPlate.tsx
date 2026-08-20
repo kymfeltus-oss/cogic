@@ -8,7 +8,7 @@ import { EXPERIENCE_BRAND_ASSETS } from "@/lib/experience/brand-assets";
 type EmailGatePersonaPlateProps = {
   attendeeHref: string;
   teamHref: string;
-  onAttendeeSelect: () => void;
+  onAttendeeSelect?: () => void;
 };
 
 /** Hard navigate — avoids flaky App Router RSC soft fetches to auth gates. */
@@ -56,7 +56,7 @@ export default function EmailGatePersonaPlate({
             <a
               href={attendeeHref}
               onClick={(event) => {
-                onAttendeeSelect();
+                onAttendeeSelect?.();
                 hardNavigate(attendeeHref, event);
               }}
               className="touch-target group flex min-h-[4rem] w-full items-center justify-between gap-3 rounded-xl border border-brand-blue/45 bg-brand-blue/12 px-4 py-3 transition hover:bg-brand-blue/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
@@ -70,7 +70,7 @@ export default function EmailGatePersonaPlate({
                     Attendee
                   </span>
                   <span className="mt-0.5 block font-body text-xs text-brand-muted">
-                    Log in or create account
+                    Continue to your dashboard
                   </span>
                 </span>
               </span>

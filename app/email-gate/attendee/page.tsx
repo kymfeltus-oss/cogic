@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { ATTENDEE_GATE_PATH } from "@/lib/auth/routing";
+import { DEFAULT_ATTENDEE_NEXT } from "@/lib/auth/routing";
 
-/** Legacy path — canonical login route is `/login`. */
+/** Legacy attendee gate — login is disabled. */
 export default function LegacyAttendeeGatePage() {
-  redirect(ATTENDEE_GATE_PATH);
+  redirect(DEFAULT_ATTENDEE_NEXT);
 }

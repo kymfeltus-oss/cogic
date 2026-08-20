@@ -24,72 +24,39 @@ test("intro plate uses intro mobile.png at native 941×1672", async () => {
   assert.equal(INTRO_ENTER_PANEL.top + INTRO_ENTER_PANEL.height <= 100, true);
 });
 
-test("intro Enter destination routes by auth and registration", () => {
-  const previous = process.env.ATTENDEE_AUTH_OPEN;
-  process.env.ATTENDEE_AUTH_OPEN = "false";
-  try {
-    assert.match(
-      resolveIntroEnterDestination({
-        userId: null,
-        isGuest: false,
-        hasActiveRegistration: false,
-      }).destination,
-      /^\/login\?/,
-    );
-    assert.equal(
-      resolveIntroEnterDestination({
-        userId: "u1",
-        isGuest: true,
-        hasActiveRegistration: false,
-      }).destination,
-      "/my-convocation",
-    );
-    assert.equal(
-      resolveIntroEnterDestination({
-        userId: "u1",
-        isGuest: false,
-        hasActiveRegistration: false,
-      }).destination,
-      "/register",
-    );
-    assert.equal(
-      resolveIntroEnterDestination({
-        userId: "u1",
-        isGuest: false,
-        hasActiveRegistration: true,
-      }).destination,
-      "/my-convocation",
-    );
-  } finally {
-    if (previous === undefined) delete process.env.ATTENDEE_AUTH_OPEN;
-    else process.env.ATTENDEE_AUTH_OPEN = previous;
-  }
-});
-
-test("intro Enter goes straight to dashboard when attendee auth is open", () => {
-  const previous = process.env.ATTENDEE_AUTH_OPEN;
-  process.env.ATTENDEE_AUTH_OPEN = "true";
-  try {
-    assert.equal(
-      resolveIntroEnterDestination({
-        userId: null,
-        isGuest: false,
-        hasActiveRegistration: false,
-      }).destination,
-      "/my-convocation",
-    );
-    assert.equal(
-      resolveIntroEnterDestination({
-        userId: "u1",
-        isGuest: false,
-        hasActiveRegistration: false,
-      }).destination,
-      "/my-convocation",
-    );
-  } finally {
-    if (previous === undefined) delete process.env.ATTENDEE_AUTH_OPEN;
-    else process.env.ATTENDEE_AUTH_OPEN = previous;
-  }
+test("intro Enter always goes to the attendee dashboard", () => {
+  assert.equal(
+    resolveIntroEnterDestination({
+      userId: null,
+      isGuest: false,
+      hasActiveRegistration: false,
+    }).destination,
+    "/my-convocation",
+  );
+  assert.equal(
+    resolveIntroEnterDestination({
+      userId: "u1",
+      isGuest: true,
+      hasActiveRegistration: false,
+    }).destination,
+    "/my-convocation",
+  );
+  assert.equal(
+    resolveIntroEnterDestination({
+      userId: "u1",
+      isGuest: false,
+      hasActiveRegistration: false,
+    }).destination,
+    "/my-convocation",
+  );
+  assert.equal(
+    resolveIntroEnterDestination({
+      userId: "u1",
+      isGuest: false,
+      hasActiveRegistration: true,
+    }).destination,
+    "/my-convocation",
+  );
 });
 
 test("intro experience wires Enter hit to measured panel and destination API", async () => {

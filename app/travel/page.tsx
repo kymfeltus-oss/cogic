@@ -43,7 +43,7 @@ export default async function TravelPage() {
     travelInfo.announcements.length > 0;
   const profile = buildAttendeeProfileSnapshot(user, attendeeRecord);
   const profileName = [profile.title, profile.firstName, profile.lastName].filter(Boolean).join(" ");
-  const profileHref = user ? "/my-convocation?view=profile" : "/login?next=%2Ftravel";
+  const profileHref = user ? "/my-convocation?view=profile" : "/my-convocation";
 
   return (
     <main id="main-content" className="ct-page">

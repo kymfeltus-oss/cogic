@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import MyRegistrationDashboard from "@/components/registration/MyRegistrationDashboard";
 import { getUserFromSession } from "@/lib/auth/session";
 import { COGIC_LIVE_PUBLIC_NAME } from "@/lib/brand/public-display";
@@ -17,11 +16,7 @@ export const metadata: Metadata = {
 
 export default async function MyRegistrationPage() {
   const user = await getUserFromSession();
-  if (!user?.id) {
-    redirect("/login?next=%2Fmy-convocation%2Fregistration");
-  }
-
-  const data = await loadMyRegistrationDashboard(user.id);
+  const data = await loadMyRegistrationDashboard(user?.id);
 
   return (
     <main id="main-content" className="mr-page">

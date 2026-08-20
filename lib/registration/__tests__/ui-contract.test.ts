@@ -97,7 +97,7 @@ describe("registration UI / security contracts", () => {
     const review = read("app/register/review/page.tsx");
     const complete = read("app/register/payment/complete/page.tsx");
 
-    assert.match(page, /buildAttendeeGateUrl\("\/register"\)/);
+    assert.match(page, /redirect\(DEFAULT_ATTENDEE_NEXT\)/);
     assert.match(page, /loadOrMigrateRegistrationExperience/);
     assert.match(page, /initial\.group\?\.status === "confirmed"/);
     assert.match(page, /resolveRegisterWizardIntent/);
@@ -105,10 +105,10 @@ describe("registration UI / security contracts", () => {
     assert.match(page, /redirect\(`\/register\?step=\$\{resolved\.activeStepId\}`\)/);
     assert.match(page, /clampedFromIllegalIntent/);
     assert.match(page, /intent signal, not a permission/);
-    assert.match(review, /buildAttendeeGateUrl\("\/register\/review"\)/);
+    assert.match(review, /redirect\(DEFAULT_ATTENDEE_NEXT\)/);
     assert.match(review, /RegistrationGroupStatus/);
     assert.match(review, /loadOrMigrateRegistrationExperience/);
-    assert.match(complete, /buildAttendeeGateUrl\("\/register\/payment\/complete"\)/);
+    assert.match(complete, /redirect\(DEFAULT_ATTENDEE_NEXT\)/);
     assert.match(complete, /RegistrationGroupStatus/);
     const experienceApi = read("app/api/registration/experience/route.ts");
     assert.match(experienceApi, /parseAccessContext/);

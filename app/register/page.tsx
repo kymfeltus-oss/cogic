@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import RegistrationSlice2Experience from "@/components/registration/RegistrationSlice2Experience";
 import BeforeYouBegin from "@/components/registration/BeforeYouBegin";
 import { parseAccessContext } from "@/lib/access";
-import { buildAttendeeGateUrl, CREATE_ACCOUNT_PATH } from "@/lib/auth/routing";
+import { DEFAULT_ATTENDEE_NEXT, CREATE_ACCOUNT_PATH } from "@/lib/auth/routing";
 import { getUserFromSession } from "@/lib/auth/session";
 import { resolveRegisterWizardIntent } from "@/lib/registration/registration-requirements";
 import { loadOrMigrateRegistrationExperience } from "@/lib/registration/slice2-repository";
@@ -26,7 +26,7 @@ type RegisterPageProps = {
 export default async function RegisterPage({ searchParams }: RegisterPageProps) {
   const user = await getUserFromSession();
   if (!user) {
-    redirect(buildAttendeeGateUrl("/register"));
+    redirect(DEFAULT_ATTENDEE_NEXT);
   }
   if (parseAccessContext(user).isGuest) {
     redirect(`${CREATE_ACCOUNT_PATH}?next=${encodeURIComponent("/register")}`);
