@@ -35,6 +35,7 @@ function matchesHiddenPrefix(pathname: string, prefix: string): boolean {
 const MOBILE_ARTBOARD_TAB_EXACT = [
   "/music",
   "/program",
+  "/digital-program",
   "/buy-seeds",
   "/contact-us",
   "/experience/contact-us",

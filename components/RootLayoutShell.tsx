@@ -29,13 +29,14 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
     pathname === "/travel" || pathname.startsWith("/travel/");
   const isIntro = pathname === "/intro" || pathname.startsWith("/intro/");
   const isArtboardTab = isMobileArtboardTabRoute(pathname);
+  const isDigitalProgram = pathname === "/digital-program";
   const isFullHeightArtboard = isFullHeightArtboardRoute(pathname);
   const useFlexViewportShell = isArtboardTab || isFullHeightArtboard;
   // Dashboards / travel mount their own mobile chrome — no shared attendee nav.
   // Registration + Giving keep the dock, but drop the shared logo topbar.
   const hasSharedDock = !hideNav && !isCogicDashboard && !isTravelShell;
   const hasSharedTopBar =
-    hasSharedDock && !isMyRegistration && !isRegisterFlow && !isGiving;
+    hasSharedDock && !isMyRegistration && !isRegisterFlow && !isGiving && !isDigitalProgram;
   const useSolidScrollingSurface =
     isCogicDashboard ||
     isTravelShell ||
@@ -44,7 +45,7 @@ export default function RootLayoutShell({ children }: RootLayoutShellProps) {
     isGiving;
   const atmosphereVariant = brandVariantFromPath(pathname);
   // Full-bleed intro owns the first paint — skip global watermark so it cannot steal LCP.
-  const showBrandBackdrop = !useSolidScrollingSurface && !isIntro;
+  const showBrandBackdrop = !useSolidScrollingSurface && !isIntro && !isDigitalProgram;
 
   if (isCredentialRoute) {
     return (

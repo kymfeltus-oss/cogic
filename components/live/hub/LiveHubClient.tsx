@@ -150,6 +150,7 @@ export default function LiveHubClient({ data }: LiveHubClientProps) {
                 <LiveShareButton className="live-hub__btn live-hub__btn--ghost" label="Share" />
               </div>
               <div className="live-hub__service-links">
+                <Link href="/digital-program"><CalendarDays aria-hidden="true" /> Digital Program</Link>
                 <Link href="/program"><CalendarDays aria-hidden="true" /> Order of Service</Link>
                 <Link href="/replays"><Radio aria-hidden="true" /> Replays</Link>
                 <Link href="/my-sanctuary"><Library aria-hidden="true" /> My Library</Link>
@@ -229,6 +230,7 @@ export default function LiveHubClient({ data }: LiveHubClientProps) {
           <section className="live-hub__convocation-tools">
             <h2>My Convocation</h2>
             <nav aria-label="Convocation tools">
+              <Link href="/digital-program"><CalendarDays aria-hidden="true" /><span><strong>Digital Program</strong><small>Interactive event program</small></span></Link>
               <Link href="/program"><CalendarDays aria-hidden="true" /><span><strong>Schedule</strong><small>View full schedule</small></span></Link>
               <Link href="/register"><TicketCheck aria-hidden="true" /><span><strong>Registration</strong><small>Manage registration</small></span></Link>
               <Link href="/replays"><PlaySquare aria-hidden="true" /><span><strong>Replays</strong><small>Watch published media</small></span></Link>

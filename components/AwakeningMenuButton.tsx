@@ -27,6 +27,7 @@ export type AwakeningMenuItem = {
 export const AWAKENING_MENU_ITEMS: AwakeningMenuItem[] = [
   { id: "home", label: "Home", href: ATTENDEE_DASHBOARD_PATH, match: "prefix" },
   { id: "live", label: "Live Room", href: EXPERIENCE_LIVE_PATH, match: "prefix" },
+  { id: "digital-program", label: "Digital Program", href: "/digital-program", match: "prefix" },
   { id: "program", label: "Program", href: "/program", match: "prefix" },
   { id: "travel", label: "COGIC Travel", href: "/travel", match: "prefix" },
   { id: "seed", label: "COGIC Giving", href: "/giving", match: "prefix" },

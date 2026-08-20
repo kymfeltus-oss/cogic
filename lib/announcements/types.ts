@@ -31,6 +31,7 @@ export type AnnouncementAudience = (typeof ANNOUNCEMENT_AUDIENCES)[number];
 /** Allowlisted internal CTA destinations only — no arbitrary external injection. */
 export const ANNOUNCEMENT_CTA_HREFS = [
   "/live",
+  "/digital-program",
   "/program",
   "/giving",
   "/replays",
