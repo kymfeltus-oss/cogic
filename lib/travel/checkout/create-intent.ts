@@ -31,6 +31,7 @@ import {
   priceCheckExpediaCar,
   priceCheckExpediaHotel,
 } from "@/lib/travel/marketplace/expedia-rapid";
+import { assertHotelStayEligible, resolveTravelRegistrationEligibility } from "@/lib/travel/registration-eligibility";
 
 export type CreateTravelIntentInput = {
   userId: string;
@@ -433,6 +434,13 @@ export async function createTravelCheckoutIntent(input: CreateTravelIntentInput)
   }
   if (sessionUserId !== input.userId) {
     throw new Error("Checkout session identity does not match authenticated buyer.");
+  }
+  if (kind === "hotel") {
+    assertHotelStayEligible(
+      await resolveTravelRegistrationEligibility(sessionUserId),
+      String(input.checkIn ?? input.offer?.checkIn ?? ""),
+      String(input.checkOut ?? input.offer?.checkOut ?? ""),
+    );
   }
 
   const provider = requireProviderForKind(kind);

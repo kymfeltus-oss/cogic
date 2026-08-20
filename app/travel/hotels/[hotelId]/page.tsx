@@ -1,14 +1,16 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { TravelShell } from "@/components/travel/TravelShell";
 import HotelPhoto from "@/components/travel/HotelPhoto";
 import { publishedHotel } from "@/lib/travel/repository";
 import HotelAvailabilityClient from "@/components/travel/HotelAvailabilityClient";
 import { getUserFromSession } from "@/lib/auth/session";
 import { userHotelState } from "@/lib/travel/reservations";
+import { resolveTravelRegistrationEligibility } from "@/lib/travel/registration-eligibility";
 export const dynamic="force-dynamic";
 export default async function Page({params,searchParams}:{params:Promise<{hotelId:string}>;searchParams:Promise<{checkIn?:string;checkOut?:string}>}){
- const[{hotelId},query]=await Promise.all([params,searchParams]),hotel=await publishedHotel(hotelId);if(!hotel)notFound();
- const user=await getUserFromSession(),state=user?.id?await userHotelState(user.id):null,staying=state?.reservations.find(r=>r.hotel_id===hotel.id&&r.reservation_status==="confirmed");
+ const[{hotelId},query,user]=await Promise.all([params,searchParams,getUserFromSession()]),eligibility=await resolveTravelRegistrationEligibility(user?.id);if(!eligibility.officialHousingEligible)redirect("/travel");
+ const hotel=await publishedHotel(hotelId);if(!hotel)notFound();
+ const state=user?.id?await userHotelState(user.id):null,staying=state?.reservations.find(r=>r.hotel_id===hotel.id&&r.reservation_status==="confirmed");
  return <TravelShell back><p className="mt-8 font-black tracking-[.18em] text-[#efc23e]">{hotel.cogic_designation==="BISHOPS"?"BISHOPS HOTEL":"OFFICIAL COGIC HOUSING"}</p><h1 className="mt-3 max-w-4xl text-5xl font-black">{hotel.name}</h1>
  <div className="relative mt-6 h-64 max-w-4xl overflow-hidden rounded-3xl border border-white/15"><HotelPhoto hotel={hotel} sizes="(max-width: 768px) 100vw, 896px" priority/></div>
  {staying?<div className="mt-6 rounded-2xl border border-green-400/30 bg-green-400/10 p-5"><p className="font-black text-green-300">✓ YOU&apos;RE STAYING HERE</p><p className="mt-2 text-lg">Your reservation: {staying.check_in} – {staying.check_out}</p><a href="/travel/trip" className="mt-3 inline-block underline">Open My Trip</a><p className="mt-3 text-sm text-white/60">Need another room? View availability below.</p></div>:null}

@@ -225,7 +225,7 @@ function emptyDashboard(
       summary: "No issued event tickets.",
       href: "/tickets",
     },
-    travel: { hasActivity: false, href: "/travel/trip" },
+    travel: { hasActivity: false, href: "/travel" },
     credentials: [],
     ...overrides,
   };
@@ -582,7 +582,7 @@ export async function loadMyRegistrationDashboard(
       },
       travel: {
         hasActivity: travelActive,
-        href: "/travel/trip",
+        href: "/travel",
       },
       credentials: members.map((m) => ({
         registrationId: m.registrationId,

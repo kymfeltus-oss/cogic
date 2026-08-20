@@ -19,11 +19,12 @@ describe("COGIC Travel phase contract", () => {
     assert.match(read("components/travel/TravelShell.tsx"), /never show invented prices or availability/i);
   });
 
-  it("integrates registration with optional travel", () => {
+  it("routes confirmed registration to the separate Travel Hub", () => {
     const source =
       read("components/registration/RegistrationGroupStatus.tsx") +
       read("components/registration/RegistrationSlice2Experience.tsx");
-    assert.match(source, /Plan My Trip/);
+    assert.match(source, /Open COGIC Travel/);
+    assert.doesNotMatch(source, /HousingExperience/);
     assert.match(source, /Go to My Convocation/);
   });
 

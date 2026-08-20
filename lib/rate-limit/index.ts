@@ -17,6 +17,10 @@ const CHECKOUT_LIMIT = 8;
 const CHECKOUT_WINDOW_SECONDS = 600;
 const STAFF_SCAN_LIMIT = 240;
 const STAFF_SCAN_WINDOW_SECONDS = 60;
+const OTP_REQUEST_LIMIT = 5;
+const OTP_REQUEST_WINDOW_SECONDS = 15 * 60;
+const OTP_VERIFY_LIMIT = 8;
+const OTP_VERIFY_WINDOW_SECONDS = 15 * 60;
 
 export { isDistributedRateLimitConfigured };
 
@@ -86,4 +90,14 @@ export function rateLimitResponseHeaders(decision: RateLimitDecision): HeadersIn
     headers["X-RateLimit-Remaining"] = String(decision.remaining);
   }
   return headers;
+}
+
+export async function enforceOtpRateLimit(request: Request, identifier: string, phase: "request" | "verify"): Promise<RateLimitDecision> {
+  const ipHash = hashRateLimitIdentifier(clientIpFromRequest(request));
+  const subjectHash = hashRateLimitIdentifier(identifier);
+  return store.hit({
+    key: bucketKey(["account-otp", phase, subjectHash, ipHash]),
+    limit: phase === "request" ? OTP_REQUEST_LIMIT : OTP_VERIFY_LIMIT,
+    windowSeconds: phase === "request" ? OTP_REQUEST_WINDOW_SECONDS : OTP_VERIFY_WINDOW_SECONDS,
+  });
 }

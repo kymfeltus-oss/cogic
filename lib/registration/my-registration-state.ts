@@ -47,15 +47,14 @@ export type RegistrationProgressInput = Pick<
   | "juniorMissingDob"
   | "policyAccepted"
   | "remainingBalanceCents"
-  | "housingPreference"
 > & {
   requiredProfileFieldCount: number;
 };
 
 /**
- * Completion of the seven persisted registration stages. Profile completion is
+ * Completion of the six persisted registration stages. Profile completion is
  * proportional to its required fields; every other stage is backed by saved
- * registration, policy, housing, submission, or payment state.
+ * registration, policy, submission, or payment state. Travel is separate.
  */
 export function calculateRegistrationProgress(input: RegistrationProgressInput) {
   if (input.status === "none") return 0;
@@ -71,11 +70,10 @@ export function calculateRegistrationProgress(input: RegistrationProgressInput) 
     Number(input.hasProduct) +
     groupStage +
     Number(input.policyAccepted) +
-    Number(Boolean(input.housingPreference)) +
     Number(submitted) +
     Number(paymentComplete);
 
-  return Math.max(0, Math.min(100, Math.round((completedStages / 7) * 100)));
+  return Math.max(0, Math.min(100, Math.round((completedStages / 6) * 100)));
 }
 
 const JOURNEY: MyRegistrationJourneyStepId[] = [
@@ -321,28 +319,13 @@ export function buildRegistrationNextActions(
     }
   }
 
-  if (
-    input.status === "confirmed" ||
-    input.status === "submitted" ||
-    input.status === "payment_pending" ||
-    input.status === "draft"
-  ) {
-    actions.push({
-      id: "housing",
-      label: input.housingPreference ? "Review housing" : "Complete/review housing",
-      href: "/housing",
-      priority: input.status === "confirmed" ? 4 : 8,
-      reason: "Housing is managed separately from registration payment totals.",
-    });
-  }
-
   if (input.hasTravelActivity || input.status === "confirmed") {
     actions.push({
       id: "my_trip",
       label: "View My Trip",
-      href: "/travel/trip",
+      href: "/travel",
       priority: 9,
-      reason: "Open travel itinerary without leaving registration context.",
+      reason: "Open the separate COGIC Travel experience.",
     });
   }
 

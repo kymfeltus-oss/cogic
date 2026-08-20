@@ -6,9 +6,11 @@ import { registrationHttpStatus, toSafeRegistrationMessage } from "@/lib/registr
 import { assertSafeRegistrationEnvironment } from "@/lib/registration/runtime-mode";
 import {
   acceptPolicy,
+  acknowledgeBeforeYouBegin,
   loadOrMigrateRegistrationExperience,
   removeGroupRegistrant,
   savePrimaryRegistrationDraft,
+  saveRegistrationExtras,
   saveRegistrant,
   submitGroup,
 } from "@/lib/registration/slice2-repository";
@@ -85,14 +87,44 @@ export async function POST(request: Request) {
   }
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   try {
+    if (body?.action === "acknowledge_before_you_begin") {
+      const result = await acknowledgeBeforeYouBegin(
+        user.id,
+        readVersionContract(body).groupVersion ?? null,
+      );
+      return NextResponse.json({ acknowledgment: result, experience: await loadOrMigrateRegistrationExperience(user.id) });
+    }
     if (body?.action === "save_primary_draft") {
       const draft = sanitizeRegistrationPrimaryDraftInput(readPrimaryDraftSource(body));
+      if (draft.email && draft.email.trim().toLowerCase() !== user.email?.trim().toLowerCase()) {
+        return NextResponse.json({ error: "Verify the new email address before using it for registration." }, { status: 422 });
+      }
       const result = await savePrimaryRegistrationDraft(user.id, draft, readVersionContract(body));
       return NextResponse.json({ draft: result, experience: await loadOrMigrateRegistrationExperience(user.id) });
     }
+    if (body?.action === "save_extras") {
+      const versions = readVersionContract(body);
+      if (!Number.isInteger(versions.groupVersion)) {
+        return NextResponse.json({ error: "Registration version is required." }, { status: 409 });
+      }
+      const result = await saveRegistrationExtras({
+        userId: user.id,
+        expectedGroupVersion: Number(versions.groupVersion),
+        musicalQuantity: Number(body.musicalQuantity ?? 0),
+        printedProgram: body.printedProgram === true,
+        digitalProgram: body.digitalProgram === true,
+        smsOptIn: body.smsOptIn === true,
+        emailOptIn: body.emailOptIn === true,
+      });
+      return NextResponse.json({ selection: result, experience: await loadOrMigrateRegistrationExperience(user.id) });
+    }
     if (body?.action === "save_registrant") {
-      const registrant = await saveRegistrant(user.id, body.registrant as never);
-      return NextResponse.json({ registrant, experience: await loadOrMigrateRegistrationExperience(user.id) });
+      const registrant = body.registrant as { isPrimary?: boolean; email?: string } | null;
+      if (registrant?.isPrimary && registrant.email?.trim().toLowerCase() !== user.email?.trim().toLowerCase()) {
+        return NextResponse.json({ error: "Verify the new email address before using it for registration." }, { status: 422 });
+      }
+      const savedRegistrant = await saveRegistrant(user.id, body.registrant as never);
+      return NextResponse.json({ registrant: savedRegistrant, experience: await loadOrMigrateRegistrationExperience(user.id) });
     }
     if (body?.action === "accept_policy") {
       await acceptPolicy(user.id, body as never);

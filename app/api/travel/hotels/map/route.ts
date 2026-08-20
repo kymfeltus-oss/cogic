@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { parseMapBounds } from "@/lib/travel/map-bounds";
 import { publishedHotelsInBounds } from "@/lib/travel/repository";
 import { resolveHotelImage } from "@/lib/travel/hotel-images";
+import { getUserFromSession } from "@/lib/auth/session";
+import { assertHotelStayEligible, resolveTravelRegistrationEligibility } from "@/lib/travel/registration-eligibility";
 
 export const dynamic = "force-dynamic";
 
@@ -60,6 +62,13 @@ function toPayload(hotel: Awaited<ReturnType<typeof publishedHotelsInBounds>>[nu
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => null);
+    const user = await getUserFromSession();
+    if (!user?.id) return NextResponse.json({error:"Sign in required."},{status:401});
+    assertHotelStayEligible(
+      await resolveTravelRegistrationEligibility(user.id),
+      String(body?.checkIn ?? ""),
+      String(body?.checkOut ?? ""),
+    );
     const bounds = parseMapBounds(body);
     if (!bounds) {
       return NextResponse.json(

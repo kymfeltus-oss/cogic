@@ -9,7 +9,7 @@ import {
   validateCreateAccountForm,
   type CreateAccountFormValues,
 } from "@/lib/auth/create-account-validation";
-import { buildAttendeeGateUrl } from "@/lib/auth/routing";
+import { buildAttendeeGateUrl, buildVerifyAccountUrl } from "@/lib/auth/routing";
 import { buildClientAuthCallbackUrl } from "@/lib/auth/oauth-sign-in";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
@@ -40,7 +40,6 @@ export default function CreateAccountClient({ nextPath }: CreateAccountClientPro
   const [touched, setTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [confirmationSent, setConfirmationSent] = useState(false);
 
   const avatarPreviewUrl = useMemo(() => {
     if (!values.avatarFile) return null;
@@ -139,8 +138,7 @@ export default function CreateAccountClient({ nextPath }: CreateAccountClientPro
       }
 
       if (!data.session) {
-        setConfirmationSent(true);
-        setIsSubmitting(false);
+        window.location.assign(buildVerifyAccountUrl(payload.email, nextPath));
         return;
       }
 
@@ -162,25 +160,7 @@ export default function CreateAccountClient({ nextPath }: CreateAccountClientPro
 
   return (
     <>
-      {confirmationSent ? (
-        <div className="cogic-auth-page mx-auto flex w-full max-w-md flex-col items-center justify-center gap-4 px-6 py-10 text-center">
-          <p className="cogic-auth-title text-2xl">
-            Check Your Email
-          </p>
-          <p className="cogic-auth-copy text-sm leading-relaxed">
-            We sent a confirmation link to{" "}
-            <span className="text-white">{values.email}</span>. Open it on this device to finish
-            setting up your account, then sign in.
-          </p>
-          <a
-            href={loginHref}
-            className="font-ui text-sm font-medium uppercase tracking-[0.1em] text-brand-blue hover:underline"
-          >
-            Back to Log In
-          </a>
-        </div>
-      ) : (
-        <AttendeeAuthCreateAccountPlate
+      <AttendeeAuthCreateAccountPlate
         loginHref={loginHref}
         values={values}
         avatarPreviewUrl={avatarPreviewUrl}
@@ -218,7 +198,6 @@ export default function CreateAccountClient({ nextPath }: CreateAccountClientPro
         onAvatarPick={() => fileInputRef.current?.click()}
         onSubmit={(event) => void handleSubmit(event)}
       />
-      )}
 
       <input
         ref={fileInputRef}

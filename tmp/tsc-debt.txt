@@ -1,0 +1,43 @@
+﻿lib/access/__tests__/slice5-closeout.test.ts(1,218): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/credentials/__tests__/public-outcome.test.ts(51,38): error TS2345: Argument of type 'SafeCredentialResolution' is not assignable to parameter of type 'SafeCredentialResolution & { outcome: "resolved"; status: "active" | "issued"; }'.
+  Type 'SafeCredentialResolution' is not assignable to type '{ outcome: "resolved"; status: "active" | "issued"; }'.
+    Types of property 'outcome' are incompatible.
+      Type '"invalid" | "rotated" | "revoked" | "expired" | "resolved" | "unavailable"' is not assignable to type '"resolved"'.
+        Type '"invalid"' is not assignable to type '"resolved"'.
+lib/events/__tests__/published-query.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/events/__tests__/status.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/events/__tests__/types.test.ts(7,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/housing/__tests__/slice4-closeout.test.ts(1,183): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/live/__tests__/attendee-live-honesty.test.ts(8,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/live/__tests__/attendee-live-honesty.test.ts(12,8): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/live/__tests__/attendee-live-honesty.test.ts(13,31): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/live/__tests__/live-hub-contract.test.ts(71,55): error TS1501: This regular expression flag is only available when targeting 'es2018' or later.
+lib/live/__tests__/manifest-production.test.ts(18,62): error TS2698: Spread types may only be created from object types.
+lib/media/__tests__/media-library-contract.test.ts(11,49): error TS1501: This regular expression flag is only available when targeting 'es2018' or later.
+lib/registration/__tests__/credential-presentation-state.test.ts(3,82): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/registration/__tests__/entitlement-access.test.ts(3,62): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/registration/__tests__/migration-contract.test.ts(46,44): error TS1501: This regular expression flag is only available when targeting 'es2018' or later.
+lib/registration/__tests__/runtime-mode.test.ts(37,15): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+lib/registration/__tests__/runtime-mode.test.ts(98,33): error TS2345: Argument of type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  Property 'NODE_ENV' is missing in type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' but required in type 'ProcessEnv'.
+lib/registration/__tests__/runtime-mode.test.ts(105,35): error TS2345: Argument of type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  Property 'NODE_ENV' is missing in type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' but required in type 'ProcessEnv'.
+lib/registration/__tests__/runtime-mode.test.ts(111,48): error TS2345: Argument of type '{ USE_MOCK_REGISTRATION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  Property 'NODE_ENV' is missing in type '{ USE_MOCK_REGISTRATION: string; }' but required in type 'ProcessEnv'.
+lib/registration/__tests__/runtime-mode.test.ts(171,17): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+lib/registration/__tests__/runtime-mode.test.ts(192,55): error TS2345: Argument of type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  Property 'NODE_ENV' is missing in type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' but required in type 'ProcessEnv'.
+lib/registration/__tests__/runtime-mode.test.ts(261,48): error TS2345: Argument of type '{ USE_MOCK_REGISTRATION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  Property 'NODE_ENV' is missing in type '{ USE_MOCK_REGISTRATION: string; }' but required in type 'ProcessEnv'.
+lib/registration/__tests__/runtime-mode.test.ts(262,46): error TS2345: Argument of type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  Property 'NODE_ENV' is missing in type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' but required in type 'ProcessEnv'.
+lib/registration/__tests__/runtime-mode.test.ts(263,46): error TS2345: Argument of type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' is not assignable to parameter of type 'ProcessEnv'.
+  Property 'NODE_ENV' is missing in type '{ VERCEL_ENV: string; USE_MOCK_REGISTRATION: string; }' but required in type 'ProcessEnv'.
+lib/registration/__tests__/slice2-validation.test.ts(1,163): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/reminders/__tests__/reminders-contract.test.ts(88,68): error TS1501: This regular expression flag is only available when targeting 'es2018' or later.
+lib/tickets/__tests__/slice3-closeout.test.ts(1,148): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/travel/__tests__/hotel-images.test.ts(3,56): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/travel/__tests__/verified-housing.test.ts(1,172): error TS5097: An import path can only end with a '.ts' extension when 'allowImportingTsExtensions' is enabled.
+lib/travel/corporate/supplier-mapping.ts(216,5): error TS2322: Type 'AmadeusConnectionFault | { ok: true; credentials: AmadeusCorporateCredentials; }' is not assignable to type 'MapGroupRequestToAmadeusResult'.
+  Type '{ ok: true; credentials: AmadeusCorporateCredentials; }' is not assignable to type 'MapGroupRequestToAmadeusResult'.
+    Property 'payload' is missing in type '{ ok: true; credentials: AmadeusCorporateCredentials; }' but required in type '{ ok: true; payload: AmadeusCorporateGroupSearchPayload; credentials: AmadeusCorporateCredentials; }'.

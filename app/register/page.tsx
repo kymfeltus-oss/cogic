@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import RegistrationSlice2Experience from "@/components/registration/RegistrationSlice2Experience";
+import BeforeYouBegin from "@/components/registration/BeforeYouBegin";
 import { parseAccessContext } from "@/lib/access";
 import { buildAttendeeGateUrl, CREATE_ACCOUNT_PATH } from "@/lib/auth/routing";
 import { getUserFromSession } from "@/lib/auth/session";
@@ -37,6 +38,15 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
   }
   if (initial.group && initial.group.status !== "draft") {
     redirect("/register/review");
+  }
+
+  const beforeAcknowledged = initial.group?.wizard_metadata?.before_you_begin_acknowledged === true;
+  if (!beforeAcknowledged) {
+    return (
+      <main id="main-content" className="registration-page">
+        <BeforeYouBegin groupVersion={initial.group?.row_version ?? null} />
+      </main>
+    );
   }
 
   const requestedStep = (await searchParams).step?.trim().toLowerCase() ?? "";

@@ -8,6 +8,7 @@ export const ATTENDEE_GATE_PATH = "/login";
 export const CREATE_ACCOUNT_PATH = "/create-account";
 export const FORGOT_PASSWORD_PATH = "/forgot-password";
 export const RESET_PASSWORD_PATH = "/reset-password";
+export const VERIFY_ACCOUNT_PATH = "/verify-account";
 export const TEAM_GATE_PATH = "/email-gate/team";
 export const AUTH_NEXT_COOKIE = "auth_next";
 
@@ -92,6 +93,12 @@ export function buildResetPasswordUrl(nextPath?: string | null): string {
     RESET_PASSWORD_PATH,
     sanitizeNextPath(nextPath, DEFAULT_ATTENDEE_NEXT),
   );
+}
+
+export function buildVerifyAccountUrl(email: string, nextPath?: string | null): string {
+  const params = new URLSearchParams({ email: email.trim().toLowerCase() });
+  params.set("next", resolveAttendeeDestination(nextPath ?? DEFAULT_ATTENDEE_NEXT));
+  return `${VERIFY_ACCOUNT_PATH}?${params.toString()}`;
 }
 
 /** Client-only — stash return path before navigating to `/login` without query params. */

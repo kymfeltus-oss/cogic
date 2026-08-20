@@ -99,7 +99,38 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
       });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const admin = (await import("@/lib/supabase/server")).getSupabaseAdmin();
+    const { data: group } = await admin
+      .from("registration_groups")
+      .select("id,wizard_metadata")
+      .eq("owner_user_id", buyer.userId)
+      .eq("program_key", DEFAULT_PROGRAM_KEY)
+      .maybeSingle();
+    const metadata = (group?.wizard_metadata ?? {}) as Record<string, unknown>;
+    const commerceLines: Array<{ type: "ticket" | "addon"; productId: string; quantity: number }> = [];
+    const musicalQuantity = Number(metadata.musical_ticket_quantity ?? 0);
+    if (musicalQuantity > 0 && metadata.musical_ticket_product_id) commerceLines.push({ type: "ticket", productId: String(metadata.musical_ticket_product_id), quantity: musicalQuantity });
+    if (metadata.printed_program_selected === true && metadata.printed_program_product_id) commerceLines.push({ type: "addon", productId: String(metadata.printed_program_product_id), quantity: 1 });
+    if (metadata.digital_program_selected === true && metadata.digital_program_product_id) commerceLines.push({ type: "addon", productId: String(metadata.digital_program_product_id), quantity: 1 });
+    let commerceOrderId: string | null = null;
+    let commerceOrderLines: Array<{ name_snapshot: string; quantity: number; unit_amount_cents: number }> = [];
+    if (commerceLines.length) {
+      const { data: reserved, error: reserveError } = await admin.rpc("reserve_commerce_order", {
+        p_user_id: buyer.userId,
+        p_program_key: DEFAULT_PROGRAM_KEY,
+        p_lines: commerceLines,
+        p_registration_group_id: group?.id ?? null,
+      });
+      if (reserveError) throw new RegistrationError("conflict", reserveError.message);
+      commerceOrderId = String((reserved as { order_id?: string }).order_id ?? "") || null;
+      if (commerceOrderId) {
+        const { data: rows } = await admin.from("commerce_order_lines").select("name_snapshot,quantity,unit_amount_cents").eq("order_id", commerceOrderId);
+        commerceOrderLines = rows ?? [];
+      }
+    }
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.create({
       mode: "payment",
       // Let Stripe dynamically present eligible cards, wallets, and flexible
       // payment methods configured for registration in the Stripe Dashboard.
@@ -117,6 +148,10 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
             },
           },
         },
+        ...commerceOrderLines.filter((line) => line.unit_amount_cents > 0).map((line) => ({
+          quantity: line.quantity,
+          price_data: { currency: registration.currency, unit_amount: line.unit_amount_cents, product_data: { name: line.name_snapshot } },
+        })),
       ],
       metadata: {
         checkout_type: REGISTRATION_CHECKOUT_TYPE,
@@ -125,10 +160,15 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
         user_id: buyer.userId,
         email: registration.email ?? buyer.email,
         amount_cents: String(registration.amountCents),
+        commerce_order_id: commerceOrderId ?? "",
       },
       success_url: `${appUrl}/register/payment/complete?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/register/review?checkout=canceled`,
-    });
+      });
+    } catch (error) {
+      if (commerceOrderId) await admin.rpc("cancel_ticket_reservation", { p_order_id: commerceOrderId, p_user_id: buyer.userId });
+      throw error;
+    }
 
     if (!session.id || !session.url) {
       return {
@@ -136,6 +176,10 @@ export async function createRegistrationCheckoutSession(request: NextRequest) {
         status: 500,
         error: "Unable to create checkout session.",
       };
+    }
+
+    if (commerceOrderId) {
+      await admin.from("commerce_orders").update({ stripe_session_id: session.id, status: "checkout_created" }).eq("id", commerceOrderId).eq("purchaser_user_id", buyer.userId);
     }
 
     await beginRegistrationCheckout({

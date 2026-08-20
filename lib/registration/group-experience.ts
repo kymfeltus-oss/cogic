@@ -5,7 +5,6 @@ export const REGISTRATION_WIZARD_MILESTONES = [
   { id: "product", label: "Registration type" },
   { id: "group", label: "Group / Junior registrants" },
   { id: "policy", label: "Policy agreement" },
-  { id: "housing", label: "Housing" },
   { id: "review", label: "Review" },
   { id: "payment", label: "Payment / Submit" },
 ] as const;
@@ -87,6 +86,16 @@ export type RegistrationExperience = {
   policy: RegistrationPolicy | null;
   requirements: import("@/lib/registration/registration-requirements").RegistrationRequirementsResult;
   paymentStatus: string | null;
+  profileDefaults?: {
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+    mobilePhone: string | null;
+    city: string | null;
+    state: string | null;
+  };
+  ticketProducts?: Array<{ id: string; product_key: string; name: string; description: string | null; price_cents: number; currency: string; per_order_limit: number }>;
+  addonProducts?: Array<{ id: string; addon_key: string; name: string; description: string | null; price_cents: number; currency: string; max_quantity: number; fulfillment_type: string }>;
 };
 
 export function getPrimaryRegistrant(group: RegistrationGroup | null): GroupRegistrant | null {

@@ -82,7 +82,7 @@ function primaryDraftPayload(input: RegistrationPrimaryDraftInput) {
     last_name: clean(input.lastName),
     suffix: clean(input.suffix),
     email: clean(input.email)?.toLowerCase() ?? null,
-    mobile_phone: clean(input.mobilePhone),
+    mobile_phone: normalizePhone(input.mobilePhone),
     assistant_email: clean(input.assistantEmail)?.toLowerCase() ?? null,
     street_address: clean(input.streetAddress),
     address_line_2: clean(input.addressLine2),
@@ -139,6 +139,15 @@ export async function savePrimaryRegistrationDraft(
 function clean(value: string | null | undefined): string | null {
   const normalized = value?.trim() ?? "";
   return normalized || null;
+}
+
+function normalizePhone(value: string | null | undefined): string | null {
+  const raw = clean(value);
+  if (!raw) return null;
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length >= 8 && digits.length <= 15 && raw.startsWith("+")) return `+${digits}`;
+  throw new RegistrationError("validation", "Enter a valid mobile phone number including country code.");
 }
 
 function requireValue(value: string | null | undefined, label: string): string {
@@ -407,7 +416,7 @@ function toRegistrantPayload(input: RegistrantInput, groupId: string, userId: st
     last_name: requireValue(input.lastName, "Last name"),
     suffix: isPrimary ? clean(input.suffix) : null,
     email: isPrimary ? requireValue(input.email, "Email").toLowerCase() : null,
-    mobile_phone: isPrimary ? requireValue(input.mobilePhone, "Cell phone") : null,
+    mobile_phone: isPrimary ? normalizePhone(input.mobilePhone) : null,
     assistant_email: isPrimary ? clean(input.assistantEmail)?.toLowerCase() ?? null : null,
     street_address: isPrimary
       ? requireValue(input.streetAddress, "Address line 1")
@@ -442,7 +451,7 @@ function toRegistrantPayload(input: RegistrantInput, groupId: string, userId: st
 
 export async function loadRegistrationExperience(userId: string): Promise<RegistrationExperience> {
   const db = getSupabaseAdmin();
-  const [{ data: products, error: productsError }, { data: group, error: groupError }, { data: policy, error: policyError }] =
+  const [{ data: products, error: productsError }, { data: group, error: groupError }, { data: policy, error: policyError }, { data: attendee }] =
     await Promise.all([
       db
         .from("registration_products")
@@ -465,6 +474,7 @@ export async function loadRegistrationExperience(userId: string): Promise<Regist
         .eq("program_key", DEFAULT_PROGRAM_KEY)
         .eq("status", "published")
         .maybeSingle(),
+      db.from("attendees").select("first_name,last_name,email,phone,city,state").eq("id", userId).maybeSingle(),
     ]);
 
   if (productsError || groupError || policyError) {
@@ -513,7 +523,66 @@ export async function loadRegistrationExperience(userId: string): Promise<Regist
     housingPreference: (housing?.[0] as { preference?: string } | undefined)?.preference ?? null,
     housingStatus: null, hasTravelActivity: false, requiredProfileFieldCount: requiredFields.length,
   });
-  return { ...base, requirements, paymentStatus };
+  const [{ data: ticketProducts }, { data: addonProducts }] = await Promise.all([
+    db.from("ticket_products").select("id,product_key,name,description,price_cents,currency,per_order_limit").eq("program_key", DEFAULT_PROGRAM_KEY).eq("active", true).eq("public", true).order("sort_order"),
+    db.from("addon_products").select("id,addon_key,name,description,price_cents,currency,max_quantity,fulfillment_type").eq("program_key", DEFAULT_PROGRAM_KEY).eq("active", true).eq("public", true).order("name"),
+  ]);
+  return {
+    ...base,
+    requirements,
+    paymentStatus,
+    profileDefaults: {
+      firstName: attendee?.first_name ?? null,
+      lastName: attendee?.last_name ?? null,
+      email: attendee?.email ?? null,
+      mobilePhone: attendee?.phone ?? null,
+      city: attendee?.city ?? null,
+      state: attendee?.state ?? null,
+    },
+    ticketProducts: ticketProducts ?? [],
+    addonProducts: addonProducts ?? [],
+  };
+}
+
+export async function acknowledgeBeforeYouBegin(
+  userId: string,
+  expectedGroupVersion: number | null,
+) {
+  const db = getSupabaseAdmin();
+  const group = await ensureDraftGroup(userId);
+  if (expectedGroupVersion != null && Number(group.row_version ?? 1) !== expectedGroupVersion) {
+    throw new RegistrationError("conflict", "Registration changed while you were working. Reload and try again.");
+  }
+  const { data, error } = await db.rpc("acknowledge_registration_before_you_begin", {
+    p_owner_user_id: userId,
+    p_program_key: DEFAULT_PROGRAM_KEY,
+    p_expected_group_version: Number(group.row_version ?? 1),
+  });
+  if (error) throw mapDatabaseError(error);
+  return data as Record<string, unknown>;
+}
+
+export async function saveRegistrationExtras(input: {
+  userId: string;
+  expectedGroupVersion: number;
+  musicalQuantity: number;
+  printedProgram: boolean;
+  digitalProgram: boolean;
+  smsOptIn: boolean;
+  emailOptIn: boolean;
+}) {
+  const { data, error } = await getSupabaseAdmin().rpc("save_registration_extras", {
+    p_owner_user_id: input.userId,
+    p_program_key: DEFAULT_PROGRAM_KEY,
+    p_expected_group_version: input.expectedGroupVersion,
+    p_musical_quantity: input.musicalQuantity,
+    p_printed_program: input.printedProgram,
+    p_digital_program: input.digitalProgram,
+    p_sms_opt_in: input.smsOptIn,
+    p_email_opt_in: input.emailOptIn,
+  });
+  if (error) throw mapDatabaseError(error);
+  return data as Record<string, unknown>;
 }
 
 export async function loadOrMigrateRegistrationExperience(userId: string): Promise<RegistrationExperience> {

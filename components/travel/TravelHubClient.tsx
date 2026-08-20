@@ -14,9 +14,11 @@ export type TravelTab = TravelSearchKind;
 export default function TravelHubClient({
   hotels,
   hasSavedStay,
+  housingEligibility,
 }: {
   hotels: TravelHotel[];
   hasSavedStay: boolean;
+  housingEligibility: { eligible:boolean; productName:string|null; maximumNights:number|null };
 }) {
   const [activeTab, setActiveTab] = useState<TravelTab>("hotels");
 
@@ -41,7 +43,7 @@ export default function TravelHubClient({
           className={`ct-tab-panel${activeTab === "hotels" ? " is-active" : ""}`}
           hidden={activeTab !== "hotels"}
         >
-          <HotelSearchPanel hotels={hotels} />
+          <HotelSearchPanel hotels={hotels} eligibility={housingEligibility} />
         </div>
         <div
           id="travel-panel-flights"

@@ -1,0 +1,10 @@
+
+> cogic-live@0.1.1 dev
+> node --max-http-header-size=32768 node_modules/next/dist/bin/next dev
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3002
+- Network:       http://100.90.61.42:3002
+- Environments: .env.local
+✓ Ready in 2.7s
+[?25h

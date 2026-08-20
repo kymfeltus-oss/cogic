@@ -11,18 +11,16 @@ import {
 import type { RegistrationStatus, RegistrationStepId } from "@/lib/registration/types";
 
 /**
- * Wizard steps in RegistrationSlice2Experience (index 1..7 used in UI).
- * Step 8 is reserved for post-submit payment confirmation surfaces.
+ * Registration-only wizard. Travel and housing live in COGIC Travel.
  */
 export const REGISTRATION_WIZARD_STEPS = {
   ATTENDEE_INFORMATION: 1,
   REGISTRATION_TYPE: 2,
   GROUP_MEMBERS: 3,
   POLICY_AGREEMENT: 4,
-  HOUSING: 5,
-  REVIEW: 6,
-  PAYMENT_SUBMIT: 7,
-  COMPLETE: 8,
+  REVIEW: 5,
+  PAYMENT_SUBMIT: 6,
+  COMPLETE: 7,
 } as const;
 
 export type RegistrationRequirementId =
@@ -30,7 +28,6 @@ export type RegistrationRequirementId =
   | "product"
   | "group"
   | "policy"
-  | "housing"
   | "submitted"
   | "payment";
 
@@ -49,7 +46,6 @@ export type RegistrationStepDestination =
   | "product"
   | "group"
   | "policy"
-  | "housing"
   | "review"
   | "payment"
   | "complete";
@@ -76,7 +72,6 @@ const STEP_DESTINATIONS: Array<{
   { step: REGISTRATION_WIZARD_STEPS.REGISTRATION_TYPE, destination: "product" },
   { step: REGISTRATION_WIZARD_STEPS.GROUP_MEMBERS, destination: "group" },
   { step: REGISTRATION_WIZARD_STEPS.POLICY_AGREEMENT, destination: "policy" },
-  { step: REGISTRATION_WIZARD_STEPS.HOUSING, destination: "housing" },
   { step: REGISTRATION_WIZARD_STEPS.REVIEW, destination: "review" },
   { step: REGISTRATION_WIZARD_STEPS.PAYMENT_SUBMIT, destination: "payment" },
   { step: REGISTRATION_WIZARD_STEPS.COMPLETE, destination: "complete" },
@@ -94,7 +89,6 @@ export const REQUIREMENT_STAGE_TO_WIZARD_STEP: Record<
   product: REGISTRATION_WIZARD_STEPS.REGISTRATION_TYPE,
   group: REGISTRATION_WIZARD_STEPS.GROUP_MEMBERS,
   policy: REGISTRATION_WIZARD_STEPS.POLICY_AGREEMENT,
-  housing: REGISTRATION_WIZARD_STEPS.HOUSING,
   submitted: REGISTRATION_WIZARD_STEPS.REVIEW,
   payment: REGISTRATION_WIZARD_STEPS.PAYMENT_SUBMIT,
 };
@@ -104,7 +98,6 @@ const RESUME_STEP_IDS: Record<number, RegistrationStepId | "complete"> = {
   [REGISTRATION_WIZARD_STEPS.REGISTRATION_TYPE]: "product",
   [REGISTRATION_WIZARD_STEPS.GROUP_MEMBERS]: "group",
   [REGISTRATION_WIZARD_STEPS.POLICY_AGREEMENT]: "policy",
-  [REGISTRATION_WIZARD_STEPS.HOUSING]: "housing",
   [REGISTRATION_WIZARD_STEPS.REVIEW]: "review",
   [REGISTRATION_WIZARD_STEPS.PAYMENT_SUBMIT]: "payment",
   [REGISTRATION_WIZARD_STEPS.COMPLETE]: "complete",
@@ -149,11 +142,6 @@ export function buildCompletedRequirements(
       id: "policy",
       label: "Policy acceptance",
       complete: input.policyAccepted,
-    },
-    {
-      id: "housing",
-      label: "Housing preference",
-      complete: Boolean(input.housingPreference),
     },
     {
       id: "submitted",
@@ -258,7 +246,6 @@ export function evaluateRegistrationRequirements(
     juniorMissingDob: input.juniorMissingDob,
     policyAccepted: input.policyAccepted,
     remainingBalanceCents: input.remainingBalanceCents,
-    housingPreference: input.housingPreference,
     requiredProfileFieldCount: input.requiredProfileFieldCount,
   };
 
@@ -266,8 +253,17 @@ export function evaluateRegistrationRequirements(
   const totalCompletionPercent = calculateRegistrationProgress(progressInput);
   const resumeStep = deriveRegistrationResumeStep(progressInput);
   const resumeStepId = RESUME_STEP_IDS[resumeStep] ?? "attendee";
+  // Review is the first incomplete requirement before submission, but the
+  // payment/submit screen is the action that completes it. Once every prior
+  // requirement is persisted, both screens are valid destinations.
+  const canSubmitGroup =
+    input.status === "draft" &&
+    completedRequirements
+      .filter(({ id }) => id !== "submitted" && id !== "payment")
+      .every(({ complete }) => complete);
   const allowedStepDestinations = STEP_DESTINATIONS.filter(({ step }) =>
-    input.status === "confirmed" ? true : step <= resumeStep,
+    input.status === "confirmed" || step <= resumeStep ||
+    (step === REGISTRATION_WIZARD_STEPS.PAYMENT_SUBMIT && canSubmitGroup),
   ).map((destination) => ({ ...destination }));
 
   return {

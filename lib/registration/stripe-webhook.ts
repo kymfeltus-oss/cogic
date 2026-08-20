@@ -107,6 +107,28 @@ export async function fulfillRegistrationCheckoutFromWebhook(input: {
     groupCredentialsReady || primaryCredential.issued || primaryCredential.idempotent;
   const credentialJobEnqueued = primaryCredential.retryQueued === true || !credentialIssued;
 
+  const commerceOrderId = input.session.metadata?.commerce_order_id?.trim() ?? "";
+  if (commerceOrderId) {
+    const { data: commerceOrder } = await input.supabaseAdmin
+      .from("commerce_orders")
+      .select("id,purchaser_user_id,stripe_session_id,amount_cents")
+      .eq("id", commerceOrderId)
+      .eq("stripe_session_id", input.session.id)
+      .maybeSingle();
+    if (!commerceOrder || commerceOrder.purchaser_user_id !== actorUserId) {
+      return { ok: false, status: 422, error: "Registration add-on order verification failed." };
+    }
+    const expectedTotal = Number(input.session.metadata?.amount_cents ?? 0) + Number(commerceOrder.amount_cents ?? 0);
+    if (input.session.amount_total !== expectedTotal) {
+      return { ok: false, status: 422, error: "Registration checkout total mismatch." };
+    }
+    const { error: commerceError } = await input.supabaseAdmin.rpc("fulfill_ticket_order", {
+      p_stripe_session_id: input.session.id,
+      p_stripe_payment_intent_id: paymentIntentId,
+    });
+    if (commerceError) return { ok: false, status: 500, error: commerceError.message };
+  }
+
   return {
     ok: true,
     idempotent: payload.idempotent === true,

@@ -52,6 +52,9 @@ export default function RegistrationGroupStatus({
   const group = experience.group;
   const primary = getPrimaryRegistrant(group);
   const totalCents = getGroupTotalCents(group);
+  const metadata = group?.wizard_metadata ?? {};
+  const extrasTotalCents = Number(metadata.extras_total_cents ?? 0);
+  const checkoutTotalCents = totalCents + extrasTotalCents;
   const isConfirmed = group?.status === "confirmed";
   const isProcessing = group?.status === "payment_pending";
   const checkoutResumeMode = deriveRegistrationCheckoutResumeMode({
@@ -132,6 +135,13 @@ export default function RegistrationGroupStatus({
         </div>
       </dl>
 
+      <dl className="registration-summary" aria-label="Tickets and additional items">
+        {Number(metadata.musical_ticket_quantity ?? 0) > 0 ? <div><dt>Musical Ticket × {Number(metadata.musical_ticket_quantity)}</dt><dd>{formatRegistrationAmount(Number(metadata.musical_ticket_quantity) * 3000)}</dd></div> : null}
+        {metadata.printed_program_selected === true ? <div><dt>Printed Program</dt><dd>{formatRegistrationAmount(1000)}</dd></div> : null}
+        {metadata.digital_program_selected === true ? <div><dt>Digital Program</dt><dd>FREE</dd></div> : null}
+        <div><dt>TOTAL</dt><dd>{formatRegistrationAmount(checkoutTotalCents, primary.currency ?? "usd")}</dd></div>
+      </dl>
+
       <div className="grid gap-2">
         {group.registrations.map((registrant) => {
           const product = getRegistrationProduct(experience.products, registrant.registration_product_id);
@@ -155,10 +165,6 @@ export default function RegistrationGroupStatus({
         })}
       </div>
 
-      <p className="registration-lead">
-        Housing deposits are separate from registration payment and are never included in this total.
-      </p>
-
       {group.status === "draft" ? (
         <div className="registration-actions">
           <Link href="/register" className="registration-btn registration-btn-primary">
@@ -169,7 +175,7 @@ export default function RegistrationGroupStatus({
 
       {group.status === "submitted" ? (
         <div className="registration-actions">
-          <RegistrationCheckoutButton label={`Pay ${formatRegistrationAmount(totalCents, primary.currency ?? "usd")}`} />
+          <RegistrationCheckoutButton label={`Pay ${formatRegistrationAmount(checkoutTotalCents, primary.currency ?? "usd")}`} />
           {checkoutResumeCopy ? <p className="registration-lead">{checkoutResumeCopy}</p> : null}
           <Link href="/register" className="registration-btn registration-btn-secondary">
             Back to registration
@@ -205,12 +211,15 @@ export default function RegistrationGroupStatus({
           <Link href="/my-convocation" className="registration-btn registration-btn-primary">
             Go to My Convocation
           </Link>
-          <Link href="/travel" className="registration-btn registration-btn-secondary">
-            Plan My Trip
-          </Link>
           <Link href="/program" className="registration-btn registration-btn-secondary">
             Build My Convocation
           </Link>
+          <article className="mt-4 w-full rounded border border-white/15 p-4">
+            <p className="registration-kicker">COGIC TRAVEL</p>
+            <h2 className="text-xl font-bold">Plan your Convocation travel</h2>
+            <p>Need a hotel, flight, rental car, or transportation information for Holy Convocation? Continue to COGIC Travel.</p>
+            <Link href="/travel" className="registration-btn registration-btn-secondary mt-3">Open COGIC Travel</Link>
+          </article>
         </div>
       ) : null}
     </section>

@@ -1,0 +1,21 @@
+{"kind":"deck","id":"pr/wt4wia","name":"Deck"}
+{"kind":"layout","layoutId":"1a399bf3-218b-4e51-bf3f-80d36431afc5","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"55e3b88a-be5b-42a9-b22b-23da16e44a88","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/rk0yay","slide":1,"title":"Slide 1","textShapes":0}
+{"kind":"image","id":"im/p0fal8ni","slide":1,"name":"","alt":"COGIC Live pitch artwork, page 1","bbox":[0,0,1024,1536]}
+{"kind":"notes","id":"nt/rk0yay","slide":1,"text":"[Sources]\n- User-provided image: slide 1.png\n[/Sources]"}
+{"kind":"slide","id":"sl/pugqjh","slide":2,"title":"Slide 2","textShapes":0}
+{"kind":"image","id":"im/sfyh8f65","slide":2,"name":"","alt":"COGIC Live pitch artwork, page 2","bbox":[0,0,1024,1536]}
+{"kind":"notes","id":"nt/pugqjh","slide":2,"text":"[Sources]\n- User-provided image: slide 2.png\n[/Sources]"}
+{"kind":"slide","id":"sl/znyp0y","slide":3,"title":"Slide 3","textShapes":0}
+{"kind":"image","id":"im/lsra10fa","slide":3,"name":"","alt":"COGIC Live pitch artwork, page 3","bbox":[0,85.33,1024,1365.33]}
+{"kind":"notes","id":"nt/znyp0y","slide":3,"text":"[Sources]\n- User-provided image: slide 3.png\n[/Sources]"}
+{"kind":"slide","id":"sl/pa6apn","slide":4,"title":"Slide 4","textShapes":0}
+{"kind":"image","id":"im/f6twj65w","slide":4,"name":"","alt":"COGIC Live pitch artwork, page 4","bbox":[79.77,0,864.46,1536]}
+{"kind":"notes","id":"nt/pa6apn","slide":4,"text":"[Sources]\n- User-provided image: slide 4.png\n[/Sources]"}
+{"kind":"slide","id":"sl/rjg38d","slide":5,"title":"Slide 5","textShapes":0}
+{"kind":"image","id":"im/lkne5on6","slide":5,"name":"","alt":"COGIC Live pitch artwork, page 5","bbox":[79.77,0,864.46,1536]}
+{"kind":"notes","id":"nt/rjg38d","slide":5,"text":"[Sources]\n- User-provided image: slide 5.png\n[/Sources]"}
+{"kind":"slide","id":"sl/l71cfy","slide":6,"title":"Slide 6","textShapes":0}
+{"kind":"image","id":"im/bat4raps","slide":6,"name":"","alt":"COGIC Live pitch artwork, page 6","bbox":[79.77,0,864.46,1536]}
+{"kind":"notes","id":"nt/l71cfy","slide":6,"text":"[Sources]\n- User-provided image: slide 6.png\n[/Sources]"}

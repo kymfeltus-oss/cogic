@@ -3,7 +3,6 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import HousingExperience from "@/components/housing/HousingExperience";
 import RegistrationPolicyDocument from "@/components/registration/RegistrationPolicyDocument";
 import {
   formatRegistrationAmount,
@@ -89,7 +88,15 @@ const BLANK_MEMBER: MemberForm = {
 function primaryFormFromExperience(experience: RegistrationExperience): PrimaryForm {
   const primary = getPrimaryRegistrant(experience.group);
   if (!primary) {
-    return BLANK_PRIMARY;
+    return {
+      ...BLANK_PRIMARY,
+      firstName: experience.profileDefaults?.firstName ?? "",
+      lastName: experience.profileDefaults?.lastName ?? "",
+      email: experience.profileDefaults?.email ?? "",
+      mobilePhone: experience.profileDefaults?.mobilePhone ?? "",
+      city: experience.profileDefaults?.city ?? "",
+      state: experience.profileDefaults?.state ?? "",
+    };
   }
 
   return {
@@ -174,6 +181,7 @@ export default function RegistrationSlice2Experience({
 }: RegistrationSlice2ExperienceProps) {
   const router = useRouter();
   const [isDraftPending, startDraftTransition] = useTransition();
+  const [isProceedPending, startProceedTransition] = useTransition();
   const [data, setData] = useState(initial);
   const [step, setStep] = useState(() => {
     const resumeFallback = resumeStep ?? initial.requirements.resumeStep;
@@ -188,11 +196,17 @@ export default function RegistrationSlice2Experience({
   const [member, setMember] = useState<MemberForm>(BLANK_MEMBER);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const initialMetadata = initial.group?.wizard_metadata ?? {};
+  const [musicalQuantity, setMusicalQuantity] = useState(Number(initialMetadata.musical_ticket_quantity ?? 0));
+  const [printedProgram, setPrintedProgram] = useState(initialMetadata.printed_program_selected === true);
+  const [digitalProgram, setDigitalProgram] = useState(initialMetadata.digital_program_selected === true);
+  const [smsOptIn, setSmsOptIn] = useState(initialMetadata.sms_opt_in === true);
+  const [emailOptIn, setEmailOptIn] = useState(initialMetadata.email_opt_in === true);
 
   const members = data.group?.registrations ?? [];
   const primary = getPrimaryRegistrant(data.group);
   const totalCents = useMemo(() => getGroupTotalCents(data.group), [data.group]);
-  const primaryProducts = useMemo(() => eligibleProducts(data.products, "", true), [data.products]);
+  const extrasTotalCents = musicalQuantity * 3000 + (printedProgram ? 1000 : 0);
   const memberProducts = useMemo(
     () => eligibleProducts(data.products, member.relationship),
     [data.products, member.relationship],
@@ -213,6 +227,12 @@ export default function RegistrationSlice2Experience({
     const safeStep = Math.min(TOTAL_WIZARD_STEPS, Math.max(1, clamped));
     setStep(safeStep);
     router.replace(`/register?step=${REGISTRATION_WIZARD_STEPS[safeStep - 1].id}`, { scroll: false });
+  }
+
+  function proceedToSubmit() {
+    if (busy || isProceedPending) return;
+    setError("");
+    startProceedTransition(() => navigateStep(6));
   }
 
   async function reload(): Promise<RegistrationExperience> {
@@ -333,8 +353,22 @@ export default function RegistrationSlice2Experience({
     }
     const saved = await saveRegistrant({ ...form, isPrimary: true });
     if (saved) {
-      const refreshed = await reload();
-      navigateStep(3, refreshed);
+      try {
+        const latest = await reload();
+        const result = await request<{ experience: RegistrationExperience }>({
+          action: "save_extras",
+          musicalQuantity,
+          printedProgram,
+          digitalProgram,
+          smsOptIn,
+          emailOptIn,
+          versions: { groupVersion: latest.group?.row_version ?? null },
+        });
+        applyExperience(result.experience);
+        navigateStep(3, result.experience);
+      } catch (selectionError) {
+        setError(selectionError instanceof Error ? selectionError.message : "Unable to save optional selections.");
+      }
     }
   }
 
@@ -436,7 +470,7 @@ export default function RegistrationSlice2Experience({
         <form className="registration-fields" onSubmit={continueFromAttendee} noValidate>
           <label className="registration-field">
             <span className="registration-label">Salutation</span>
-            <select className="registration-input" value={form.salutation ?? ""} onChange={(event) => updatePrimary("salutation", event.target.value)}>
+            <select autoComplete="honorific-prefix" className="registration-input" value={form.salutation ?? ""} onChange={(event) => updatePrimary("salutation", event.target.value)}>
               <option value="">Select</option>
               {SALUTATIONS.map((value) => (
                 <option key={value} value={value}>
@@ -445,18 +479,18 @@ export default function RegistrationSlice2Experience({
               ))}
             </select>
           </label>
-          <label className="registration-field"><span className="registration-label">First name</span><input required className="registration-input" value={form.firstName} onChange={(event) => updatePrimary("firstName", event.target.value)} /></label>
-          <label className="registration-field"><span className="registration-label">Last name</span><input required className="registration-input" value={form.lastName} onChange={(event) => updatePrimary("lastName", event.target.value)} /></label>
+          <label className="registration-field"><span className="registration-label">First name</span><input autoComplete="given-name" required className="registration-input" value={form.firstName} onChange={(event) => updatePrimary("firstName", event.target.value)} /></label>
+          <label className="registration-field"><span className="registration-label">Last name</span><input autoComplete="family-name" required className="registration-input" value={form.lastName} onChange={(event) => updatePrimary("lastName", event.target.value)} /></label>
           <label className="registration-field"><span className="registration-label">Suffix</span><input className="registration-input" value={form.suffix ?? ""} onChange={(event) => updatePrimary("suffix", event.target.value)} /></label>
-          <label className="registration-field"><span className="registration-label">Email</span><input required className="registration-input" type="email" value={form.email ?? ""} onChange={(event) => updatePrimary("email", event.target.value)} /></label>
-          <label className="registration-field"><span className="registration-label">Cell phone</span><input required className="registration-input" type="tel" value={form.mobilePhone ?? ""} onChange={(event) => updatePrimary("mobilePhone", event.target.value)} /></label>
+          <label className="registration-field"><span className="registration-label">Email</span><input autoComplete="email" required className="registration-input" type="email" value={form.email ?? ""} onChange={(event) => updatePrimary("email", event.target.value)} /></label>
+          <label className="registration-field"><span className="registration-label">Cell phone</span><input autoComplete="tel" required className="registration-input" type="tel" value={form.mobilePhone ?? ""} onChange={(event) => updatePrimary("mobilePhone", event.target.value)} /></label>
           <label className="registration-field"><span className="registration-label">Assistant email</span><input className="registration-input" type="email" value={form.assistantEmail ?? ""} onChange={(event) => updatePrimary("assistantEmail", event.target.value)} /></label>
-          <label className="registration-field"><span className="registration-label">Country code</span><input required className="registration-input" value={form.countryCode} onChange={(event) => updatePrimary("countryCode", event.target.value.toUpperCase())} /></label>
-          <label className="registration-field"><span className="registration-label">Address line 1</span><input required className="registration-input" value={form.streetAddress} onChange={(event) => updatePrimary("streetAddress", event.target.value)} /></label>
-          <label className="registration-field"><span className="registration-label">Address line 2</span><input className="registration-input" value={form.addressLine2 ?? ""} onChange={(event) => updatePrimary("addressLine2", event.target.value)} /></label>
-          <label className="registration-field"><span className="registration-label">City</span><input required className="registration-input" value={form.city} onChange={(event) => updatePrimary("city", event.target.value)} /></label>
-          <label className="registration-field"><span className="registration-label">State / Province</span><input required className="registration-input" value={form.state ?? ""} onChange={(event) => updatePrimary("state", event.target.value)} /></label>
-          <label className="registration-field"><span className="registration-label">Postal code</span><input required className="registration-input" value={form.postalCode} onChange={(event) => updatePrimary("postalCode", event.target.value)} /></label>
+          <label className="registration-field"><span className="registration-label">Country code</span><input autoComplete="country" required className="registration-input" value={form.countryCode} onChange={(event) => updatePrimary("countryCode", event.target.value.toUpperCase())} /></label>
+          <label className="registration-field"><span className="registration-label">Address line 1</span><input autoComplete="address-line1" required className="registration-input" value={form.streetAddress} onChange={(event) => updatePrimary("streetAddress", event.target.value)} /></label>
+          <label className="registration-field"><span className="registration-label">Address line 2</span><input autoComplete="address-line2" className="registration-input" value={form.addressLine2 ?? ""} onChange={(event) => updatePrimary("addressLine2", event.target.value)} /></label>
+          <label className="registration-field"><span className="registration-label">City</span><input autoComplete="address-level2" required className="registration-input" value={form.city} onChange={(event) => updatePrimary("city", event.target.value)} /></label>
+          <label className="registration-field"><span className="registration-label">State / Province</span><input autoComplete="address-level1" required className="registration-input" value={form.state ?? ""} onChange={(event) => updatePrimary("state", event.target.value)} /></label>
+          <label className="registration-field"><span className="registration-label">Postal code</span><input autoComplete="postal-code" required className="registration-input" value={form.postalCode} onChange={(event) => updatePrimary("postalCode", event.target.value)} /></label>
           <label className="registration-field"><span className="registration-label">Gender</span><input className="registration-input" value={form.gender ?? ""} onChange={(event) => updatePrimary("gender", event.target.value)} /></label>
           <label className="registration-field"><span className="registration-label">Church name</span><input required className="registration-input" value={form.churchName} onChange={(event) => updatePrimary("churchName", event.target.value)} /></label>
           <label className="registration-field"><span className="registration-label">Pastor name</span><input required className="registration-input" value={form.pastorName} onChange={(event) => updatePrimary("pastorName", event.target.value)} /></label>
@@ -476,16 +510,41 @@ export default function RegistrationSlice2Experience({
       {step === 2 ? (
         <div>
           <div className="grid gap-3">
-            {primaryProducts.length ? primaryProducts.map((product) => (
+            {data.products.length ? data.products.map((product) => {
+              const junior = isJuniorRegistrationProduct(product.product_key);
+              return (
               <label key={product.id} className="rounded border border-purple-400/30 p-4">
-                <input type="radio" name="primary-product" checked={form.productId === product.id} onChange={() => updatePrimary("productId", product.id)} />
+                <input disabled={junior} type="radio" name="primary-product" checked={form.productId === product.id} onChange={() => updatePrimary("productId", product.id)} />
                 <strong className="ml-2">{product.name}</strong>
                 <span className="block text-sm">{product.description}</span>
                 <span>{formatRegistrationAmount(product.price_cents, product.currency)}</span>
                 {product.eligibility_description ? <small className="block">{product.eligibility_description}</small> : null}
+                {junior ? <small className="block font-bold">Add an eligible child on the Group / Junior step.</small> : null}
               </label>
-            )) : <p>No public primary-attendee registration products are currently available.</p>}
+            );}) : <p>No public registration products are currently available.</p>}
           </div>
+          <section className="mt-6 grid gap-3 rounded border border-white/15 p-4">
+            <h2 className="text-xl font-bold">Musical Ticket Only Registration</h2>
+            <p>Select this option only to purchase tickets to the musical.</p>
+            <p>Enter the total number of tickets below (include yourself in the count).</p>
+            <strong>Musical Ticket — $30 each</strong>
+            <div className="flex items-center justify-center gap-5" aria-label="Musical Ticket quantity">
+              <button type="button" className="registration-btn registration-btn-secondary" onClick={() => setMusicalQuantity((value) => Math.max(0, value - 1))}>−</button>
+              <output className="min-w-10 text-center text-2xl font-bold">{musicalQuantity}</output>
+              <button type="button" className="registration-btn registration-btn-secondary" onClick={() => setMusicalQuantity((value) => Math.min(10, value + 1))}>+</button>
+            </div>
+          </section>
+          <section className="mt-6 grid gap-3 rounded border border-white/15 p-4">
+            <h2 className="text-xl font-bold">Additional Items</h2>
+            <label className="flex gap-3"><input type="checkbox" checked={printedProgram} onChange={(event) => setPrintedProgram(event.target.checked)} /><span><strong>Printed Program — $10</strong><br />Optional printed copy for pickup.</span></label>
+            <label className="flex gap-3"><input type="checkbox" checked={digitalProgram} onChange={(event) => setDigitalProgram(event.target.checked)} /><span><strong>Digital Program — FREE</strong><br />Digital program entitlement.</span></label>
+          </section>
+          <section className="mt-6 grid gap-3 rounded border border-white/15 p-4">
+            <h2 className="text-xl font-bold">Communication preferences</h2>
+            <label className="flex gap-3"><input type="checkbox" checked={smsOptIn} onChange={(event) => setSmsOptIn(event.target.checked)} />Receive Holy Convocation updates by text message.</label>
+            <label className="flex gap-3"><input type="checkbox" checked={emailOptIn} onChange={(event) => setEmailOptIn(event.target.checked)} />Receive Holy Convocation updates by email.</label>
+            <small>These optional choices are separate from phone and email verification.</small>
+          </section>
           <div className="registration-actions">
             <button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(1)}>Back</button>
             <button type="button" disabled={!form.productId || busy} className="registration-btn registration-btn-primary" onClick={() => void savePrimaryAndContinue()}>Save and continue</button>
@@ -520,22 +579,23 @@ export default function RegistrationSlice2Experience({
         data.policy ? <form onSubmit={acceptPolicy} className="grid gap-4"><RegistrationPolicyDocument className="max-h-80 overflow-auto rounded border border-yellow-500/30 p-4" title={data.policy.title} version={data.policy.version} content={data.policy.content} effectiveAt={data.policy.effective_at} /><label className="registration-field"><span className="registration-label">Authorized/responsible person full name</span><input required name="authorized" className="registration-input" /></label><label className="registration-field"><span className="registration-label">Agreement full name</span><input required name="agreement" className="registration-input" /></label><div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(3)}>Back</button><button disabled={busy} className="registration-btn registration-btn-primary">Accept policy</button></div></form> : <div><p>No published registration policy is available. Submission is disabled until an owner publishes the current policy.</p><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(3)}>Back</button></div>
       ) : null}
 
-      {step === 5 ? <HousingExperience onComplete={() => void reload().then((refreshed) => navigateStep(6, refreshed)).catch((cause) => setError(cause instanceof Error ? cause.message : "Unable to refresh housing status."))} /> : null}
-
-      {step === 6 ? (
+      {step === 5 ? (
         <div>
           <dl className="registration-summary">
             {members.map((registrant) => (
               <div key={registrant.id}><dt>{registrant.first_name} {registrant.last_name}</dt><dd>{formatRegistrationAmount(registrant.amount_cents ?? 0, registrant.currency ?? "usd")}</dd></div>
             ))}
             <div><dt>Registration total due</dt><dd>{formatRegistrationAmount(totalCents, primary?.currency ?? "usd")}</dd></div>
+            {musicalQuantity > 0 ? <div><dt>Musical Ticket × {musicalQuantity}</dt><dd>{formatRegistrationAmount(musicalQuantity * 3000)}</dd></div> : null}
+            {printedProgram ? <div><dt>Printed Program</dt><dd>{formatRegistrationAmount(1000)}</dd></div> : null}
+            {digitalProgram ? <div><dt>Digital Program</dt><dd>FREE</dd></div> : null}
+            <div><dt>TOTAL</dt><dd>{formatRegistrationAmount(totalCents + extrasTotalCents, primary?.currency ?? "usd")}</dd></div>
           </dl>
-          <p>Housing deposits are separate from registration payment and are never included in this total.</p>
-          <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(5)}>Back</button><button type="button" className="registration-btn registration-btn-primary" onClick={() => navigateStep(7)}>Proceed</button></div>
+          <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(4)}>Back</button><button type="button" disabled={busy || isProceedPending} className="registration-btn registration-btn-primary" onClick={proceedToSubmit}>{isProceedPending ? "Proceeding…" : "Proceed"}</button></div>
         </div>
       ) : null}
 
-      {step === 7 ? <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(6)}>Back</button><button disabled={busy} type="button" className="registration-btn registration-btn-primary" onClick={() => void submitGroup()}>{totalCents > 0 ? `Submit and pay ${formatRegistrationAmount(totalCents, primary?.currency ?? "usd")}` : "Complete free registration"}</button></div> : null}
+      {step === 6 ? <div className="registration-actions"><button type="button" className="registration-btn registration-btn-secondary" onClick={() => navigateStep(5)}>Back</button><button disabled={busy} type="button" className="registration-btn registration-btn-primary" onClick={() => void submitGroup()}>{totalCents > 0 ? `Submit and pay ${formatRegistrationAmount(totalCents + extrasTotalCents, primary?.currency ?? "usd")}` : "Complete free registration"}</button></div> : null}
     </section>
   );
 }

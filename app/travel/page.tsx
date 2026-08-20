@@ -20,6 +20,7 @@ import { getUserFromSession } from "@/lib/auth/session";
 import { userHotelState } from "@/lib/travel/reservations";
 import { fetchAttendeeProfileRecord } from "@/lib/experience/fetch-attendee-profile";
 import { buildAttendeeProfileSnapshot } from "@/lib/profile/attendee-profile";
+import { resolveTravelRegistrationEligibility } from "@/lib/travel/registration-eligibility";
 import "./travel-home.css";
 
 export const dynamic = "force-dynamic";
@@ -31,9 +32,10 @@ export default async function TravelPage() {
     getUserFromSession(),
     publicTravelInfo(),
   ]);
-  const [hotelState, attendeeRecord] = await Promise.all([
+  const [hotelState, attendeeRecord, registrationEligibility] = await Promise.all([
     user?.id ? userHotelState(user.id) : Promise.resolve(null),
     user?.id ? fetchAttendeeProfileRecord(user.id) : Promise.resolve(null),
+    resolveTravelRegistrationEligibility(user?.id),
   ]);
   const hasGettingAround =
     travelInfo.airports.length > 0 ||
@@ -127,7 +129,7 @@ export default async function TravelPage() {
         ) : null}
 
         <div className="ct-body ct-body-hub">
-          <TravelHubClient hotels={hotels} hasSavedStay={Boolean(hotelState?.primary)} />
+          <TravelHubClient hotels={registrationEligibility.officialHousingEligible ? hotels : []} hasSavedStay={Boolean(hotelState?.primary)} housingEligibility={{eligible:registrationEligibility.officialHousingEligible,productName:registrationEligibility.productName,maximumNights:registrationEligibility.maximumHousingNights}} />
         </div>
 
         <section className="ct-helpful-links" aria-labelledby="travel-helpful-links">

@@ -80,6 +80,15 @@ export default function AttendeeDashboardHome({
         })}
       </nav>
 
+      {data.registrationError ? (
+        <div className="cl-module-error" role="alert">
+          <p>Unable to load registration. Try again.</p>
+          <Link href="/my-convocation">
+            Reload My Convocation <ArrowRight aria-hidden="true" />
+          </Link>
+        </div>
+      ) : null}
+
       {data.scheduleError ? (
         <p className="cl-module-error" role="alert">
           Unable to load schedule. Try again.

@@ -1,12 +1,28 @@
 import { TravelShell } from "@/components/travel/TravelShell";
 import { publishedHotels } from "@/lib/travel/repository";
 import HotelSearchClient from "@/components/travel/HotelSearchClient";
+import Link from "next/link";
+import { getUserFromSession } from "@/lib/auth/session";
+import { resolveTravelRegistrationEligibility } from "@/lib/travel/registration-eligibility";
 import "../travel-home.css";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Official COGIC Hotels | COGIC Travel" };
 
 export default async function Page() {
+  const user = await getUserFromSession();
+  const eligibility = await resolveTravelRegistrationEligibility(user?.id);
+  if (!eligibility.officialHousingEligible) {
+    return (
+      <TravelShell back>
+        <h1 className="mt-10 text-4xl font-black">Official convention housing requires registration</h1>
+        <p className="mt-4 max-w-2xl text-xl text-white/75">{eligibility.reason}</p>
+        <Link className="mt-6 inline-flex rounded-full bg-[#e4b938] px-6 py-3 font-black text-black" href="/register">
+          Register Now
+        </Link>
+      </TravelShell>
+    );
+  }
   const hotels = await publishedHotels();
   return (
     <TravelShell back>

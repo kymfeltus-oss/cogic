@@ -31,7 +31,7 @@ describe("registration requirements evaluator", () => {
     const result = evaluateRegistrationRequirements(input({ hasProduct: true }));
     assert.equal(result.resumeStep, REGISTRATION_WIZARD_STEPS.POLICY_AGREEMENT);
     assert.deepEqual(result.completedRequirements.filter(({ complete }) => complete).map(({ id }) => id), ["profile", "product", "group"]);
-    assert.equal(result.totalCompletionPercent, 43);
+    assert.equal(result.totalCompletionPercent, 50);
   });
 
   it("reaches 100 only from confirmed authoritative payment state", () => {
@@ -63,6 +63,22 @@ describe("registration requirements evaluator", () => {
     assert.equal(illegal.clampedFromIllegalIntent, true);
     assert.equal(illegal.activeStepNumber, requirements.resumeStep);
     assert.equal(illegal.activeStepId, requirements.resumeStepId);
+  });
+
+  it("allows a completed draft to proceed from review to payment submission", () => {
+    const requirements = evaluateRegistrationRequirements(input({
+      hasProduct: true,
+      policyAccepted: true,
+    }));
+    assert.equal(requirements.resumeStep, REGISTRATION_WIZARD_STEPS.REVIEW);
+    assert.deepEqual(requirements.allowedStepDestinations.at(-1), {
+      step: REGISTRATION_WIZARD_STEPS.PAYMENT_SUBMIT,
+      destination: "payment",
+    });
+
+    const payment = resolveRegisterWizardIntent({ requestedStep: "payment", requirements });
+    assert.equal(payment.intentAllowed, true);
+    assert.equal(payment.activeStepNumber, REGISTRATION_WIZARD_STEPS.PAYMENT_SUBMIT);
   });
 
   it("clamps empty-profile review and payment deep links to canonical Step 1", () => {

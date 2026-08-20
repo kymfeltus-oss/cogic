@@ -1,10 +1,11 @@
 "use client";
 
 import { Headphones, Mail, Phone, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import HotelSearchClient from "@/components/travel/HotelSearchClient";
 import type { TravelHotel } from "@/lib/travel/types";
 
-export default function HotelSearchPanel({ hotels }: { hotels: TravelHotel[] }) {
+export default function HotelSearchPanel({ hotels, eligibility }: { hotels: TravelHotel[]; eligibility:{eligible:boolean;productName:string|null;maximumNights:number|null} }) {
   return (
     <div className="ct-tab-panel-inner">
       <div className="ct-section-head">
@@ -15,7 +16,17 @@ export default function HotelSearchPanel({ hotels }: { hotels: TravelHotel[] }) 
           </p>
         </div>
       </div>
-      <HotelSearchClient hotels={hotels} />
+      {eligibility.eligible ? (
+        <>
+          <p className="mb-4 rounded border border-white/15 p-3">Housing eligibility: <strong>{eligibility.productName}</strong>{eligibility.maximumNights ? ` · maximum ${eligibility.maximumNights} nights` : ""}</p>
+          <HotelSearchClient hotels={hotels} />
+        </>
+      ) : (
+        <section className="rounded border border-yellow-400/30 p-5">
+          <p>Holy Convocation registration is required before accessing official convention housing.</p>
+          <Link href="/register" className="ct-neon-button mt-4 inline-flex">Register Now</Link>
+        </section>
+      )}
       <section className="ct-housing-help">
         <span className="ct-housing-help__icon" aria-hidden="true">
           <Headphones />

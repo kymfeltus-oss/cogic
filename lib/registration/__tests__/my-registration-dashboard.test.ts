@@ -47,14 +47,13 @@ describe("attendee My Registration dashboard", () => {
         missingProfileFields: ["Email", "Mobile phone"],
         requiredProfileFieldCount: 12,
       }),
-      40,
+      47,
     );
     assert.equal(
       calculateRegistrationProgress({
         ...baseInput,
         status: "confirmed",
         policyAccepted: true,
-        housingPreference: "own_accommodations",
         remainingBalanceCents: 0,
         requiredProfileFieldCount: 12,
       }),
@@ -161,16 +160,15 @@ describe("attendee My Registration dashboard", () => {
     assert.equal(maskBadgeCode("ABCD1234"), "••••1234");
   });
 
-  it("links housing and My Trip without rebuilding those domains", () => {
+  it("routes travel to COGIC Travel without rebuilding it inside registration", () => {
     const ui = read("components/registration/MyRegistrationDashboard.tsx");
     const loader = read("lib/registration/load-my-registration.ts");
-    assert.match(ui, /Open housing|\/housing/);
-    assert.match(ui, /View My Trip|\/travel\/trip/);
+    assert.doesNotMatch(ui, /Open housing|href=.*\/housing/);
+    assert.match(ui, /Open COGIC Travel|\/travel/);
     assert.match(loader, /loadDashboardHousingSummary/);
     assert.match(loader, /loadDashboardTicketsSummary/);
     assert.match(ui, /data\.addOns\.issuedTicketCount/);
-    assert.match(ui, /housingState[\s\S]*?"complete"/);
-    assert.match(ui, /financially separate/);
+    assert.doesNotMatch(ui, /housingState/);
   });
 
   it("keeps overview cards readable in the mobile-width horizontal rail", () => {

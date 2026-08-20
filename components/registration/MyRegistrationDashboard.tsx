@@ -5,7 +5,6 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
-  BedDouble,
   CircleHelp,
   CreditCard,
   FileText,
@@ -19,7 +18,7 @@ import {
 import RegistrationPolicyDocument from "@/components/registration/RegistrationPolicyDocument";
 import type { MyRegistrationDashboard as DashboardData } from "@/lib/registration/load-my-registration";
 
-const TRAVEL_TRIP_PATH = "/travel/trip";
+const TRAVEL_HUB_PATH = "/travel";
 
 const label = (value: string | null | undefined) => (value || "—").replaceAll("_", " ");
 
@@ -193,9 +192,6 @@ export default function MyRegistrationDashboard({
     : hasRegistration
       ? "current"
       : "upcoming";
-  const housingState: HubCardState = data.housing.preference || data.housing.hotelName
-    ? "complete"
-    : "upcoming";
   const addOnsState: HubCardState = data.addOns.issuedTicketCount > 0 ? "complete" : "upcoming";
   const paymentState: HubCardState = data.state === "confirmed"
     ? "complete"
@@ -204,7 +200,7 @@ export default function MyRegistrationDashboard({
       : "upcoming";
   const paymentHref =
     paymentAction?.href ?? (data.state === "confirmed" ? "#payments" : "/register");
-  const travelHref = data.travel.href || TRAVEL_TRIP_PATH;
+  const travelHref = TRAVEL_HUB_PATH;
 
   const overviewCards: HubCard[] = [
     {
@@ -229,13 +225,13 @@ export default function MyRegistrationDashboard({
       icon: Ticket,
     },
     {
-      id: "housing",
-      title: "Housing",
-      description: data.housing.summary || "Reserve your room at official hotels.",
-      action: "Open housing",
-      href: data.housing.href || "/housing",
-      state: housingState,
-      icon: BedDouble,
+      id: "travel",
+      title: "COGIC Travel",
+      description: data.travel.hasActivity ? "View your saved travel activity." : "Hotels, flights, cars, and transportation.",
+      action: "Open COGIC Travel",
+      href: travelHref,
+      state: data.travel.hasActivity ? "complete" : "upcoming",
+      icon: Ticket,
     },
     {
       id: "extras",
@@ -703,27 +699,6 @@ export default function MyRegistrationDashboard({
             </article>
 
             <div className="mr-detail-duo">
-              <article className="mr-detail-card" id="housing">
-                <div className="mr-detail-card__heading">
-                  <div>
-                    <p className="mr-section-label">Stay</p>
-                    <h3>Housing</h3>
-                  </div>
-                  <BedDouble aria-hidden="true" />
-                </div>
-                <p className="mr-detail-note">{data.housing.summary}</p>
-                <p className="mr-detail-note">
-                  {data.housing.hotelName || data.housing.blockName || label(data.housing.preference)}
-                  {data.housing.arrival || data.housing.departure
-                    ? ` · ${data.housing.arrival || "—"} to ${data.housing.departure || "—"}`
-                    : ""}
-                </p>
-                <p className="mr-detail-note">Housing remains financially separate from registration.</p>
-                <Link href={data.housing.href || "/housing"} className="mr-inline-button">
-                  Open housing
-                </Link>
-              </article>
-
               <article className="mr-detail-card" id="travel">
                 <div className="mr-detail-card__heading">
                   <div>
@@ -738,7 +713,7 @@ export default function MyRegistrationDashboard({
                     : "Plan hotels, flights, and cars in COGIC Travel when you are ready."}
                 </p>
                 <Link href={travelHref} className="mr-inline-button">
-                  View My Trip
+                  Open COGIC Travel
                 </Link>
               </article>
             </div>

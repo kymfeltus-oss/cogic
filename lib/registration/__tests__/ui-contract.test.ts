@@ -40,7 +40,7 @@ describe("registration UI / security contracts", () => {
     assert.match(flow, /save_primary_draft/);
     assert.match(flow, /submit_group/);
     assert.match(flow, /RegistrationPolicyDocument/);
-    assert.match(flow, /HousingExperience/);
+    assert.doesNotMatch(flow, /HousingExperience|\/housing/);
     assert.match(flow, /getGroupTotalCents/);
     assert.match(flow, /isJuniorRegistrationProduct/);
     assert.match(flow, /REGISTRATION_WIZARD_STEPS/);
@@ -55,7 +55,8 @@ describe("registration UI / security contracts", () => {
     assert.match(status, /canShowRegistrationCheckoutResume/);
     assert.match(status, /Resume secure payment/);
     assert.match(status, /router\.refresh/);
-    assert.match(status, /Plan My Trip/);
+    assert.match(status, /Open COGIC Travel/);
+    assert.match(status, /href="\/travel"/);
     assert.match(status, /Go to My Convocation/);
     assert.doesNotMatch(status, /fake|demo/i);
     assert.doesNotMatch(status, /duplicating charges/);

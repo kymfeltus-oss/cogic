@@ -1,0 +1,4 @@
+All six slide images were supplied directly by the user.
+They are embedded unchanged, with no cropping, stretching, retouching, or recomposition.
+The PowerPoint uses a 2:3 portrait canvas and black letterboxing where source ratios differ.
+The PDF preserves each image's native page ratio.
