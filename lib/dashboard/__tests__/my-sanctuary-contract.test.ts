@@ -55,6 +55,16 @@ test("My Sanctuary is protected and isolated from the legacy global dock", async
   assert.match(rootShell, /pathname === "\/my-sanctuary"/);
 });
 
+test("disabled attendee login cannot loop between login and the dashboard", async () => {
+  const [login, proxy] = await Promise.all([
+    source("app/login/page.tsx"),
+    source("proxy.ts"),
+  ]);
+  assert.match(login, /redirect\(DEFAULT_ATTENDEE_NEXT\)/);
+  assert.match(proxy, /if \(isAttendeeRoute && !isTeamRoute\)/);
+  assert.doesNotMatch(proxy, /isAttendeeRoute && !isTeamRoute && isAttendeeAuthOpen\(\)/);
+});
+
 test("attendee universal utilities use approved feature suite presentation", async () => {
   const [home, utilities, css, registration] = await Promise.all([
     source("components/dashboard/AttendeeDashboardHome.tsx"),

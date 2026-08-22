@@ -1,7 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import type { User } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
-import { isAttendeeAuthOpen } from "@/lib/auth/attendee-auth-open";
 import {
   ATTENDEE_GATE_PATH,
   AUTH_NEXT_COOKIE,
@@ -88,8 +87,10 @@ export async function proxy(request: NextRequest) {
   const isAttendeeRoute = isAttendeeProtectedPath(pathname);
   const isTeamRoute = isTeamProtectedPath(pathname);
 
-  // Temporary: let anonymous visitors browse attendee surfaces (dashboard, etc.).
-  if (isAttendeeRoute && !isTeamRoute && isAttendeeAuthOpen()) {
+  // Attendee login is disabled, so attendee surfaces must remain public.
+  // Keeping these routes behind the auth gate would loop forever because
+  // /login intentionally redirects back to the attendee dashboard.
+  if (isAttendeeRoute && !isTeamRoute) {
     return NextResponse.next();
   }
 
